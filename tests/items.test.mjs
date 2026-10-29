@@ -74,21 +74,21 @@ test('verifies iconic Dark Souls 2 item placements in Majula', () => {
 
   // Well rock corpse item: Estus Flask Shard
   const wellShardSpot = majulaSpots.find((s) =>
-    s.items.some((i) => i.name === '原素碎片') && Math.abs(s.pos[0] - (-59.16)) < 0.5
+    s.items.some((i) => i.name === '原素碎片') && Math.abs(s.pos[0] - 0.27) < 0.5
   );
-  assert.ok(wellShardSpot, 'Majula well Estus Flask Shard must be located at (-59.16, 9.61, 0.27)');
+  assert.ok(wellShardSpot, 'Majula well Estus Flask Shard must be located at (0.27, 9.61, -59.16)');
   assert.equal(wellShardSpot.in_chest, false, 'Well shard should be on corpse');
 
   // Cliff path corpse: Estus Flask Shard
   const cliffShardSpot = majulaSpots.find((s) =>
-    s.items.some((i) => i.name === '原素碎片') && Math.abs(s.pos[0] - (-111.97)) < 0.5
+    s.items.some((i) => i.name === '原素碎片') && Math.abs(s.pos[0] - 17.09) < 0.5
   );
-  assert.ok(cliffShardSpot, 'Majula cliff path Estus Flask Shard must be located at (-111.97, 1.85, 17.09)');
+  assert.ok(cliffShardSpot, 'Majula cliff path Estus Flask Shard must be located at (17.09, 1.85, -111.97)');
   assert.equal(cliffShardSpot.in_chest, false, 'Cliff path shard should be on corpse');
 
   // Mansion basement chest: Witchtree Branch & Witchtree Bellvine (SotFS authentic loot)
   const mansionChest = majulaSpots.find((s) =>
-    s.items.some((i) => i.name === '妖树枝条') && s.in_chest && Math.abs(s.pos[0] - (-37.26)) < 0.5
+    s.items.some((i) => i.name === '妖树枝条') && s.in_chest && Math.abs(s.pos[0] - (-0.53)) < 0.5
   );
   assert.ok(mansionChest, 'Majula mansion basement chest must have Witchtree Branch in SotFS');
 
@@ -103,4 +103,26 @@ test('verifies iconic Dark Souls 2 item placements in Majula', () => {
     s.in_chest && s.items.some((i) => i.name === '短弓')
   );
   assert.ok(bowChest, 'Majula blacksmith chest must contain Short Bow');
+});
+
+test('verifies all base-game items reside within map physical boundaries (no floating in void)', () => {
+  const data = JSON.parse(readFileSync(allItemsPath, 'utf8'));
+  const manifest = JSON.parse(readFileSync(fileURLToPath(new URL('../public-lite/maps/manifest.json', import.meta.url)), 'utf8'));
+  const mapBounds = Object.fromEntries(manifest.map((m) => [m.id, m.bounds]));
+
+  for (const [mapId, spots] of Object.entries(data)) {
+    if (mapId.startsWith('m50_')) continue;
+    const bounds = mapBounds[mapId];
+    assert.ok(bounds, `Bounds missing for ${mapId}`);
+    for (const spot of spots) {
+      const [x, y, z] = spot.pos;
+      const margin = 5.0; // 5 meters margin around geometry bounds
+      assert.ok(
+        x >= bounds.min[0] - margin && x <= bounds.max[0] + margin &&
+        y >= bounds.min[1] - margin && y <= bounds.max[1] + margin &&
+        z >= bounds.min[2] - margin && z <= bounds.max[2] + margin,
+        `Spot ${spot.id} in ${mapId} at (${x}, ${y}, ${z}) is outside map bounds`
+      );
+    }
+  }
 });
