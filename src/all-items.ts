@@ -15,6 +15,8 @@ export interface TreasureSpot {
   mapId: string;
   event_name: string;
   in_chest: boolean;
+  chest_type?: 'wood' | 'iron';
+  rotY?: number;
   pos: [number, number, number];
   items: PickableItem[];
   availability?: 'recovery' | 'class-dependent';

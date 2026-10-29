@@ -126,3 +126,56 @@ test('verifies all base-game items reside within map physical boundaries (no flo
     }
   }
 });
+
+test('verifies in-game 3D chest models and authentic textures exist and are valid', () => {
+  const modelsPath = fileURLToPath(new URL('../src/assets/chest-models.json', import.meta.url));
+  assert.ok(existsSync(modelsPath), 'chest-models.json must exist');
+
+  const models = JSON.parse(readFileSync(modelsPath, 'utf8'));
+  assert.ok(models.wooden_chest, 'wooden_chest model must be present');
+  assert.ok(models.iron_chest, 'iron_chest model must be present');
+
+  for (const [name, mesh] of Object.entries(models)) {
+    assert.ok(Array.isArray(mesh.positions) && mesh.positions.length > 3000, `${name} positions must have > 1000 vertices`);
+    assert.ok(Array.isArray(mesh.normals) && mesh.normals.length === mesh.positions.length, `${name} normals length mismatch`);
+    assert.ok(Array.isArray(mesh.uvs) && mesh.uvs.length === (mesh.positions.length / 3) * 2, `${name} uvs length mismatch`);
+    assert.ok(Array.isArray(mesh.indices) && mesh.indices.length > 1500, `${name} indices must have > 500 triangles`);
+  }
+
+  // Chest textures
+  const woodTex = fileURLToPath(new URL('../src/assets/chest_wood.webp', import.meta.url));
+  const ironTex = fileURLToPath(new URL('../src/assets/chest_iron.webp', import.meta.url));
+  assert.ok(existsSync(woodTex), 'chest_wood.webp must exist');
+  assert.ok(existsSync(ironTex), 'chest_iron.webp must exist');
+
+  // Ground pickup soul flame and light beam textures
+  const soulFlameTex = fileURLToPath(new URL('../src/assets/soul_flame.webp', import.meta.url));
+  const soulCoreTex = fileURLToPath(new URL('../src/assets/soul_core.webp', import.meta.url));
+  const soulBeamTex = fileURLToPath(new URL('../src/assets/soul_beam.webp', import.meta.url));
+  assert.ok(existsSync(soulFlameTex), 'soul_flame.webp must exist');
+  assert.ok(existsSync(soulCoreTex), 'soul_core.webp must exist');
+  assert.ok(existsSync(soulBeamTex), 'soul_beam.webp must exist');
+});
+
+test('verifies all chest spots in all-items.json have valid chest_type and rotation', () => {
+  const data = JSON.parse(readFileSync(allItemsPath, 'utf8'));
+  let chestCount = 0;
+  let woodCount = 0;
+  let ironCount = 0;
+
+  for (const spots of Object.values(data)) {
+    for (const spot of spots) {
+      if (spot.in_chest) {
+        chestCount++;
+        assert.ok(spot.chest_type === 'wood' || spot.chest_type === 'iron', `Chest ${spot.id} invalid chest_type: ${spot.chest_type}`);
+        assert.ok(typeof spot.rotY === 'number' && Number.isFinite(spot.rotY), `Chest ${spot.id} missing valid rotY`);
+        if (spot.chest_type === 'wood') woodCount++;
+        if (spot.chest_type === 'iron') ironCount++;
+      }
+    }
+  }
+
+  assert.equal(chestCount, 231, 'Must have exactly 231 chests');
+  assert.equal(woodCount, 62, 'Must have exactly 62 wooden chests');
+  assert.equal(ironCount, 169, 'Must have exactly 169 iron chests');
+});
