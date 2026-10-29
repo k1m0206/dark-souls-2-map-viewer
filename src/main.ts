@@ -22,7 +22,7 @@ import {
 import { MAPS, MAP_DICT } from './maps';
 import { loadDecodedMap, releaseDecodedMap } from './format';
 import { DS2Scene } from './scene';
-import { distanceToRegion, linkedRegions, nearbyRegions } from './seamless';
+import { distanceToRegion, isRegionFar, linkedRegions, nearbyRegions } from './seamless';
 import { CameraControls } from './controls';
 import { installErrorLogging, recordAppError } from './error-log';
 import './styles.css';
@@ -385,21 +385,30 @@ async function bootstrap() {
         }
       }
 
-      const desired = [selected, ...nearbyRegions(selected, point)];
-      for (const id of scene.loadedMapIds()) {
-        if (!desired.includes(id)) {
+      // 动态预加载相邻更多区域 (感应半径 500，最多加载 5 个相邻地图)
+      const nearby = nearbyRegions(selected, point, 500, 5);
+      const desired = [selected, ...nearby];
+
+      // 平滑防抖动卸载：仅卸载过远 (> 850) 且非当前主地图的区域，避免频繁来回卸装抖动
+      const loadedIds = scene.loadedMapIds();
+      for (const id of loadedIds) {
+        if (id === selected) continue;
+        if (!desired.includes(id) && (isRegionFar(id, point, 850) || loadedIds.length > 7)) {
           scene.removeMap(id);
           releaseDecodedMap(id);
         }
       }
       controls.collider = scene.collider;
 
+      // 按距离逐张平滑装载，每张装载后让出一小帧确保 60FPS 丝滑不掉帧
       for (const id of desired) {
         if (scene.hasMap(id)) continue;
         const decoded = await loadDecodedMap(id, abortCtrl.signal);
         if (generation !== seamlessGeneration || abortCtrl.signal.aborted) return;
         scene.addMap(decoded);
         controls.collider = scene.collider;
+        await new Promise((r) => setTimeout(r, 16));
+        if (generation !== seamlessGeneration || abortCtrl.signal.aborted) return;
       }
     } catch (error) {
       if ((error as Error)?.name !== 'AbortError') recordAppError(error, 'seamless-load');
@@ -636,6 +645,9 @@ async function bootstrap() {
       await new Promise((r) => setTimeout(r, 120));
       el('loading').hidden = true;
       lastSeamlessScan = 0;
+      if (seamlessEnabled) {
+        void maintainSeamlessRegions();
+      }
     } catch (err: unknown) {
       if ((err as Error)?.name === 'AbortError') return;
       recordAppError(err, 'switchMap');
