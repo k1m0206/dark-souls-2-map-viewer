@@ -215,33 +215,42 @@ export class ItemManager {
       icon.setAttribute('data-lucide', spot.in_chest ? 'package' : 'sparkles');
     }
 
-    content.innerHTML = spot.items.map((it: PickableItem) => `
-      <article class="item-detail-card">
-        <div class="item-detail-head">
-          <div class="item-detail-title-group">
+    content.innerHTML = spot.items.map((it: PickableItem) => {
+      const loreParagraphs = it.description
+        ? it.description
+            .split(/\n{2,}/)
+            .map((p) => p.trim())
+            .filter(Boolean)
+            .map((p) => `<p class="lore-p">${escapeHtml(p).replace(/\n/g, '<br/>')}</p>`)
+            .join('')
+        : '';
+
+      return `
+        <article class="item-detail-card">
+          <header class="item-card-row-head">
             <h4 class="item-detail-name">${escapeHtml(it.name)}</h4>
             <div class="item-detail-badges">
-              <span class="detail-badge-count">数量 ×${it.count}</span>
+              ${it.count > 1 ? `<span class="detail-badge-count">×${it.count}</span>` : ''}
               <span class="detail-badge-cat">${escapeHtml(it.category)}</span>
-              <span class="detail-badge-origin">${spot.in_chest ? '宝箱收纳' : '场景掉落'}</span>
+              <span class="detail-badge-origin">${spot.in_chest ? '宝箱' : '场景拾取'}</span>
             </div>
-          </div>
-        </div>
+          </header>
 
-        ${it.summary ? `
-          <div class="item-detail-summary">
-            <p>${escapeHtml(it.summary)}</p>
-          </div>
-        ` : ''}
+          ${it.summary ? `
+            <div class="item-detail-summary">
+              <span>${escapeHtml(it.summary)}</span>
+            </div>
+          ` : ''}
 
-        ${it.description ? `
-          <div class="item-detail-lore">
-            <div class="lore-label">道具说明与背景考据</div>
-            <div class="lore-text">${escapeHtml(it.description).replace(/\n/g, '<br/>')}</div>
-          </div>
-        ` : ''}
-      </article>
-    `).join('');
+          ${loreParagraphs ? `
+            <div class="item-detail-lore">
+              <div class="lore-label">说明考据</div>
+              <div class="lore-text">${loreParagraphs}</div>
+            </div>
+          ` : ''}
+        </article>
+      `;
+    }).join('');
 
     createIcons({
       icons: {
