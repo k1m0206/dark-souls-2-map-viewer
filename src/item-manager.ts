@@ -1,4 +1,4 @@
-import { createIcons, Package, Sparkles, X, ChevronRight, BookOpen } from 'lucide';
+import { createIcons, Package, Sparkles, X } from 'lucide';
 import { ALL_MAP_ITEMS, type TreasureSpot, type PickableItem } from './all-items';
 import { ItemRenderer } from './item-renderer';
 import { MAPS } from './maps';
@@ -52,27 +52,29 @@ export class ItemManager {
     this.promptEl = prompt;
     this.promptLabelEl = prompt.querySelector('#interact-label');
 
-    // 2. Item Detail Modal
+    // 2. Item Detail Modal (Exact Soul 1 item modal replica)
     let detail = document.getElementById('item-detail-overlay');
     if (!detail) {
       detail = document.createElement('div');
       detail.id = 'item-detail-overlay';
-      detail.className = 'item-detail-overlay hidden';
+      detail.className = 'npc-overlay hidden';
       detail.innerHTML = `
-        <div class="item-detail-modal" role="dialog" aria-modal="true" aria-labelledby="detail-title">
-          <header class="item-detail-header">
-            <div class="item-detail-title-wrap">
-              <i data-lucide="sparkles" id="detail-header-icon" class="detail-header-icon"></i>
-              <div class="detail-header-text">
-                <h3 id="detail-title">物品详情</h3>
-                <span id="detail-subtitle" class="detail-subtitle">多兰古雷格道具考据</span>
-              </div>
-            </div>
-            <button id="detail-close-btn" class="btn-panel-close" aria-label="关闭详情">
+        <div class="npc-dialogue-box item-mode" role="dialog" aria-modal="true" aria-labelledby="npc-box-name">
+          <div class="npc-header">
+            <span class="npc-badge" id="npc-box-badge">ITEM</span>
+            <span class="npc-name" id="npc-box-name"></span>
+            <span class="npc-title" id="npc-box-title"></span>
+            <span class="npc-stage-badge" id="npc-box-stage"></span>
+            <button class="npc-header-close-btn" id="detail-close-btn" type="button" aria-label="关闭" title="关闭">
               <i data-lucide="x"></i>
             </button>
-          </header>
-          <div class="item-detail-content" id="detail-content"></div>
+          </div>
+
+          <div class="npc-tab-panel" id="npc-panel-items">
+            <div class="npc-body" id="npc-box-items-body">
+              <div class="item-pickup-dialog-content" id="detail-content"></div>
+            </div>
+          </div>
         </div>
       `;
       stage.appendChild(detail);
@@ -92,8 +94,6 @@ export class ItemManager {
         Package,
         Sparkles,
         X,
-        ChevronRight,
-        BookOpen,
       },
     });
   }
@@ -205,60 +205,59 @@ export class ItemManager {
     const mapDef = MAPS.find((m) => m.id === spot.mapId);
     const mapName = mapDef?.name ?? spot.mapId;
 
-    const subtitle = this.detailOverlayEl.querySelector('#detail-subtitle');
-    if (subtitle) {
-      subtitle.textContent = `${mapName} · ${spot.in_chest ? '宝箱发现' : '尸骸拾取'}`;
+    const badgeEl = this.detailOverlayEl.querySelector('#npc-box-badge') as HTMLElement | null;
+    const nameEl = this.detailOverlayEl.querySelector('#npc-box-name');
+    const titleEl = this.detailOverlayEl.querySelector('#npc-box-title');
+    const stageEl = this.detailOverlayEl.querySelector('#npc-box-stage');
+
+    if (badgeEl) {
+      if (spot.in_chest) {
+        badgeEl.textContent = 'CHEST';
+        badgeEl.style.background = '#b58900';
+        badgeEl.style.color = '#fff';
+      } else {
+        badgeEl.textContent = 'ITEM';
+        badgeEl.style.background = '#0288d1';
+        badgeEl.style.color = '#fff';
+      }
     }
 
-    const icon = this.detailOverlayEl.querySelector('#detail-header-icon');
-    if (icon) {
-      icon.setAttribute('data-lucide', spot.in_chest ? 'package' : 'sparkles');
+    const firstItem = spot.items[0];
+    const mainTitle = spot.items.length > 1
+      ? `同位置物品 · ${spot.items.length} 项`
+      : (firstItem ? `${firstItem.name}${firstItem.count > 1 ? ` ×${firstItem.count}` : ''}` : '拾取物');
+
+    if (nameEl) nameEl.textContent = mainTitle;
+    if (titleEl) titleEl.textContent = `· ${mapName}`;
+    if (stageEl) {
+      stageEl.textContent = `[ ${spot.in_chest ? '宝箱藏物' : '战利品掉落'} · 共 ${spot.items.length} 项 ]`;
     }
 
-    content.innerHTML = spot.items.map((it: PickableItem) => {
-      const loreParagraphs = it.description
-        ? it.description
-            .split(/\n{2,}/)
-            .map((p) => p.trim())
-            .filter(Boolean)
-            .map((p) => `<p class="lore-p">${escapeHtml(p).replace(/\n/g, '<br/>')}</p>`)
-            .join('')
-        : '';
-
-      return `
-        <article class="item-detail-card">
-          <header class="item-card-row-head">
-            <h4 class="item-detail-name">${escapeHtml(it.name)}</h4>
-            <div class="item-detail-badges">
-              ${it.count > 1 ? `<span class="detail-badge-count">×${it.count}</span>` : ''}
-              <span class="detail-badge-cat">${escapeHtml(it.category)}</span>
-              <span class="detail-badge-origin">${spot.in_chest ? '宝箱' : '场景拾取'}</span>
+    content.innerHTML = spot.items.map((it: PickableItem) => `
+      <div class="item-pickup-card">
+        <div class="item-pickup-head">
+          <span class="item-pickup-icon">
+            <i data-lucide="${spot.in_chest ? 'package' : 'sparkles'}"></i>
+          </span>
+          <div class="item-pickup-info">
+            <strong class="item-pickup-name">${escapeHtml(it.name)}</strong>
+            <div class="item-pickup-badges">
+              <span class="item-badge-count">数量 ×${it.count}</span>
+              <span class="item-badge-cat">${escapeHtml(it.category)}</span>
+              <span class="item-badge-cat">${spot.in_chest ? '宝箱' : '地面掉落'}</span>
             </div>
-          </header>
-
-          ${it.summary ? `
-            <div class="item-detail-summary">
-              <span>${escapeHtml(it.summary)}</span>
-            </div>
-          ` : ''}
-
-          ${loreParagraphs ? `
-            <div class="item-detail-lore">
-              <div class="lore-label">说明考据</div>
-              <div class="lore-text">${loreParagraphs}</div>
-            </div>
-          ` : ''}
-        </article>
-      `;
-    }).join('');
+          </div>
+        </div>
+        ${it.summary ? `<p class="item-pickup-desc">${escapeHtml(it.summary)}</p>` : ''}
+        ${it.description.trim() ? `<details class="item-pickup-full-desc"><summary>查看道具详情</summary><p>${escapeHtml(it.description)}</p></details>` : ''}
+      </div>
+    `).join('');
 
     createIcons({
       icons: {
         Package,
         Sparkles,
         X,
-        ChevronRight,
-        BookOpen,
       },
     });
 
