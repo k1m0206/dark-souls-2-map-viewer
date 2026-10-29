@@ -89,3 +89,18 @@ test('Touch events failsafe: release when touch identifier missing from active t
   assert.equal(stickId, null);
   assert.deepEqual(stick, [0, 0], 'Missing touch in inventory must stop joystick');
 });
+
+test('Circular progress ring: circumference and stroke-dashoffset math', () => {
+  const radius = 14;
+  const circumference = 2 * Math.PI * radius; // ~87.9646
+  const calcOffset = (pct) => {
+    const clamped = Math.max(0, Math.min(1, pct));
+    return Number((circumference * (1 - clamped)).toFixed(2));
+  };
+
+  assert.equal(calcOffset(0), 87.96, '0% progress offset equals circumference');
+  assert.equal(calcOffset(1), 0, '100% progress offset equals 0');
+  assert.equal(calcOffset(0.5), 43.98, '50% progress offset is half circumference');
+  assert.equal(calcOffset(-0.2), 87.96, 'Negative clamped to 0');
+  assert.equal(calcOffset(1.5), 0, 'Overflow clamped to 1');
+});

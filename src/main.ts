@@ -285,13 +285,21 @@ function renderAppHtml(): string {
 
       <div id="crosshair">+</div>
 
-      <!-- 加载遮罩 -->
-      <section id="loading" hidden aria-live="polite">
-        <span class="spinner"></span>
-        <h2 id="load-title">多兰古雷格全量大世界</h2>
-        <progress id="progress" max="1" value="0"></progress>
-        <p id="load-sub"></p>
-      </section>
+      <!-- 左下角轻量加载进度圆圈 (轻量 HUD，不遮挡大世界视线) -->
+      <aside id="loading" class="loading-hud" hidden aria-live="polite">
+        <div class="loading-ring-wrap" title="加载进度">
+          <svg class="loading-ring" viewBox="0 0 36 36" width="36" height="36">
+            <circle class="loading-ring-bg" cx="18" cy="18" r="14" />
+            <circle id="loading-circle-bar" class="loading-ring-bar" cx="18" cy="18" r="14" transform="rotate(-90 18 18)" />
+          </svg>
+          <span id="loading-percent" class="loading-percent">0%</span>
+        </div>
+        <div class="loading-content">
+          <div id="load-title" class="loading-title">多兰古雷格全量大陆</div>
+          <div id="load-sub" class="loading-sub">准备载入...</div>
+        </div>
+        <progress id="progress" max="1" value="0" hidden></progress>
+      </aside>
 
       <!-- 错误提示 -->
       <section id="error" hidden role="alert">
@@ -665,6 +673,56 @@ async function bootstrap() {
     }
   }
 
+  // Loading HUD Helpers (左下角轻量加载进度圆圈)
+  function showLoading(title: string, sub: string, initialPct = 0.05) {
+    const loading = el('loading');
+    if (!loading) return;
+    loading.classList.remove('is-done');
+    loading.hidden = false;
+    updateLoadingProgress(initialPct, sub, title);
+  }
+
+  function updateLoadingProgress(pct: number, sub?: string, title?: string) {
+    const clamped = Math.max(0, Math.min(1, pct));
+    const progressEl = el<HTMLProgressElement>('progress');
+    if (progressEl) progressEl.value = clamped;
+
+    const circleBar = document.getElementById('loading-circle-bar') as SVGCircleElement | null;
+    if (circleBar) {
+      const circumference = 87.96; // 2 * PI * 14
+      const offset = circumference * (1 - clamped);
+      circleBar.style.strokeDashoffset = offset.toFixed(2);
+    }
+
+    const percentEl = el('loading-percent');
+    if (percentEl) {
+      percentEl.textContent = `${Math.round(clamped * 100)}%`;
+    }
+
+    if (sub !== undefined) {
+      const subEl = el('load-sub');
+      if (subEl) subEl.textContent = sub;
+    }
+
+    if (title !== undefined) {
+      const titleEl = el('load-title');
+      if (titleEl) titleEl.textContent = title;
+    }
+  }
+
+  async function hideLoading(doneSub?: string) {
+    const loading = el('loading');
+    if (!loading || loading.hidden) return;
+    updateLoadingProgress(1.0, doneSub);
+    await new Promise((r) => setTimeout(r, 200));
+    loading.classList.add('is-done');
+    await new Promise((r) => setTimeout(r, 350));
+    if (loading.classList.contains('is-done')) {
+      loading.hidden = true;
+      loading.classList.remove('is-done');
+    }
+  }
+
   // 检查当前显存中已加载的地图是否与目标地图同域兼容（无穿模重叠）
   function isWorldCompatible(targetMapId: string): boolean {
     const allowed = new Set(getCompatibleWorldMaps(targetMapId));
@@ -680,17 +738,16 @@ async function bootstrap() {
     selected = targetDef.id;
     scene.setActiveMap(targetDef.id);
     el('area-title').textContent = targetDef.name;
-    el('loading').hidden = false;
     el('error').hidden = true;
 
     const compatibleMapIds = getCompatibleWorldMaps(targetMapId);
     const isIsolated = isWarpIsolatedMap(targetMapId);
+    const titleText = isIsolated ? targetDef.name : '多兰古雷格全量大陆';
+    const initialSub = isIsolated
+      ? '正在载入独立空间...'
+      : `准备载入大陆地图 (1/${compatibleMapIds.length}: ${targetDef.name})...`;
 
-    el('load-title').textContent = isIsolated ? targetDef.name : '多兰古雷格全量大陆';
-    const progressEl = el<HTMLProgressElement>('progress');
-    const subEl = el<HTMLElement>('load-sub');
-    if (subEl) subEl.textContent = isIsolated ? `正在载入独立异空间地图...` : `准备载入大陆地图 (1/${compatibleMapIds.length}: ${targetDef.name})...`;
-    if (progressEl) progressEl.value = 0.05;
+    showLoading(titleText, initialSub, 0.05);
 
     // 清理当前场景中不属于 compatibleMapIds 的地图 (例如从本体切换到 DLC，或从 DLC 切换到本体)
     for (const id of scene.loadedMapIds()) {
@@ -704,7 +761,7 @@ async function bootstrap() {
     // 1. 优先加载并就绪当前起点地图
     if (!scene.hasMap(targetMapId)) {
       const decodedTarget = await loadDecodedMap(targetMapId, signal, (_stage, pct) => {
-        if (progressEl) progressEl.value = 0.05 + (pct / 100) * 0.15;
+        updateLoadingProgress(0.05 + (pct / 100) * 0.15);
       });
       if (signal.aborted) return;
       scene.addMap(decodedTarget);
@@ -716,10 +773,7 @@ async function bootstrap() {
 
     // 传送不连通的异空间地图：单独自己加载一个地图，完成！
     if (isIsolated) {
-      if (progressEl) progressEl.value = 1.0;
-      if (subEl) subEl.textContent = `${targetDef.name} 独立空间加载完成`;
-      await new Promise((r) => setTimeout(r, 100));
-      el('loading').hidden = true;
+      await hideLoading(`${targetDef.name} 空间就绪`);
       return;
     }
 
@@ -736,7 +790,7 @@ async function bootstrap() {
 
     const totalMaps = compatibleMapIds.length;
     let loadedCount = scene.loadedMapIds().length;
-    if (progressEl) progressEl.value = Math.max(0.15, loadedCount / totalMaps);
+    updateLoadingProgress(Math.max(0.15, loadedCount / totalMaps));
 
     // 3. 批量流式载入全部地图 (每批 2 张，帧间让步 16ms 确保 UI 流畅与渲染更新)
     const batchSize = 2;
@@ -746,22 +800,19 @@ async function bootstrap() {
 
       for (const m of batch) {
         if (signal.aborted) return;
-        if (subEl) subEl.textContent = `[${loadedCount + 1}/${totalMaps}] 载入 ${m.name}...`;
+        updateLoadingProgress(loadedCount / totalMaps, `[${loadedCount + 1}/${totalMaps}] 载入 ${m.name}...`);
         const decoded = await loadDecodedMap(m.id, signal);
         if (signal.aborted) return;
         scene.addMap(decoded);
         loadedCount++;
-        if (progressEl) progressEl.value = loadedCount / totalMaps;
+        updateLoadingProgress(loadedCount / totalMaps);
       }
       controls.collider = scene.collider;
 
       await new Promise((r) => setTimeout(r, 16));
     }
 
-    if (progressEl) progressEl.value = 1.0;
-    if (subEl) subEl.textContent = `多兰古雷格大陆 ${totalMaps} 张地图加载完成`;
-    await new Promise((r) => setTimeout(r, 120));
-    el('loading').hidden = true;
+    await hideLoading(`大陆 ${totalMaps} 张地图全境就绪`);
   }
 
   // Load Map Pipeline
@@ -794,7 +845,8 @@ async function bootstrap() {
       } catch (err: unknown) {
         if ((err as Error)?.name === 'AbortError') return;
         recordAppError(err, 'loadFullWorld');
-        el('loading').hidden = true;
+        const loading = el('loading');
+        if (loading) loading.hidden = true;
         el('error').hidden = false;
         el('error-detail').textContent = (err as Error)?.message || '地图全境加载异常';
       } finally {
@@ -808,26 +860,21 @@ async function bootstrap() {
     // 单张 / 动态邻近加载模式
     selected = mapDef.id;
     el('area-title').textContent = mapDef.name;
-    el('loading').hidden = false;
     el('error').hidden = true;
-    el('load-title').textContent = mapDef.name;
-    const progressEl = el<HTMLProgressElement>('progress');
-    const subEl = el<HTMLElement>('load-sub');
-    if (subEl) subEl.textContent = '正在读取几何网格...';
-    if (progressEl) progressEl.value = 0.15;
+    showLoading(mapDef.name, '正在读取几何网格...', 0.15);
 
     try {
       const decoded = await loadDecodedMap(mapId, abortCtrl.signal, (_stage, pct) => {
-        if (progressEl) progressEl.value = pct / 100;
+        updateLoadingProgress((pct / 100) * 0.85);
       });
       if (abortCtrl.signal.aborted) return;
 
-      if (progressEl) progressEl.value = 0.85;
+      updateLoadingProgress(0.85, '正在装载着色器...');
       await new Promise((r) => setTimeout(r, 16));
 
       const previousMaps = scene.loadedMapIds();
       scene.loadMap(decoded, (progress) => {
-        if (progressEl) progressEl.value = 0.85 + progress * 0.15;
+        updateLoadingProgress(0.85 + progress * 0.15);
       });
       for (const id of previousMaps) if (id !== mapId) releaseDecodedMap(id);
 
@@ -837,9 +884,7 @@ async function bootstrap() {
       const spawn = controls.mode === 'walk' ? mapDef.spawnWalk : mapDef.spawnFly;
       controls.restoreState(spawn, 0, 0);
 
-      if (progressEl) progressEl.value = 1.0;
-      await new Promise((r) => setTimeout(r, 120));
-      el('loading').hidden = true;
+      await hideLoading(`${mapDef.name} 加载完成`);
       lastSeamlessScan = 0;
       if (seamlessEnabled) {
         void maintainSeamlessRegions();
@@ -847,7 +892,8 @@ async function bootstrap() {
     } catch (err: unknown) {
       if ((err as Error)?.name === 'AbortError') return;
       recordAppError(err, 'switchMap');
-      el('loading').hidden = true;
+      const loading = el('loading');
+      if (loading) loading.hidden = true;
       el('error').hidden = false;
       el('error-detail').textContent = (err as Error)?.message || '地图几何加载异常';
     } finally {
@@ -915,7 +961,11 @@ async function bootstrap() {
       }
     }
 
-    el('loading').hidden = true;
+    const loadingEl = el('loading');
+    if (loadingEl) {
+      loadingEl.hidden = true;
+      loadingEl.classList.remove('is-done');
+    }
     el('error').hidden = true;
     el('welcome').hidden = false;
 
