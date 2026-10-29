@@ -188,6 +188,7 @@ export class DS2Scene {
 
   hasMap(mapId: string) { return this.regions.has(mapId); }
   loadedMapIds() { return [...this.regions.keys()]; }
+  getViewProjection(): mat4 { return this.vp; }
   mapGroundHeight(mapId: string, x: number, feetY: number, z: number) {
     return this.regions.get(mapId)?.collider.getGroundHeight(x, feetY + 1.2, z, 3) ?? null;
   }

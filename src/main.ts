@@ -17,7 +17,11 @@ import {
   Home,
   LogOut,
   Settings,
-  Maximize2
+  Maximize2,
+  Package,
+  BookOpen,
+  Gem,
+  MapPin,
 } from 'lucide';
 import { MAPS, MAP_DICT } from './maps';
 import { loadDecodedMap, releaseDecodedMap } from './format';
@@ -26,6 +30,9 @@ import { SkyRenderer } from './sky-renderer';
 import { distanceToRegion, isRegionFar, nearbyRegions, getCompatibleWorldMaps, isWarpIsolatedMap, isAldiaSanctumMap } from './seamless';
 import { CameraControls } from './controls';
 import { installErrorLogging, recordAppError } from './error-log';
+import { ItemRadar } from './item-radar';
+import { ItemManager } from './item-manager';
+import type { TreasureSpot } from './all-items';
 import './styles.css';
 
 installErrorLogging();
@@ -47,7 +54,11 @@ const lucideIcons = {
   Home,
   LogOut,
   Settings,
-  Maximize2
+  Maximize2,
+  Package,
+  BookOpen,
+  Gem,
+  MapPin,
 };
 
 function refreshIcons() {
@@ -117,6 +128,10 @@ function renderAppHtml(): string {
         </div>
 
         <div class="header-actions">
+          <button id="btn-item-radar" class="btn-ghost" title="道具雷达">
+            <i data-lucide="gem"></i>
+            <span>物品</span>
+          </button>
           <button id="btn-wire-toggle" class="btn-ghost" title="显示模式">
             <i data-lucide="eye"></i>
             <span id="wire-text">线框</span>
@@ -207,6 +222,10 @@ function renderAppHtml(): string {
                     <i data-lucide="rotate-ccw"></i>
                     <span>起点</span>
                   </button>
+                  <button id="btn-drawer-radar" type="button" class="btn-setting-action">
+                    <i data-lucide="gem"></i>
+                    <span>道具</span>
+                  </button>
                 </div>
               </div>
 
@@ -222,6 +241,10 @@ function renderAppHtml(): string {
                 <label class="setting-select-row" for="sky-mode">
                   <span>天空贴图</span>
                   <input id="sky-mode" type="checkbox" checked />
+                </label>
+                <label class="setting-select-row" for="show-items-mode">
+                  <span>显示物品与宝箱 (3D 光点)</span>
+                  <input id="show-items-mode" type="checkbox" checked />
                 </label>
                 <label class="setting-select-row" for="native-fullscreen-mode">
                   <span>原生全屏横屏 (SDK)</span>
@@ -309,6 +332,9 @@ function renderAppHtml(): string {
         <button id="error-close" class="ctrl-btn-pill" style="margin: 0 auto;">主页</button>
       </section>
 
+      <!-- Toast 提示 -->
+      <div id="toast" hidden></div>
+
     </div>
   `;
 }
@@ -319,6 +345,18 @@ async function bootstrap() {
   refreshIcons();
 
   const el = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
+
+  let toastTimer: ReturnType<typeof setTimeout> | null = null;
+  function showToast(msg: string, duration = 2200) {
+    const t = el('toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.hidden = false;
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      t.hidden = true;
+    }, duration);
+  }
 
   const canvas = el<HTMLCanvasElement>('world');
   const gl = canvas.getContext('webgl2', {
@@ -343,6 +381,8 @@ async function bootstrap() {
   const joystickZone = el('joystick');
   const scene = new DS2Scene(gl);
   const skyRenderer = new SkyRenderer(gl);
+  const itemManager = new ItemManager(gl);
+  const itemRadar = new ItemRadar();
   const controls = new CameraControls(canvas, joystickZone);
 
   // Application State
@@ -735,7 +775,11 @@ async function bootstrap() {
   }
 
   // Load Full World Pipeline (多兰古雷格大陆 / 传送独立异空间)
-  async function loadFullWorld(targetMapId: string, signal: AbortSignal) {
+  async function loadFullWorld(
+    targetMapId: string,
+    signal: AbortSignal,
+    spawnOverride?: { position: [number, number, number]; yaw?: number; pitch?: number; mode?: 'walk' | 'flight' }
+  ) {
     const targetDef = MAP_DICT.get(targetMapId) || MAPS[0];
     selected = targetDef.id;
     scene.setActiveMap(targetDef.id);
@@ -777,8 +821,14 @@ async function bootstrap() {
       controls.collider = scene.collider;
     }
 
-    const spawn = controls.mode === 'walk' ? targetDef.spawnWalk : targetDef.spawnFly;
-    controls.restoreState(spawn, 0, 0);
+    if (spawnOverride) {
+      if (spawnOverride.mode) updateModeUI(spawnOverride.mode, true);
+      controls.restoreState(spawnOverride.position, spawnOverride.yaw ?? 0, spawnOverride.pitch ?? 0);
+    } else {
+      const spawn = controls.mode === 'walk' ? targetDef.spawnWalk : targetDef.spawnFly;
+      controls.restoreState(spawn, 0, 0);
+    }
+    itemManager.setMaps(scene.loadedMapIds());
 
     // 传送不连通的异空间地图：单独自己加载一个地图，完成！
     if (isIsolated) {
@@ -821,11 +871,15 @@ async function bootstrap() {
       await new Promise((r) => setTimeout(r, 16));
     }
 
+    itemManager.setMaps(scene.loadedMapIds());
     await hideLoading(`大陆 ${totalMaps} 张地图全境就绪`);
   }
 
   // Load Map Pipeline
-  async function switchMap(mapId: string) {
+  async function switchMap(
+    mapId: string,
+    spawnOverride?: { position: [number, number, number]; yaw?: number; pitch?: number; mode?: 'walk' | 'flight' }
+  ) {
     controls.clear();
     cancelSeamlessLoad();
     if (activeAbortController) {
@@ -841,15 +895,22 @@ async function bootstrap() {
       selected = mapDef.id;
       scene.setActiveMap(mapDef.id);
       el('area-title').textContent = mapDef.name;
-      const spawn = controls.mode === 'walk' ? mapDef.spawnWalk : mapDef.spawnFly;
-      controls.restoreState(spawn, 0, 0);
+      if (spawnOverride) {
+        if (spawnOverride.mode) updateModeUI(spawnOverride.mode, true);
+        controls.restoreState(spawnOverride.position, spawnOverride.yaw ?? 0, spawnOverride.pitch ?? 0);
+      } else {
+        const spawn = controls.mode === 'walk' ? mapDef.spawnWalk : mapDef.spawnFly;
+        controls.restoreState(spawn, 0, 0);
+      }
+      itemManager.setMaps(scene.loadedMapIds());
       lastSeamlessScan = 0;
       return;
     }
 
     if (loadAllEnabled) {
       try {
-        await loadFullWorld(mapId, abortCtrl.signal);
+        await loadFullWorld(mapId, abortCtrl.signal, spawnOverride);
+        itemManager.setMaps(scene.loadedMapIds());
         lastSeamlessScan = 0;
       } catch (err: unknown) {
         if ((err as Error)?.name === 'AbortError') return;
@@ -890,8 +951,14 @@ async function bootstrap() {
       controls.collider = scene.collider;
 
       // Position camera
-      const spawn = controls.mode === 'walk' ? mapDef.spawnWalk : mapDef.spawnFly;
-      controls.restoreState(spawn, 0, 0);
+      if (spawnOverride) {
+        if (spawnOverride.mode) updateModeUI(spawnOverride.mode, true);
+        controls.restoreState(spawnOverride.position, spawnOverride.yaw ?? 0, spawnOverride.pitch ?? 0);
+      } else {
+        const spawn = controls.mode === 'walk' ? mapDef.spawnWalk : mapDef.spawnFly;
+        controls.restoreState(spawn, 0, 0);
+      }
+      itemManager.setMaps(scene.loadedMapIds());
 
       await hideLoading(`${mapDef.name} 加载完成`);
       lastSeamlessScan = 0;
@@ -914,7 +981,12 @@ async function bootstrap() {
 
   // Enter Map View from Welcome Screen
   let entering = false;
-  async function enterMapFromWelcome() {
+  async function enterMapFromWelcome(spawnOverride?: {
+    position: [number, number, number];
+    yaw?: number;
+    pitch?: number;
+    mode?: 'walk' | 'flight';
+  }) {
     if (entering) return;
     entering = true;
     try {
@@ -938,7 +1010,7 @@ async function bootstrap() {
       handleResize();
 
       el('welcome').hidden = true;
-      await switchMap(selected);
+      await switchMap(selected, spawnOverride);
     } finally {
       entering = false;
     }
@@ -948,6 +1020,9 @@ async function bootstrap() {
   async function returnToWelcome() {
     controls.clear();
     cancelSeamlessLoad();
+    itemRadar.close();
+    itemManager.hideDetail();
+    itemManager.setMaps([]);
     setPanel(false);
     if (activeAbortController) {
       activeAbortController.abort();
@@ -1009,12 +1084,74 @@ async function bootstrap() {
     if (sel) sel.value = isWireframe ? 'wire' : 'solid';
   }
 
+  // Teleport to Item Spot from Radar
+  function teleportToItem(spot: TreasureSpot) {
+    const targetMapId = spot.mapId;
+    const itemName = spot.items.map((i) => `${i.name}${i.count > 1 ? ` ×${i.count}` : ''}`).join('、');
+    const targetPos: [number, number, number] = [
+      spot.pos[0],
+      spot.pos[1] + controls.eyeHeight,
+      spot.pos[2] + 1.2,
+    ];
+
+    if (document.body.classList.contains('map-view') && scene.hasMap(targetMapId)) {
+      selected = targetMapId;
+      scene.setActiveMap(targetMapId);
+      const mapDef = MAP_DICT.get(targetMapId);
+      if (mapDef) el('area-title').textContent = mapDef.name;
+      updateModeUI('walk', true);
+      controls.restoreState(targetPos, 0, -0.22);
+      controls.clear();
+      showToast(`已传送到 [${itemName}] 面前`);
+      itemManager.update([controls.position[0], controls.position[1], controls.position[2]]);
+      return;
+    }
+
+    selected = targetMapId;
+    showToast(`前往 [${itemName}] 所在区域`);
+    void enterMapFromWelcome({
+      position: targetPos,
+      yaw: 0,
+      pitch: -0.22,
+      mode: 'walk',
+    });
+  }
+
   // Bind Event Handlers
   el('start').onclick = () => void enterMapFromWelcome();
   el('btn-exit').onclick = returnToWelcome;
   el('btn-return-welcome').onclick = returnToWelcome;
   el('error-close').onclick = returnToWelcome;
   el('retry').onclick = () => void switchMap(selected);
+
+  el('btn-item-radar').onclick = () => {
+    itemRadar.open(
+      selected,
+      [controls.position[0], controls.position[1], controls.position[2]],
+      (spot) => {
+        teleportToItem(spot);
+      },
+      (spot) => {
+        itemManager.showDetail(spot);
+      }
+    );
+    refreshIcons();
+  };
+
+  el('btn-drawer-radar').onclick = () => {
+    setPanel(false);
+    itemRadar.open(
+      selected,
+      [controls.position[0], controls.position[1], controls.position[2]],
+      (spot) => {
+        teleportToItem(spot);
+      },
+      (spot) => {
+        itemManager.showDetail(spot);
+      }
+    );
+    refreshIcons();
+  };
 
   el('welcome-search').oninput = drawWelcomeList;
   el('search').oninput = drawList;
@@ -1036,6 +1173,9 @@ async function bootstrap() {
   };
   el<HTMLInputElement>('sky-mode').onchange = (e) => {
     skyEnabled = (e.target as HTMLInputElement).checked;
+  };
+  el<HTMLInputElement>('show-items-mode').onchange = (e) => {
+    itemManager.setVisibility((e.target as HTMLInputElement).checked);
   };
   const nativeFullscreenEl = el<HTMLInputElement>('native-fullscreen-mode');
   if (nativeFullscreenEl) {
@@ -1197,6 +1337,16 @@ async function bootstrap() {
         fov,
         false
       );
+
+      // 渲染 3D 物品拾取光点与宝箱
+      itemManager.render(
+        scene.getViewProjection(),
+        [controls.position[0], controls.position[1], controls.position[2]],
+        currentTime / 1000
+      );
+
+      // 实时近距离感应与底部 HUD 交互提示
+      itemManager.update([controls.position[0], controls.position[1], controls.position[2]]);
 
       // Update telemetry
       const coordEl = el('coord-val');
