@@ -1,4 +1,4 @@
-import { mat4 } from 'gl-matrix';
+import { mat4, vec3 } from 'gl-matrix';
 import type { TreasureSpot } from './all-items';
 
 import chestModelsData from './assets/chest-models.json';
@@ -30,50 +30,34 @@ export class ItemRenderer {
   private woodChestTex: WebGLTexture | null = null;
   private ironChestTex: WebGLTexture | null = null;
 
-  // Soul Orb rendering pipeline (Iconic FromSoftware glowing soul orb billboard)
-  private orbProgram: WebGLProgram;
-  private orbUniforms: Record<string, WebGLUniformLocation> = {};
-  private orbVao: WebGLVertexArrayObject;
-  private orbVbo: WebGLBuffer;
+  // Soul Orb rendering pipeline (Exact Soul 1 mini-program soul orb billboard)
+  private orbProgram: WebGLProgram | null = null;
+  private orbVao: WebGLVertexArrayObject | null = null;
+  private orbVbo: WebGLBuffer | null = null;
+  private uOrbVP: WebGLUniformLocation | null = null;
+  private uOrbCenter: WebGLUniformLocation | null = null;
+  private uOrbCamRight: WebGLUniformLocation | null = null;
+  private uOrbCamUp: WebGLUniformLocation | null = null;
+  private uOrbRadius: WebGLUniformLocation | null = null;
+  private uOrbCoreColor: WebGLUniformLocation | null = null;
+  private uOrbHaloColor: WebGLUniformLocation | null = null;
+  private uOrbTime: WebGLUniformLocation | null = null;
 
-  // Light Pillar rendering pipeline (Slender ascending beacon pillar)
-  private pillarProgram: WebGLProgram;
-  private pillarUniforms: Record<string, WebGLUniformLocation> = {};
-  private pillarVao: WebGLVertexArrayObject;
-  private pillarVbo: WebGLBuffer;
-  private pillarVertexCount: number;
+  // Light Pillar rendering pipeline (Exact Soul 1 mini-program ascending beacon pillar)
+  private pillarProgram: WebGLProgram | null = null;
+  private pillarVao: WebGLVertexArrayObject | null = null;
+  private pillarVbo: WebGLBuffer | null = null;
+  private pillarVertexCount = 0;
+  private uPillarMVP: WebGLUniformLocation | null = null;
+  private uPillarColor: WebGLUniformLocation | null = null;
+  private uPillarTime: WebGLUniformLocation | null = null;
+
+  // Reusable matrices for 60fps zero-allocation rendering
+  private modelMatrix: mat4 = mat4.create();
+  private mvpMatrix: mat4 = mat4.create();
 
   constructor(gl: WebGL2RenderingContext) {
     this.gl = gl;
-
-    const compileShader = (type: number, src: string): WebGLShader => {
-      const shader = gl.createShader(type)!;
-      gl.shaderSource(shader, src);
-      gl.compileShader(shader);
-      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        const err = gl.getShaderInfoLog(shader) || 'Shader compilation failed';
-        gl.deleteShader(shader);
-        throw new Error(err);
-      }
-      return shader;
-    };
-
-    const linkProgram = (vsSrc: string, fsSrc: string): WebGLProgram => {
-      const vs = compileShader(gl.VERTEX_SHADER, vsSrc);
-      const fs = compileShader(gl.FRAGMENT_SHADER, fsSrc);
-      const program = gl.createProgram()!;
-      gl.attachShader(program, vs);
-      gl.attachShader(program, fs);
-      gl.linkProgram(program);
-      gl.deleteShader(vs);
-      gl.deleteShader(fs);
-      if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-        const err = gl.getProgramInfoLog(program) || 'Program linking failed';
-        gl.deleteProgram(program);
-        throw new Error(err);
-      }
-      return program;
-    };
 
     // 1. CHEST SHADER (3D authentic FromSoftware wooden & iron chests)
     const chestVs = `#version 300 es
@@ -145,7 +129,6 @@ export class ItemRenderer {
 
         vec3 lit = texel.rgb * diff + rim;
 
-        // Depth fog matching map atmosphere
         float dist = length(vWorldPos - uEye);
         float fog = 1.0 - exp(-dist * 0.00065);
         vec3 fogColor = vec3(0.07, 0.08, 0.10);
@@ -154,47 +137,173 @@ export class ItemRenderer {
       }
     `;
 
-    this.chestProgram = linkProgram(chestVs, chestFs);
+    this.chestProgram = this.linkProgram(chestVs, chestFs);
     for (const key of ['uVP', 'uCenter', 'uRotY', 'uScale', 'uEye', 'uTexture']) {
       this.chestUniforms[key] = gl.getUniformLocation(this.chestProgram, key)!;
     }
 
-    // 2. SOUL ORB SHADER (Authentic Dark Souls swirling soul energy sphere)
-    const orbVs = `#version 300 es
+    // Build GPU meshes for chests
+    const models = chestModelsData as { wooden_chest: MeshDef; iron_chest: MeshDef };
+    this.woodChestMesh = this.buildChestGpuMesh(models.wooden_chest);
+    this.ironChestMesh = this.buildChestGpuMesh(models.iron_chest);
+
+    // Load authentic chest textures
+    this.woodChestTex = this.loadTexture(chestWoodTexUrl, true);
+    this.ironChestTex = this.loadTexture(chestIronTexUrl, true);
+
+    // 2. Initialize exact DS1 Light Pillar & Soul Orb pipelines
+    this.initPillarShaders();
+    this.initPillarBuffers();
+    this.initOrbShaders();
+    this.initOrbBuffers();
+  }
+
+  private createShader(type: number, src: string): WebGLShader {
+    const gl = this.gl;
+    const shader = gl.createShader(type)!;
+    gl.shaderSource(shader, src);
+    gl.compileShader(shader);
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      const err = gl.getShaderInfoLog(shader) || 'Shader compilation failed';
+      gl.deleteShader(shader);
+      throw new Error(err);
+    }
+    return shader;
+  }
+
+  private linkProgram(vsSrc: string, fsSrc: string): WebGLProgram {
+    const gl = this.gl;
+    const vs = this.createShader(gl.VERTEX_SHADER, vsSrc);
+    const fs = this.createShader(gl.FRAGMENT_SHADER, fsSrc);
+    const program = gl.createProgram()!;
+    gl.attachShader(program, vs);
+    gl.attachShader(program, fs);
+    gl.linkProgram(program);
+    gl.deleteShader(vs);
+    gl.deleteShader(fs);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      const err = gl.getProgramInfoLog(program) || 'Program linking failed';
+      gl.deleteProgram(program);
+      throw new Error(err);
+    }
+    return program;
+  }
+
+  // --- Exact DS1 Pillar Shaders & Buffers ---
+  private initPillarShaders() {
+    const gl = this.gl;
+    const vsSource = `#version 300 es
+      layout(location = 0) in vec3 aPosition;
+      layout(location = 1) in float aAlpha;
+
+      uniform mat4 uMVP;
+
+      out vec3 vLocalPos;
+      out float vAlpha;
+
+      void main() {
+        vLocalPos = aPosition;
+        vAlpha = aAlpha;
+        gl_Position = uMVP * vec4(aPosition, 1.0);
+      }
+    `;
+
+    const fsSource = `#version 300 es
+      precision mediump float;
+      in vec3 vLocalPos;
+      in float vAlpha;
+
+      uniform vec4 uColor;
+      uniform float uTime;
+
+      out vec4 fragColor;
+
+      void main() {
+        float pulse = 0.85 + 0.15 * sin(uTime * 3.0 + vLocalPos.y * 2.0);
+        float alpha = vAlpha * pulse * uColor.a;
+        fragColor = vec4(uColor.rgb, alpha);
+      }
+    `;
+
+    const program = this.linkProgram(vsSource, fsSource);
+    this.pillarProgram = program;
+    this.uPillarMVP = gl.getUniformLocation(program, 'uMVP');
+    this.uPillarColor = gl.getUniformLocation(program, 'uColor');
+    this.uPillarTime = gl.getUniformLocation(program, 'uTime');
+  }
+
+  private initPillarBuffers() {
+    const gl = this.gl;
+    const vertices: number[] = [];
+    const segments = 16;
+    const radius = 0.45;
+    const height = 2.4;
+
+    for (let i = 0; i < segments; i++) {
+      const theta0 = (i / segments) * Math.PI * 2;
+      const theta1 = ((i + 1) / segments) * Math.PI * 2;
+
+      const x0 = Math.cos(theta0) * radius;
+      const z0 = Math.sin(theta0) * radius;
+      const x1 = Math.cos(theta1) * radius;
+      const z1 = Math.sin(theta1) * radius;
+
+      vertices.push(x0, 0, z0, 0.95);
+      vertices.push(x1, 0, z1, 0.95);
+      vertices.push(x0, height, z0, 0.05);
+
+      vertices.push(x1, 0, z1, 0.95);
+      vertices.push(x1, height, z1, 0.05);
+      vertices.push(x0, height, z0, 0.05);
+    }
+
+    this.pillarVertexCount = vertices.length / 4;
+
+    this.pillarVao = gl.createVertexArray();
+    gl.bindVertexArray(this.pillarVao);
+
+    this.pillarVbo = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.pillarVbo);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+
+    gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 16, 0);
+    gl.enableVertexAttribArray(0);
+
+    gl.vertexAttribPointer(1, 1, gl.FLOAT, false, 16, 12);
+    gl.enableVertexAttribArray(1);
+
+    gl.bindVertexArray(null);
+  }
+
+  // --- Exact DS1 Soul Orb Shaders & Buffers ---
+  private initOrbShaders() {
+    const gl = this.gl;
+    const vsSource = `#version 300 es
       precision mediump float;
       layout(location = 0) in vec2 aQuad;
 
       uniform mat4 uVP;
       uniform vec3 uCenter;
-      uniform vec3 uEye;
+      uniform vec3 uCamRight;
+      uniform vec3 uCamUp;
       uniform float uRadius;
 
       out vec2 vUV;
-      out vec3 vWorldPos;
 
       void main() {
         vUV = aQuad;
-
-        vec3 forward = normalize(uEye - uCenter);
-        if (abs(forward.y) > 0.99) forward = vec3(0.0, 0.0, 1.0);
-        vec3 right = normalize(cross(vec3(0.0, 1.0, 0.0), forward));
-        vec3 up = cross(forward, right);
-
-        vec3 worldPos = uCenter + (right * aQuad.x + up * aQuad.y) * uRadius;
-        vWorldPos = worldPos;
+        vec3 worldPos = uCenter + (uCamRight * aQuad.x + uCamUp * aQuad.y) * uRadius;
         gl_Position = uVP * vec4(worldPos, 1.0);
       }
     `;
 
-    const orbFs = `#version 300 es
+    const fsSource = `#version 300 es
       precision mediump float;
       in vec2 vUV;
-      in vec3 vWorldPos;
 
       uniform vec4 uCoreColor;
       uniform vec4 uHaloColor;
       uniform float uTime;
-      uniform vec3 uEye;
 
       out vec4 fragColor;
 
@@ -202,7 +311,7 @@ export class ItemRenderer {
         float r = length(vUV);
         if (r > 1.0) discard;
 
-        // 极坐标流转微光：模拟黑魂原生灵魂外溢的气旋流光
+        // 极坐标流转微光：模拟黑魂原生余火/灵魂外溢的气旋流光
         float angle = atan(vUV.y, vUV.x);
         float swirl = sin(angle * 4.0 + uTime * 4.2) * 0.05 + cos(angle * 2.0 - uTime * 3.1) * 0.03;
         float flameR = r + swirl * (1.0 - r);
@@ -212,93 +321,49 @@ export class ItemRenderer {
         float halo = pow(clamp(1.0 - r, 0.0, 1.0), 2.2);
 
         // 呼吸脉动
-        float pulse = 0.90 + 0.10 * sin(uTime * 3.2);
+        float pulse = 0.9 + 0.1 * sin(uTime * 3.2);
 
         vec3 rgb = mix(uHaloColor.rgb, uCoreColor.rgb, clamp(core * 1.6, 0.0, 1.0)) * pulse;
-        float alpha = clamp(core * 1.25 + halo * 0.75, 0.0, 1.0) * uCoreColor.a;
-
-        // 场景深度雾气融合
-        float dist = length(vWorldPos - uEye);
-        float fog = 1.0 - exp(-dist * 0.00065);
-        rgb = mix(rgb, vec3(0.07, 0.08, 0.10), fog);
+        float alpha = clamp(core * 1.2 + halo * 0.75, 0.0, 1.0) * uCoreColor.a;
 
         fragColor = vec4(rgb * alpha, alpha);
       }
     `;
 
-    this.orbProgram = linkProgram(orbVs, orbFs);
-    for (const key of ['uVP', 'uCenter', 'uEye', 'uRadius', 'uCoreColor', 'uHaloColor', 'uTime']) {
-      this.orbUniforms[key] = gl.getUniformLocation(this.orbProgram, key)!;
-    }
+    const program = this.linkProgram(vsSource, fsSource);
+    this.orbProgram = program;
+    this.uOrbVP = gl.getUniformLocation(program, 'uVP');
+    this.uOrbCenter = gl.getUniformLocation(program, 'uCenter');
+    this.uOrbCamRight = gl.getUniformLocation(program, 'uCamRight');
+    this.uOrbCamUp = gl.getUniformLocation(program, 'uCamUp');
+    this.uOrbRadius = gl.getUniformLocation(program, 'uRadius');
+    this.uOrbCoreColor = gl.getUniformLocation(program, 'uCoreColor');
+    this.uOrbHaloColor = gl.getUniformLocation(program, 'uHaloColor');
+    this.uOrbTime = gl.getUniformLocation(program, 'uTime');
+  }
 
-    // 3. BEACON LIGHT PILLAR SHADER (Slender ascending pillar of light)
-    const pillarVs = `#version 300 es
-      layout(location = 0) in vec3 aPosition;
-      layout(location = 1) in float aAlpha;
+  private initOrbBuffers() {
+    const gl = this.gl;
+    const quadVertices = new Float32Array([
+      -1, -1,
+       1, -1,
+      -1,  1,
+      -1,  1,
+       1, -1,
+       1,  1,
+    ]);
 
-      uniform mat4 uVP;
-      uniform vec3 uCenter;
-      uniform float uHeight;
-      uniform float uRadius;
+    this.orbVao = gl.createVertexArray();
+    gl.bindVertexArray(this.orbVao);
 
-      out float vAlpha;
-      out vec3 vWorldPos;
+    this.orbVbo = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.orbVbo);
+    gl.bufferData(gl.ARRAY_BUFFER, quadVertices, gl.STATIC_DRAW);
 
-      void main() {
-        vec3 world = uCenter + vec3(aPosition.x * uRadius, aPosition.y * uHeight, aPosition.z * uRadius);
-        vWorldPos = world;
-        vAlpha = aAlpha;
-        gl_Position = uVP * vec4(world, 1.0);
-      }
-    `;
+    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 8, 0);
+    gl.enableVertexAttribArray(0);
 
-    const pillarFs = `#version 300 es
-      precision mediump float;
-      in float vAlpha;
-      in vec3 vWorldPos;
-
-      uniform vec4 uColor;
-      uniform float uTime;
-      uniform vec3 uEye;
-
-      out vec4 fragColor;
-
-      void main() {
-        float pulse = 0.85 + 0.15 * sin(uTime * 3.0 + vWorldPos.y * 2.0);
-        float alpha = vAlpha * pulse * uColor.a;
-
-        float dist = length(vWorldPos - uEye);
-        float fog = 1.0 - exp(-dist * 0.00065);
-        vec3 rgb = mix(uColor.rgb, vec3(0.07, 0.08, 0.10), fog);
-
-        fragColor = vec4(rgb * alpha, alpha);
-      }
-    `;
-
-    this.pillarProgram = linkProgram(pillarVs, pillarFs);
-    for (const key of ['uVP', 'uCenter', 'uHeight', 'uRadius', 'uColor', 'uTime', 'uEye']) {
-      this.pillarUniforms[key] = gl.getUniformLocation(this.pillarProgram, key)!;
-    }
-
-    // Build GPU meshes for chests
-    const models = chestModelsData as { wooden_chest: MeshDef; iron_chest: MeshDef };
-    this.woodChestMesh = this.buildChestGpuMesh(models.wooden_chest);
-    this.ironChestMesh = this.buildChestGpuMesh(models.iron_chest);
-
-    // Build Soul Orb Quad
-    const { vao: oVao, vbo: oVbo } = this.buildOrbQuadMesh();
-    this.orbVao = oVao;
-    this.orbVbo = oVbo;
-
-    // Build Pillar Mesh
-    const { vao: pVao, vbo: pVbo, count: pCount } = this.buildPillarMesh();
-    this.pillarVao = pVao;
-    this.pillarVbo = pVbo;
-    this.pillarVertexCount = pCount;
-
-    // Load authentic chest textures
-    this.woodChestTex = this.loadTexture(chestWoodTexUrl, true);
-    this.ironChestTex = this.loadTexture(chestIronTexUrl, true);
+    gl.bindVertexArray(null);
   }
 
   private buildChestGpuMesh(mesh: MeshDef): ChestGpuMesh {
@@ -352,83 +417,6 @@ export class ItemRenderer {
     return { vao, vbo, ibo, count: mesh.indices.length };
   }
 
-  private buildOrbQuadMesh(): { vao: WebGLVertexArrayObject; vbo: WebGLBuffer } {
-    const gl = this.gl;
-    // Quad from [-1, -1] to [1, 1]
-    const vertices = new Float32Array([
-      -1.0, -1.0,
-       1.0, -1.0,
-      -1.0,  1.0,
-      -1.0,  1.0,
-       1.0, -1.0,
-       1.0,  1.0,
-    ]);
-
-    const vao = gl.createVertexArray()!;
-    const vbo = gl.createBuffer()!;
-
-    gl.bindVertexArray(vao);
-    gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
-
-    gl.enableVertexAttribArray(0);
-    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 8, 0);
-
-    gl.bindVertexArray(null);
-    return { vao, vbo };
-  }
-
-  private buildPillarMesh(): { vao: WebGLVertexArrayObject; vbo: WebGLBuffer; count: number } {
-    const gl = this.gl;
-    const vertices: number[] = [];
-    const segments = 16;
-    const radius = 1.0;
-    const height = 1.0;
-
-    for (let i = 0; i < segments; i++) {
-      const theta0 = (i / segments) * Math.PI * 2;
-      const theta1 = ((i + 1) / segments) * Math.PI * 2;
-
-      const x0 = Math.cos(theta0) * radius;
-      const z0 = Math.sin(theta0) * radius;
-      const x1 = Math.cos(theta1) * radius;
-      const z1 = Math.sin(theta1) * radius;
-
-      // Triangle 1
-      vertices.push(
-        x0, 0.0, z0, 0.75,
-        x1, 0.0, z1, 0.75,
-        x0, height, z0, 0.0
-      );
-
-      // Triangle 2
-      vertices.push(
-        x1, 0.0, z1, 0.75,
-        x1, height, z1, 0.0,
-        x0, height, z0, 0.0
-      );
-    }
-
-    const vao = gl.createVertexArray()!;
-    const vbo = gl.createBuffer()!;
-
-    gl.bindVertexArray(vao);
-    gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-
-    // aPosition
-    gl.enableVertexAttribArray(0);
-    gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 16, 0);
-
-    // aAlpha
-    gl.enableVertexAttribArray(1);
-    gl.vertexAttribPointer(1, 1, gl.FLOAT, false, 16, 12);
-
-    gl.bindVertexArray(null);
-
-    return { vao, vbo, count: vertices.length / 4 };
-  }
-
   private loadTexture(url: string, wrapRepeat: boolean): WebGLTexture | null {
     const gl = this.gl;
     const tex = gl.createTexture();
@@ -463,13 +451,30 @@ export class ItemRenderer {
 
   public render(
     vp: mat4,
-    cameraPos: [number, number, number],
+    camera: mat4 | [number, number, number],
     timeSeconds: number,
     spots: TreasureSpot[],
     maxVisibleDist = 180
   ) {
     if (!spots.length) return;
     const gl = this.gl;
+
+    let cameraPos: [number, number, number];
+    let camRight: vec3;
+    let camUp: vec3;
+
+    if (camera.length === 16) {
+      const cameraMatrix = camera as mat4;
+      cameraPos = [cameraMatrix[12], cameraMatrix[13], cameraMatrix[14]];
+      camRight = vec3.fromValues(cameraMatrix[0], cameraMatrix[1], cameraMatrix[2]);
+      vec3.normalize(camRight, camRight);
+      camUp = vec3.fromValues(cameraMatrix[4], cameraMatrix[5], cameraMatrix[6]);
+      vec3.normalize(camUp, camUp);
+    } else {
+      cameraPos = camera as [number, number, number];
+      camRight = vec3.fromValues(1, 0, 0);
+      camUp = vec3.fromValues(0, 1, 0);
+    }
 
     const visibleChests: { spot: TreasureSpot; distSq: number }[] = [];
     const visiblePickups: { spot: TreasureSpot; distSq: number }[] = [];
@@ -535,96 +540,63 @@ export class ItemRenderer {
     }
 
     // =========================================================================
-    // PASS 2: RENDER AUTHENTIC DARK SOULS SOUL ORBS & LIGHT PILLARS
+    // PASS 2: EXACT SOUL 1 MINI-PROGRAM PICKUP LIGHT EFFECT (SOUL ORB & PILLAR)
     // =========================================================================
-    if (visiblePickups.length > 0) {
-      gl.enable(gl.DEPTH_TEST);
-      gl.depthMask(false);
+    if (visiblePickups.length > 0 && this.pillarProgram && this.pillarVao && this.orbProgram && this.orbVao) {
       gl.enable(gl.BLEND);
-      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-      gl.disable(gl.CULL_FACE);
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE); // 加法辉光 (Additive blending)
+      gl.depthMask(false);
 
-      // Helper to compute halo and pillar colors by category
-      const getColors = (spot: TreasureSpot): {
-        core: [number, number, number, number];
-        halo: [number, number, number, number];
-        pillar: [number, number, number, number];
-      } => {
-        const cat = spot.items[0]?.category || '';
-        const core: [number, number, number, number] = [1.0, 1.0, 1.0, 1.0]; // Always white-hot core
-
-        if (cat === '强化材料' || cat === '钥匙余烬') {
-          return {
-            core,
-            halo: [1.0, 0.78, 0.18, 0.95], // Radiant amber gold
-            pillar: [1.0, 0.78, 0.18, 0.35],
-          };
-        } else if (cat === '武器' || cat === '防具') {
-          return {
-            core,
-            halo: [0.85, 0.48, 1.0, 0.92], // Mystical purple
-            pillar: [0.85, 0.48, 1.0, 0.32],
-          };
-        } else if (cat === '戒指') {
-          return {
-            core,
-            halo: [0.32, 1.0, 0.68, 0.92], // Emerald jade
-            pillar: [0.32, 1.0, 0.68, 0.32],
-          };
-        }
-
-        // Default: Iconic FromSoftware ethereal soul cyan-white
-        return {
-          core,
-          halo: [0.75, 0.92, 1.0, 0.88],
-          pillar: [0.75, 0.92, 1.0, 0.35],
-        };
-      };
-
-      // 2A: RENDER ASCENDING BEACON PILLARS
+      // 1. 渲染光柱与导向信标 (Exact DS1)
       gl.useProgram(this.pillarProgram);
       gl.bindVertexArray(this.pillarVao);
-      gl.uniformMatrix4fv(this.pillarUniforms.uVP, false, vp);
-      gl.uniform3fv(this.pillarUniforms.uEye, cameraPos);
-      gl.uniform1f(this.pillarUniforms.uTime, timeSeconds);
-      gl.uniform1f(this.pillarUniforms.uRadius, 0.08); // 0.08m slender beacon
-      gl.uniform1f(this.pillarUniforms.uHeight, 1.45); // 1.45m pillar
+      gl.uniform1f(this.uPillarTime, timeSeconds);
 
       for (const { spot } of visiblePickups) {
-        const { pillar } = getColors(spot);
-        const bob = Math.sin(timeSeconds * 2.8 + (spot.pos[0] + spot.pos[2]) * 0.25) * 0.04;
-        const basePos: [number, number, number] = [spot.pos[0], spot.pos[1] + 0.22 + bob, spot.pos[2]];
+        // 物品与宝藏顶部升腾的纤细信标光柱（便于远处辨识）
+        const bobbing = Math.sin(timeSeconds * 2.8 + (spot.pos[0] + spot.pos[2]) * 0.25) * 0.04;
+        mat4.identity(this.modelMatrix);
+        mat4.translate(this.modelMatrix, this.modelMatrix, [spot.pos[0], spot.pos[1] + 0.25 + bobbing, spot.pos[2]]);
+        mat4.scale(this.modelMatrix, this.modelMatrix, [0.08, 1.4, 0.08]);
 
-        gl.uniform3fv(this.pillarUniforms.uCenter, basePos);
-        gl.uniform4fv(this.pillarUniforms.uColor, pillar);
+        mat4.multiply(this.mvpMatrix, vp, this.modelMatrix);
+        gl.uniformMatrix4fv(this.uPillarMVP, false, this.mvpMatrix);
+
+        // Exact DS1 item light pillar color
+        gl.uniform4f(this.uPillarColor, 0.85, 0.95, 1.0, 0.35);
+
         gl.drawArrays(gl.TRIANGLES, 0, this.pillarVertexCount);
       }
 
-      // 2B: RENDER SWIRLING SOUL ORB BILLBOARDS
+      // 2. 渲染原生白光「灵魂光球」粒子 (Soul Orb Billboard, Exact DS1)
       gl.useProgram(this.orbProgram);
       gl.bindVertexArray(this.orbVao);
-      gl.uniformMatrix4fv(this.orbUniforms.uVP, false, vp);
-      gl.uniform3fv(this.orbUniforms.uEye, cameraPos);
-      gl.uniform1f(this.orbUniforms.uTime, timeSeconds);
-      gl.uniform1f(this.orbUniforms.uRadius, 0.28); // 0.28m radius soul orb
+
+      gl.uniformMatrix4fv(this.uOrbVP, false, vp);
+      gl.uniform3fv(this.uOrbCamRight, camRight);
+      gl.uniform3fv(this.uOrbCamUp, camUp);
+      gl.uniform1f(this.uOrbTime, timeSeconds);
 
       for (const { spot } of visiblePickups) {
-        const { core, halo } = getColors(spot);
-        const bob = Math.sin(timeSeconds * 2.8 + (spot.pos[0] + spot.pos[2]) * 0.25) * 0.04;
-        const orbPos: [number, number, number] = [spot.pos[0], spot.pos[1] + 0.28 + bob, spot.pos[2]];
+        const bobbing = Math.sin(timeSeconds * 2.8 + (spot.pos[0] + spot.pos[2]) * 0.25) * 0.04;
+        const orbCenter: [number, number, number] = [spot.pos[0], spot.pos[1] + 0.28 + bobbing, spot.pos[2]];
 
-        gl.uniform3fv(this.orbUniforms.uCenter, orbPos);
-        gl.uniform4fv(this.orbUniforms.uCoreColor, core);
-        gl.uniform4fv(this.orbUniforms.uHaloColor, halo);
+        gl.uniform3fv(this.uOrbCenter, orbCenter);
+
+        // Exact DS1 soul orb radius and colors
+        gl.uniform1f(this.uOrbRadius, 0.26);
+        gl.uniform4f(this.uOrbCoreColor, 1.0, 1.0, 1.0, 1.0);
+        gl.uniform4f(this.uOrbHaloColor, 0.78, 0.92, 1.0, 0.85);
+
         gl.drawArrays(gl.TRIANGLES, 0, 6);
       }
 
-      // Restore states
+      // 恢复状态 (Exact DS1)
       gl.depthMask(true);
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
       gl.disable(gl.BLEND);
+      gl.bindVertexArray(null);
     }
-
-    gl.bindVertexArray(null);
   }
 
   public destroy() {
@@ -638,17 +610,17 @@ export class ItemRenderer {
     gl.deleteBuffer(this.ironChestMesh.vbo);
     gl.deleteBuffer(this.ironChestMesh.ibo);
 
-    gl.deleteVertexArray(this.orbVao);
-    gl.deleteBuffer(this.orbVbo);
+    if (this.orbVao) gl.deleteVertexArray(this.orbVao);
+    if (this.orbVbo) gl.deleteBuffer(this.orbVbo);
+    if (this.orbProgram) gl.deleteProgram(this.orbProgram);
 
-    gl.deleteVertexArray(this.pillarVao);
-    gl.deleteBuffer(this.pillarVbo);
+    if (this.pillarVao) gl.deleteVertexArray(this.pillarVao);
+    if (this.pillarVbo) gl.deleteBuffer(this.pillarVbo);
+    if (this.pillarProgram) gl.deleteProgram(this.pillarProgram);
 
     if (this.woodChestTex) gl.deleteTexture(this.woodChestTex);
     if (this.ironChestTex) gl.deleteTexture(this.ironChestTex);
 
     gl.deleteProgram(this.chestProgram);
-    gl.deleteProgram(this.orbProgram);
-    gl.deleteProgram(this.pillarProgram);
   }
 }

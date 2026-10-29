@@ -192,9 +192,9 @@ export class ItemManager {
     this.promptEl.classList.remove('hidden');
   }
 
-  public render(vp: mat4, cameraPos: [number, number, number], timeSeconds: number) {
+  public render(vp: mat4, camera: mat4 | [number, number, number], timeSeconds: number) {
     if (!this.showItems || this.activeSpots.length === 0) return;
-    this.renderer.render(vp, cameraPos, timeSeconds, this.activeSpots);
+    this.renderer.render(vp, camera, timeSeconds, this.activeSpots);
   }
 
   public showDetail(spot: TreasureSpot) {

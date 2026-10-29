@@ -32,6 +32,7 @@ import { CameraControls } from './controls';
 import { installErrorLogging, recordAppError } from './error-log';
 import { ItemRadar } from './item-radar';
 import { ItemManager } from './item-manager';
+import { mat4 } from 'gl-matrix';
 import type { TreasureSpot } from './all-items';
 import './styles.css';
 
@@ -1298,6 +1299,7 @@ async function bootstrap() {
   let frameCount = 0;
   let fpsTimer = performance.now();
   let currentFps = 60;
+  const itemCameraMatrix = mat4.create();
 
   function loop(currentTime: number) {
     const dt = Math.min((currentTime - lastTime) / 1000, 0.1);
@@ -1338,10 +1340,16 @@ async function bootstrap() {
         false
       );
 
-      // 渲染 3D 物品拾取光点与宝箱
+      // 渲染 3D 物品拾取光点（复刻魂1原生灵魂光球与光柱）与宝箱
+      mat4.fromYRotation(itemCameraMatrix, controls.yaw);
+      mat4.rotateX(itemCameraMatrix, itemCameraMatrix, controls.pitch);
+      itemCameraMatrix[12] = controls.position[0];
+      itemCameraMatrix[13] = controls.position[1];
+      itemCameraMatrix[14] = controls.position[2];
+
       itemManager.render(
         scene.getViewProjection(),
-        [controls.position[0], controls.position[1], controls.position[2]],
+        itemCameraMatrix,
         currentTime / 1000
       );
 
