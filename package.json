@@ -1,12 +1,12 @@
 {
   "name": "heybox-dark-souls-2-map",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "type": "module",
   "heybox": {
     "miniProgramId": "01a185dc-bf4e-757c-8926-d031e3a1ebff",
     "name": "多兰古雷格地图志",
-    "desc": "黑暗之魂2（Dark Souls II）全境27张地图（含失落王冠三大DLC）白模三维查看器，支持第一人称漫步、自由飞行、无缝大世界流式加载与素模线框双渲染。",
+    "desc": "黑暗之魂2（Dark Souls II）全境27张地图（含失落王冠三大DLC与原版全景天空贴图）白模三维查看器，支持第一人称漫步、自由飞行、无缝大世界流式加载与素模线框双渲染。",
     "category": "tool",
     "icon": "assets/icon.png",
     "coverImages": [

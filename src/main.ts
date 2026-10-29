@@ -22,6 +22,7 @@ import {
 import { MAPS, MAP_DICT } from './maps';
 import { loadDecodedMap, releaseDecodedMap } from './format';
 import { DS2Scene } from './scene';
+import { SkyRenderer } from './sky-renderer';
 import { distanceToRegion, isRegionFar, linkedRegions, nearbyRegions } from './seamless';
 import { CameraControls } from './controls';
 import { installErrorLogging, recordAppError } from './error-log';
@@ -217,6 +218,10 @@ function renderAppHtml(): string {
                     <option value="wire">线框</option>
                   </select>
                 </div>
+                <label class="setting-select-row" for="sky-mode">
+                  <span>天空贴图</span>
+                  <input id="sky-mode" type="checkbox" checked />
+                </label>
               </div>
               <div class="setting-card-group">
                 <label class="group-label">加载</label>
@@ -319,11 +324,13 @@ async function bootstrap() {
 
   const joystickZone = el('joystick');
   const scene = new DS2Scene(gl);
+  const skyRenderer = new SkyRenderer(gl);
   const controls = new CameraControls(canvas, joystickZone);
 
   // Application State
   let selected = 'm10_04'; // Default: Majula (如蜜)
   let isWireframe = false;
+  let skyEnabled = true;
   let fov = 75;
   let isUIHidden = false;
   let activeAbortController: AbortController | null = null;
@@ -755,6 +762,9 @@ async function bootstrap() {
     wireBtn?.classList.toggle('active', isWireframe);
     if (wireText) wireText.textContent = isWireframe ? '素模' : '线框';
   };
+  el<HTMLInputElement>('sky-mode').onchange = (e) => {
+    skyEnabled = (e.target as HTMLInputElement).checked;
+  };
   el<HTMLInputElement>('seamless-mode').onchange = (event) => {
     seamlessEnabled = (event.target as HTMLInputElement).checked;
     cancelSeamlessLoad();
@@ -845,6 +855,16 @@ async function bootstrap() {
         void maintainSeamlessRegions();
       }
 
+      skyRenderer.render(
+        selected,
+        controls.yaw,
+        controls.pitch,
+        canvas.width,
+        canvas.height,
+        fov,
+        skyEnabled
+      );
+
       scene.render(
         [controls.position[0], controls.position[1], controls.position[2]],
         controls.yaw,
@@ -852,7 +872,8 @@ async function bootstrap() {
         canvas.width,
         canvas.height,
         isWireframe,
-        fov
+        fov,
+        false
       );
 
       // Update telemetry

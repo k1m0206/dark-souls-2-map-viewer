@@ -208,14 +208,17 @@ export class DS2Scene {
     width: number,
     height: number,
     wireframe: boolean,
-    fovDeg = 75
+    fovDeg = 75,
+    clear = true
   ) {
     const gl = this.gl;
     if (this.chunks.length === 0) return;
 
     gl.viewport(0, 0, width, height);
-    gl.clearColor(0.07, 0.08, 0.10, 1.0);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    if (clear) {
+      gl.clearColor(0.07, 0.08, 0.10, 1.0);
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    }
 
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
