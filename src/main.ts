@@ -23,7 +23,7 @@ import { MAPS, MAP_DICT } from './maps';
 import { loadDecodedMap, releaseDecodedMap } from './format';
 import { DS2Scene } from './scene';
 import { SkyRenderer } from './sky-renderer';
-import { distanceToRegion, isRegionFar, nearbyRegions, getCompatibleWorldMaps, isWarpIsolatedMap } from './seamless';
+import { distanceToRegion, isRegionFar, nearbyRegions, getCompatibleWorldMaps, isWarpIsolatedMap, isAldiaSanctumMap } from './seamless';
 import { CameraControls } from './controls';
 import { installErrorLogging, recordAppError } from './error-log';
 import './styles.css';
@@ -582,9 +582,13 @@ async function bootstrap() {
     const startText = el('welcome-start-label');
     const curMap = MAP_DICT.get(selected);
     if (startText && curMap) {
-      startText.textContent = isWarpIsolatedMap(selected)
-        ? `进入 · ${curMap.name}`
-        : `从 ${curMap.name} 进入大陆`;
+      if (isWarpIsolatedMap(selected)) {
+        startText.textContent = `进入 · ${curMap.name}`;
+      } else if (isAldiaSanctumMap(selected)) {
+        startText.textContent = `进入 · 巨龙圣域 (${curMap.name})`;
+      } else {
+        startText.textContent = `从 ${curMap.name} 进入大陆`;
+      }
     }
 
     const filtered = MAPS.filter((m) =>
@@ -740,9 +744,16 @@ async function bootstrap() {
 
     const compatibleMapIds = getCompatibleWorldMaps(targetMapId);
     const isIsolated = isWarpIsolatedMap(targetMapId);
-    const titleText = isIsolated ? targetDef.name : '多兰古雷格全量大陆';
+    const isAldia = isAldiaSanctumMap(targetMapId);
+    const titleText = isIsolated
+      ? targetDef.name
+      : isAldia
+      ? '安第尔与巨龙圣域'
+      : '多兰古雷格全量大陆';
     const initialSub = isIsolated
       ? '正在载入独立空间...'
+      : isAldia
+      ? `准备载入圣域连通域 (1/${compatibleMapIds.length}: ${targetDef.name})...`
       : `准备载入大陆地图 (1/${compatibleMapIds.length}: ${targetDef.name})...`;
 
     showLoading(titleText, initialSub, 0.05);

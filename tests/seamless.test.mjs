@@ -27,8 +27,17 @@ const WARP_ISOLATED_MAPS = [
   'm40_03', // 暗潜古穴 (深渊异空间)
 ];
 
+const ALDIA_SANCTUM_MAPS = [
+  'm10_15', // 安第尔之馆
+  'm10_27', // 卫龙巢穴与龙祭坛
+];
+
 function isWarpIsolatedMap(mapId) {
   return WARP_ISOLATED_MAPS.includes(mapId);
+}
+
+function isAldiaSanctumMap(mapId) {
+  return ALDIA_SANCTUM_MAPS.includes(mapId);
 }
 
 const LINKS = [
@@ -69,8 +78,7 @@ const LINKS = [
   ['m20_21', 'm20_11'], // 多兰古雷格王城 <-> 阿玛纳祭坛 (镜之骑士升降机)
   ['m20_11', 'm20_24'], // 阿玛纳祭坛 <-> 不死灵庙 (歌唱恶魔水路)
 
-  // 8. 安第尔与巨龙圣域
-  ['m10_32', 'm10_15'], // 虚影森林 <-> 安第尔之馆 (歧路遗迹左路国王门大道)
+  // 8. 安第尔与巨龙圣域 (安第尔之馆与卫龙圣域自身连通，通过后门吊桥衔接)
   ['m10_15', 'm10_27'], // 安第尔之馆 <-> 卫龙巢穴与龙祭坛 (后门吊桥)
 ];
 
@@ -94,17 +102,14 @@ function getCompatibleWorldMaps(activeMapId) {
   if (isWarpIsolatedMap(activeMapId)) {
     return [activeMapId];
   }
-  const isAldiaRoute = activeMapId === 'm10_15' || activeMapId === 'm10_27';
-  const baseOverland = [
-    'm10_02', 'm10_04', 'm10_29', 'm10_10', 'm10_30', 'm10_31', 'm10_18', 'm10_16',
-    'm10_23', 'm10_17', 'm10_19', 'm10_34', 'm10_25', 'm10_32', 'm10_33', 'm10_14'
-  ];
-
-  if (isAldiaRoute) {
-    return [...baseOverland, 'm10_15', 'm10_27'];
-  } else {
-    return [...baseOverland, 'm20_21', 'm20_11', 'm20_24'];
+  if (isAldiaSanctumMap(activeMapId)) {
+    return ['m10_15', 'm10_27'];
   }
+  return [
+    'm10_02', 'm10_04', 'm10_29', 'm10_10', 'm10_30', 'm10_31', 'm10_18', 'm10_16',
+    'm10_23', 'm10_17', 'm10_19', 'm10_34', 'm10_25', 'm10_32', 'm10_33', 'm10_14',
+    'm20_21', 'm20_11', 'm20_24'
+  ];
 }
 
 function nearbyRegions(mapId, point, radius = 500, count = 5) {
@@ -142,7 +147,7 @@ test('Isolated warp maps are strictly identified', () => {
   assert.equal(isWarpIsolatedMap('m20_21'), false, 'Drangleic Castle is overland mainland');
 });
 
-test('Overland connectivity: all 21 mainland continent maps are connected in a single graph', () => {
+test('Overland connectivity: all 19 mainland continent maps are connected in a single graph', () => {
   const visited = new Set();
   const queue = ['m10_04']; // 从如蜜出发
   visited.add('m10_04');
@@ -157,7 +162,7 @@ test('Overland connectivity: all 21 mainland continent maps are connected in a s
     }
   }
 
-  assert.equal(visited.size, 21, `All 21 overland maps must be reachable from Majula, found ${visited.size}`);
+  assert.equal(visited.size, 19, `All 19 overland maps must be reachable from Majula, found ${visited.size}`);
 });
 
 test('Isolated warp maps return empty adjacent list and empty nearby regions', () => {
@@ -182,23 +187,29 @@ test('getCompatibleWorldMaps: mainland maps load without any isolated warp maps 
     assert.equal(majulaMaps.includes(warpId), false, `Mainland world maps must NOT include ${warpId}`);
   }
 
-  // Drangleic route includes Castle but excludes Aldia
+  // Drangleic mainland includes Castle but strictly excludes Aldia & Dragon Sanctum
   assert.ok(majulaMaps.includes('m20_21'));
   assert.ok(majulaMaps.includes('m20_11'));
   assert.ok(majulaMaps.includes('m20_24'));
   assert.equal(majulaMaps.includes('m10_15'), false);
+  assert.equal(majulaMaps.includes('m10_27'), false);
 
-  // Aldia route includes Keep & Shrine but excludes Castle
+  // Aldia & Dragon Sanctum route loads strictly as pair ['m10_15', 'm10_27'] to eliminate 7.4M m³ mesh overlap
   const aldiaMaps = getCompatibleWorldMaps('m10_15');
-  assert.equal(aldiaMaps.length, 18);
-  assert.ok(aldiaMaps.includes('m10_15'));
-  assert.ok(aldiaMaps.includes('m10_27'));
-  assert.equal(aldiaMaps.includes('m20_21'), false);
+  assert.deepEqual(aldiaMaps, ['m10_15', 'm10_27']);
+  assert.equal(aldiaMaps.includes('m10_32'), false, 'Aldia must NOT load Shaded Woods to prevent overlap');
+  assert.equal(aldiaMaps.includes('m20_21'), false, 'Aldia must NOT load Drangleic Castle');
+
+  const shrineMaps = getCompatibleWorldMaps('m10_27');
+  assert.deepEqual(shrineMaps, ['m10_15', 'm10_27']);
 });
 
-test('Crucial overland routes are properly connected', () => {
-  // 虚影森林与安第尔之馆
-  assert.ok(ADJACENT.get('m10_32').includes('m10_15'));
+test('Crucial overland routes are properly connected and Aldia is safely isolated from Shaded Woods', () => {
+  // 虚影森林与安第尔之馆绝不可直接连通（防 7.4M m³ 穿模）
+  assert.equal(ADJACENT.get('m10_32')?.includes('m10_15'), false);
+  // 安第尔之馆与巨龙圣域自身连通
+  assert.deepEqual(ADJACENT.get('m10_15'), ['m10_27']);
+  assert.deepEqual(ADJACENT.get('m10_27'), ['m10_15']);
   // 虚影森林与多兰古雷格王城 (冬之庙)
   assert.ok(ADJACENT.get('m10_32').includes('m20_21'));
   // 巨人陨落之森与遗忘牢笼 (鸟巢直飞)

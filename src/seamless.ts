@@ -16,6 +16,16 @@ export function isWarpIsolatedMap(mapId: string): boolean {
   return WARP_ISOLATED_MAPS.has(mapId);
 }
 
+// 安第尔与巨龙圣域专属连通域 (安第尔之馆 <-> 卫龙巢穴与龙祭坛)
+export const ALDIA_SANCTUM_MAPS = new Set([
+  'm10_15', // 安第尔之馆
+  'm10_27', // 卫龙巢穴与龙祭坛
+]);
+
+export function isAldiaSanctumMap(mapId: string): boolean {
+  return ALDIA_SANCTUM_MAPS.has(mapId);
+}
+
 // 多兰古雷格本体大陆真实连通拓扑（纯物理陆地走廊、洞窟通道与海航渡口）
 export const LINKS: [string, string][] = [
   // 1. 初期启程
@@ -55,9 +65,8 @@ export const LINKS: [string, string][] = [
   ['m20_21', 'm20_11'], // 多兰古雷格王城 <-> 阿玛纳祭坛 (镜之骑士升降机)
   ['m20_11', 'm20_24'], // 阿玛纳祭坛 <-> 不死灵庙 (歌唱恶魔水路)
 
-  // 8. 安第尔与巨龙圣域
-  ['m10_32', 'm10_15'], // 虚影森林 <-> 安第尔之馆 (歧路遗迹左路国王门大道)
-  ['m10_15', 'm10_27'], // 安第尔之馆 <-> 卫龙巢穴与龙祭坛 (后门吊桥)
+  // 8. 安第尔与巨龙圣域 (安第尔之馆与卫龙圣域自身连通，通过后门吊桥衔接)
+  ['m10_15', 'm10_27'], // 安第尔之馆 <-> 卫龙巢穴与龙祭坛
 ];
 
 const ADJACENT = new Map<string, string[]>();
@@ -87,19 +96,20 @@ export function getCompatibleWorldMaps(activeMapId: string): string[] {
     return [activeMapId];
   }
 
-  // 多兰古雷格本体大陆：王城路线 (m20_21, m20_11, m20_24) 与安第尔路线 (m10_15, m10_27)
-  // 在原版物理坐标系下互相冲突穿模，按当前激活路线互斥隔离防穿模
-  const isAldiaRoute = activeMapId === 'm10_15' || activeMapId === 'm10_27';
-  const baseOverland = [
-    'm10_02', 'm10_04', 'm10_29', 'm10_10', 'm10_30', 'm10_31', 'm10_18', 'm10_16',
-    'm10_23', 'm10_17', 'm10_19', 'm10_34', 'm10_25', 'm10_32', 'm10_33', 'm10_14'
-  ];
-
-  if (isAldiaRoute) {
-    return [...baseOverland, 'm10_15', 'm10_27'];
-  } else {
-    return [...baseOverland, 'm20_21', 'm20_11', 'm20_24'];
+  // 安第尔与巨龙圣域：专属连通域 (m10_15 安第尔之馆 <-> m10_27 卫龙巢穴与龙祭坛)
+  // 原版通过歧路遗迹国王门后走廊硬切加载。原版坐标系下安第尔之馆与虚影森林/法洛斯门径
+  // 存在超过 740 万立方米的大面积物理坐标重叠（穿模严重），故安第尔之馆与巨龙圣域
+  // 作为独立专属连通域加载，彻底消除重叠穿模！
+  if (isAldiaSanctumMap(activeMapId)) {
+    return ['m10_15', 'm10_27'];
   }
+
+  // 多兰古雷格本体大陆主陆 (共 19 张大地图连通，不含安第尔与巨龙圣域)
+  return [
+    'm10_02', 'm10_04', 'm10_29', 'm10_10', 'm10_30', 'm10_31', 'm10_18', 'm10_16',
+    'm10_23', 'm10_17', 'm10_19', 'm10_34', 'm10_25', 'm10_32', 'm10_33', 'm10_14',
+    'm20_21', 'm20_11', 'm20_24'
+  ];
 }
 
 /**
