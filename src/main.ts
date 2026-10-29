@@ -598,13 +598,13 @@ async function bootstrap() {
       card.type = 'button';
       card.className = `welcome-map-card ${selected === m.id ? 'active' : ''}`;
       const originIdx = MAPS.findIndex((item) => item.id === m.id) + 1;
-      const isIsolated = isWarpIsolatedMap(m.id);
+      const dlcTagHtml = m.isDlc ? `<span class="welcome-map-dlc">DLC</span>` : '';
       card.innerHTML = `
         <span class="welcome-map-num">${String(originIdx).padStart(2, '0')}</span>
         <div class="welcome-map-info">
           <strong>${m.name}</strong>
-          <small>${isIsolated ? '传送独立空间' : '多兰古雷格大陆'}</small>
         </div>
+        ${dlcTagHtml}
       `;
 
       card.onclick = () => {
@@ -638,7 +638,8 @@ async function bootstrap() {
     const filtered = MAPS.filter((m) =>
       m.name.includes(searchVal) ||
       m.enName.toLowerCase().includes(searchVal.toLowerCase()) ||
-      m.category.includes(searchVal)
+      m.category.includes(searchVal) ||
+      (m.isDlc ? 'dlc' : '').includes(searchVal.toLowerCase())
     );
 
     filtered.forEach((m) => {
@@ -647,16 +648,13 @@ async function bootstrap() {
       btn.className = 'map-card';
       btn.setAttribute('aria-pressed', String(selected === m.id));
       const originIdx = MAPS.findIndex((item) => item.id === m.id) + 1;
-      const isIsolated = isWarpIsolatedMap(m.id);
+      const dlcTagHtml = m.isDlc ? `<span class="map-dlc-badge">DLC</span>` : '';
       btn.innerHTML = `
         <span class="map-number">${String(originIdx).padStart(2, '0')}</span>
         <div class="map-card-info">
           <strong>${m.name}</strong>
-          <small>${m.enName}</small>
-          <div class="map-card-tags">
-            <span class="map-origin-tag ${m.isDlc ? 'is-dlc' : ''}">${isIsolated ? '独立异空间' : '大陆主陆'}</span>
-          </div>
         </div>
+        ${dlcTagHtml}
       `;
 
       btn.onclick = () => {

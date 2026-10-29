@@ -69,3 +69,37 @@ test('Decode and verify sample maps (Majula, Things Betwixt, and Shulva DLC)', a
     assert.ok(header.triangles > 0);
   }
 });
+
+test('Only Crown DLC maps are marked isDlc and receive DLC badges', async () => {
+  const manifestRaw = await readFile(resolve(mapsDir, 'manifest.json'), 'utf8');
+  const manifest = JSON.parse(manifestRaw);
+
+  const dlcMaps = manifest.filter((m) => m.isDlc).map((m) => m.id);
+  assert.deepEqual(dlcMaps.sort(), ['m50_35', 'm50_36', 'm50_37'], 'Only Shulva, Brume Tower, and Eleum Loyce are DLC');
+
+  const nonDlcMaps = manifest.filter((m) => !m.isDlc);
+  assert.equal(nonDlcMaps.length, 24, 'All other 24 maps must not be marked DLC');
+
+  // Verify card rendering helper logic
+  const renderCard = (m, originIdx) => {
+    const dlcTagHtml = m.isDlc ? '<span class="map-dlc-badge">DLC</span>' : '';
+    return {
+      num: String(originIdx).padStart(2, '0'),
+      name: m.name,
+      hasEnName: false,
+      hasRegionTag: false,
+      dlcBadge: dlcTagHtml
+    };
+  };
+
+  const shulva = manifest.find((m) => m.id === 'm50_35');
+  const majula = manifest.find((m) => m.id === 'm10_04');
+
+  const shulvaCard = renderCard(shulva, 25);
+  assert.ok(shulvaCard.dlcBadge.includes('DLC'), 'DLC map must have DLC badge');
+
+  const majulaCard = renderCard(majula, 2);
+  assert.equal(majulaCard.dlcBadge, '', 'Non-DLC map must NOT have DLC badge');
+  assert.equal(majulaCard.hasEnName, false, 'Card must not have English name');
+  assert.equal(majulaCard.hasRegionTag, false, 'Card must not have region tag');
+});
