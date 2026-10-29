@@ -26,13 +26,28 @@ test('joystickVector: normalizes vector to radius clamp', () => {
 });
 
 test('screenDeltaToLandscape: transforms deltas under 90 deg clockwise landscape rotation', () => {
-  // Non-rotated: [dx, dy] unchanged
+  // Non-rotated (Native Landscape via hbSDK.viewport.setDisplay): [dx, dy] unchanged
   assert.deepEqual(screenDeltaToLandscape(10, 20, false), [10, 20]);
+  assert.deepEqual(screenDeltaToLandscape(-15, 45, false), [-15, 45]);
 
-  // Rotated: physical right (+X) is visual down (+Y), physical down (+Y) is visual left (-X)
+  // Rotated (CSS 90deg rotation in default portrait): physical right (+X) is visual down (+Y), physical down (+Y) is visual left (-X)
   // Forward motion on landscape screen is visual -Y (physical -X)
   const [rx, ry] = screenDeltaToLandscape(0, -30, true);
   assert.deepEqual([rx, ry], [-30, 0]);
+});
+
+test('Native landscape mode determination flag', () => {
+  // When in map-view and native landscape is active, isStageRotatedLandscape must be false
+  const isStageRotatedLandscape = (isMapView, isNativeLandscapeActive, width, height) => {
+    if (!isMapView) return false;
+    if (isNativeLandscapeActive || width >= height) return false;
+    return true;
+  };
+
+  assert.equal(isStageRotatedLandscape(false, false, 375, 812), false, 'Welcome screen never rotates');
+  assert.equal(isStageRotatedLandscape(true, false, 375, 812), true, 'Mobile portrait map-view without SDK uses CSS rotation');
+  assert.equal(isStageRotatedLandscape(true, true, 812, 375), false, 'Native landscape active does not use CSS rotation');
+  assert.equal(isStageRotatedLandscape(true, false, 1920, 1080), false, 'PC widescreen does not use CSS rotation');
 });
 
 test('Touch events failsafe: release when touches is empty', () => {

@@ -223,6 +223,10 @@ function renderAppHtml(): string {
                   <span>天空贴图</span>
                   <input id="sky-mode" type="checkbox" checked />
                 </label>
+                <label class="setting-select-row" for="native-fullscreen-mode">
+                  <span>原生全屏横屏 (SDK)</span>
+                  <input id="native-fullscreen-mode" type="checkbox" />
+                </label>
               </div>
               <div class="setting-card-group">
                 <label class="group-label">地图加载</label>
@@ -334,6 +338,10 @@ async function bootstrap() {
   const controls = new CameraControls(canvas, joystickZone);
 
   // Application State
+  const STORAGE_KEY_NATIVE_FULLSCREEN = 'ds2_pref_native_fullscreen';
+  let nativeFullscreenEnabled = typeof localStorage !== 'undefined' && localStorage.getItem(STORAGE_KEY_NATIVE_FULLSCREEN) === 'true';
+  let isNativeLandscapeActive = false;
+
   let selected = 'm10_04'; // Default: Majula (如蜜)
   let isWireframe = false;
   let skyEnabled = true;
@@ -468,11 +476,24 @@ async function bootstrap() {
   }
 
   // Viewport Orientation
+  function isStageRotatedLandscape(): boolean {
+    if (!document.body.classList.contains('map-view')) return false;
+    // 原生全屏横屏生效或设备物理即为横屏时，直接利用原生横屏视口，无需 CSS 旋转
+    if (isNativeLandscapeActive || window.innerWidth >= window.innerHeight) {
+      return false;
+    }
+    // 默认竖屏模式下，使用 CSS 90度旋转舞台模拟横屏
+    return true;
+  }
+
   function syncViewportOrientationClass() {
     const landscape = window.innerWidth >= window.innerHeight;
     document.body.classList.toggle('orientation-landscape', landscape);
     document.body.classList.toggle('orientation-portrait', !landscape);
-    document.body.classList.toggle('rotated-landscape', document.body.classList.contains('map-view'));
+
+    const needRotate = isStageRotatedLandscape();
+    document.body.classList.toggle('rotated-landscape', needRotate);
+    document.body.classList.toggle('native-landscape', !needRotate && document.body.classList.contains('map-view'));
   }
 
   function handleResize() {
@@ -494,7 +515,13 @@ async function bootstrap() {
   try {
     if (typeof hbSDK !== 'undefined' && hbSDK.on) {
       hbSDK.on('viewport_change', handleResize);
-      hbSDK.on('display_change', handleResize);
+      hbSDK.on('display_change', (payload: unknown) => {
+        const state = payload as { orientation?: string; fullscreen?: boolean } | undefined;
+        if (state && typeof state.orientation === 'string') {
+          isNativeLandscapeActive = state.orientation === 'landscape';
+        }
+        handleResize();
+      });
       hbSDK.on('show', handleResize);
     }
   } catch {}
@@ -787,6 +814,18 @@ async function bootstrap() {
     if (entering) return;
     entering = true;
     try {
+      // 若开启了小黑盒原生全屏横屏，调用 hbSDK.viewport.setDisplay 原生横屏全屏接口
+      if (nativeFullscreenEnabled && typeof hbSDK !== 'undefined' && hbSDK.viewport?.setDisplay) {
+        try {
+          const res = await hbSDK.viewport.setDisplay({ orientation: 'landscape', fullscreen: true });
+          if (res && res.supported) {
+            isNativeLandscapeActive = true;
+          }
+        } catch (err) {
+          console.warn('[DS2] hbSDK setDisplay landscape 失败:', err);
+        }
+      }
+
       controls.clear();
       document.body.classList.add('map-view');
       document.body.classList.add('exploring');
@@ -802,7 +841,7 @@ async function bootstrap() {
   }
 
   // Return to Welcome Screen
-  function returnToWelcome() {
+  async function returnToWelcome() {
     controls.clear();
     cancelSeamlessLoad();
     setPanel(false);
@@ -815,6 +854,18 @@ async function bootstrap() {
     controls.collider = null;
     document.body.classList.remove('exploring');
     document.body.classList.remove('map-view');
+
+    // 退出地图查看时恢复竖屏非全屏原生展示
+    if (typeof hbSDK !== 'undefined' && hbSDK.viewport?.setDisplay) {
+      try {
+        await hbSDK.viewport.setDisplay({ orientation: 'portrait', fullscreen: false });
+      } catch (err) {
+        console.warn('[DS2] hbSDK setDisplay portrait 失败:', err);
+      } finally {
+        isNativeLandscapeActive = false;
+      }
+    }
+
     el('loading').hidden = true;
     el('error').hidden = true;
     el('welcome').hidden = false;
@@ -878,6 +929,34 @@ async function bootstrap() {
   el<HTMLInputElement>('sky-mode').onchange = (e) => {
     skyEnabled = (e.target as HTMLInputElement).checked;
   };
+  const nativeFullscreenEl = el<HTMLInputElement>('native-fullscreen-mode');
+  if (nativeFullscreenEl) {
+    nativeFullscreenEl.checked = nativeFullscreenEnabled;
+    nativeFullscreenEl.onchange = async (e) => {
+      nativeFullscreenEnabled = (e.target as HTMLInputElement).checked;
+      try {
+        localStorage.setItem(STORAGE_KEY_NATIVE_FULLSCREEN, String(nativeFullscreenEnabled));
+      } catch {}
+
+      // 如果当前正在地图查看中，即刻生效原生方向切换
+      if (document.body.classList.contains('map-view')) {
+        if (typeof hbSDK !== 'undefined' && hbSDK.viewport?.setDisplay) {
+          try {
+            if (nativeFullscreenEnabled) {
+              const res = await hbSDK.viewport.setDisplay({ orientation: 'landscape', fullscreen: true });
+              isNativeLandscapeActive = Boolean(res?.supported);
+            } else {
+              await hbSDK.viewport.setDisplay({ orientation: 'portrait', fullscreen: false });
+              isNativeLandscapeActive = false;
+            }
+          } catch (err) {
+            console.warn('[DS2] hbSDK setDisplay 实时切换失败:', err);
+          }
+        }
+        handleResize();
+      }
+    };
+  }
   el<HTMLInputElement>('load-all-mode').onchange = (event) => {
     loadAllEnabled = (event.target as HTMLInputElement).checked;
     cancelSeamlessLoad();
