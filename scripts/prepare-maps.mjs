@@ -7,7 +7,7 @@ import spawnPoints from '../src/spawn-points.json' with { type: 'json' };
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const inputDir = resolve(__dirname, '../../data/DarkSouls2CollisionData');
 const outputDir = resolve(__dirname, '../public-lite/maps');
-const DLC_MAP_IDS = new Set();
+const DLC_MAP_IDS = new Set(['m50_35', 'm50_36', 'm50_37']);
 
 // Complete metadata and mapping for all 24 Dark Souls 2 maps
 export const MAP_CONFIGS = [
@@ -202,6 +202,30 @@ export const MAP_CONFIGS = [
     enName: 'Dark Chasm of Old',
     category: '回忆与深渊',
     desc: '点亮三座古老火盆方能抵达的深渊领域，暗天使居所。'
+  },
+  {
+    id: 'm50_35',
+    file: "50_35_Shulva, Sanctum City & Dragon's Sanctum.iv",
+    name: '圣壁之都萨尔瓦 · 龙之圣壁',
+    enName: 'Shulva, Sanctum City & Dragon\'s Sanctum',
+    category: '失落王冠 DLC',
+    desc: '沉眠于深邃地底的古老水上圣壁之都，沉睡之龙辛与毒雾的死寂祭坛。'
+  },
+  {
+    id: 'm50_36',
+    file: '50_36_Brume Tower & Iron Passage.iv',
+    name: '黑雾之塔 · 铁之回廊',
+    enName: 'Brume Tower & Iron Passage',
+    category: '失落王冠 DLC',
+    desc: '被厚重灰烬与黑雾吞噬的熔铁巨塔，烟之骑士与铁之古王余烬沉沦之所。'
+  },
+  {
+    id: 'm50_37',
+    file: '50_37_Frozen Eleum Loyce & Frigid Outskirts.iv',
+    name: '埃斯・洛耶斯 · 主神殿 · 壁外雪原',
+    enName: 'Frozen Eleum Loyce & Frigid Outskirts',
+    category: '失落王冠 DLC',
+    desc: '白霜封冻的宏伟北境神殿之城，暴风雪咆哮的壁外雪原与混沌余烬。'
   }
 ];
 

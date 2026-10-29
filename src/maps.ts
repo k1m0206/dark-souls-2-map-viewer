@@ -27,6 +27,7 @@ export const MAP_CATEGORIES = [
   '多兰古雷格与深处',
   '安第尔与巨龙圣域',
   '回忆与深渊',
+  '失落王冠 DLC',
 ] as const;
 
 export type MapCategory = typeof MAP_CATEGORIES[number];
@@ -319,11 +320,47 @@ const MAP_CATALOG: Omit<MapDefinition, 'spawnWalk' | 'spawnFly' | 'isDlc'>[] = [
     center: [289.01, 23.22, -989.82],
     triangles: 177718,
     vertices: 531962
-  }
+  },
+  {
+    id: "m50_35",
+    name: "圣壁之都萨尔瓦 · 龙之圣壁",
+    enName: "Shulva, Sanctum City & Dragon's Sanctum",
+    category: "失落王冠 DLC",
+    desc: "沉眠于深邃地底的古老水上圣壁之都，沉睡之龙辛与毒雾的死寂祭坛。",
+    color: [0.12, 0.32, 0.22],
+    bounds: { min: [-51.33, -83.57, -218.69], max: [177.93, 106.02, 85.11] },
+    center: [63.3, 11.22, -66.79],
+    triangles: 93949,
+    vertices: 112105
+  },
+  {
+    id: "m50_36",
+    name: "黑雾之塔 · 铁之回廊",
+    enName: "Brume Tower & Iron Passage",
+    category: "失落王冠 DLC",
+    desc: "被厚重灰烬与黑雾吞噬的熔铁巨塔，烟之骑士与铁之古王余烬沉沦之所。",
+    color: [0.35, 0.16, 0.1],
+    bounds: { min: [-255.3, -23.94, 353.47], max: [-60.73, 208.98, 525.7] },
+    center: [-158.02, 92.52, 439.58],
+    triangles: 205957,
+    vertices: 322391
+  },
+  {
+    id: "m50_37",
+    name: "埃斯・洛耶斯 · 主神殿 · 壁外雪原",
+    enName: "Frozen Eleum Loyce & Frigid Outskirts",
+    category: "失落王冠 DLC",
+    desc: "白霜封冻的宏伟北境神殿之城，暴风雪咆哮的壁外雪原与混沌余烬。",
+    color: [0.18, 0.26, 0.38],
+    bounds: { min: [-325.93, -221.28, -951.8], max: [1034.82, 126.69, 161.46] },
+    center: [354.45, -47.29, -395.17],
+    triangles: 105275,
+    vertices: 116626
+  },
 ];
 
 const SPAWN_POINTS = spawnPoints as unknown as Record<string, [number, number, number]>;
-const DLC_MAP_IDS = new Set<string>();
+const DLC_MAP_IDS = new Set<string>(['m50_35', 'm50_36', 'm50_37']);
 
 export const MAPS: MapDefinition[] = MAP_CATALOG.map((map) => {
   const spawnWalk = SPAWN_POINTS[map.id];

@@ -24,10 +24,10 @@ async function verify() {
 
   const mapFiles = await readdir('dist/maps');
   const jsMaps = mapFiles.filter((f) => f.endsWith('.js'));
-  console.log(`内置地图文件数: ${jsMaps.length} / 24 张`);
+  console.log(`内置地图文件数: ${jsMaps.length} / 27 张`);
 
-  if (jsMaps.length < 24) {
-    throw new Error(`地图构建不完整，期望 24 张，实际仅有 ${jsMaps.length} 张`);
+  if (jsMaps.length < 27) {
+    throw new Error(`地图构建不完整，期望 27 张，实际仅有 ${jsMaps.length} 张`);
   }
 
   await mkdir('verification', { recursive: true });
@@ -37,7 +37,7 @@ async function verify() {
     'utf8'
   );
 
-  console.log(`✅ 检查通过: 24 张地图完整收录，包体符合平台要求。\n`);
+  console.log(`✅ 检查通过: 27 张地图完整收录，包体符合平台要求。\n`);
 }
 
 verify().catch((err) => {

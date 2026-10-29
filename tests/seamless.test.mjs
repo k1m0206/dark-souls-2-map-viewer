@@ -14,7 +14,8 @@ const mapBounds = JSON.parse(readFileSync(boundsPath, 'utf8'));
 const ALL_MAP_IDS = [
   'm10_02', 'm10_04', 'm10_10', 'm10_14', 'm10_15', 'm10_16', 'm10_17', 'm10_18',
   'm10_19', 'm10_23', 'm10_25', 'm10_27', 'm10_29', 'm10_30', 'm10_31', 'm10_32',
-  'm10_33', 'm10_34', 'm20_10', 'm20_11', 'm20_21', 'm20_24', 'm20_26', 'm40_03'
+  'm10_33', 'm10_34', 'm20_10', 'm20_11', 'm20_21', 'm20_24', 'm20_26', 'm40_03',
+  'm50_35', 'm50_36', 'm50_37'
 ];
 
 const LINKS = [
@@ -49,7 +50,10 @@ const LINKS = [
   ['m20_24', 'm10_15'],
   ['m10_32', 'm10_15'],
   ['m10_15', 'm10_27'],
-  ['m10_32', 'm40_03']
+  ['m10_32', 'm40_03'],
+  ['m10_25', 'm50_35'],
+  ['m10_19', 'm50_36'],
+  ['m10_32', 'm50_37']
 ];
 
 const ADJACENT = new Map();
@@ -82,8 +86,8 @@ function isRegionFar(mapId, point, unloadRadius = 850) {
   return distanceToRegion(mapId, point) > unloadRadius;
 }
 
-test('All 24 maps are represented in the seamless adjacency graph', () => {
-  assert.equal(ALL_MAP_IDS.length, 24);
+test('All 27 maps are represented in the seamless adjacency graph', () => {
+  assert.equal(ALL_MAP_IDS.length, 27);
   for (const mapId of ALL_MAP_IDS) {
     const neighbors = ADJACENT.get(mapId);
     assert.ok(neighbors && neighbors.length > 0, `Map ${mapId} must have at least one seamless connection`);
@@ -105,7 +109,7 @@ test('Graph connectivity: entire Dark Souls 2 world is a single connected graph'
     }
   }
 
-  assert.equal(visited.size, 24, `All 24 maps must be reachable in seamless world graph, found ${visited.size}`);
+  assert.equal(visited.size, 27, `All 27 maps must be reachable in seamless world graph, found ${visited.size}`);
 });
 
 test('Crucial overland and warp routes are properly connected', () => {
@@ -125,6 +129,10 @@ test('Crucial overland and warp routes are properly connected', () => {
   assert.ok(ADJACENT.get('m40_03').includes('m10_25'));
   assert.ok(ADJACENT.get('m40_03').includes('m20_21'));
   assert.ok(ADJACENT.get('m40_03').includes('m10_32'));
+  // 失落王冠三大 DLC 蛇之祭坛通道
+  assert.ok(ADJACENT.get('m10_25').includes('m50_35'), 'Black Gulch must connect to Shulva DLC');
+  assert.ok(ADJACENT.get('m10_19').includes('m50_36'), 'Iron Keep must connect to Brume Tower DLC');
+  assert.ok(ADJACENT.get('m10_32').includes('m50_37'), 'Shaded Woods must connect to Eleum Loyce DLC');
 });
 
 test('Dynamic loading radius & count: Majula can load up to 5 adjacent maps simultaneously', () => {

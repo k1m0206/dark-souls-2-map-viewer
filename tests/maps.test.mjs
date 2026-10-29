@@ -8,12 +8,12 @@ import { gunzipSync } from 'fflate';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const mapsDir = resolve(__dirname, '../public-lite/maps');
 
-test('Map catalog has exactly 24 Dark Souls 2 maps', async () => {
+test('Map catalog has exactly 27 Dark Souls 2 maps', async () => {
   const manifestRaw = await readFile(resolve(mapsDir, 'manifest.json'), 'utf8');
   const manifest = JSON.parse(manifestRaw);
   const spawnPoints = JSON.parse(await readFile(resolve(__dirname, '../src/spawn-points.json'), 'utf8'));
-  assert.equal(manifest.length, 24, 'Should contain 24 maps');
-  assert.equal(Object.keys(spawnPoints).length, 24, 'Should have one curated spawn for each map');
+  assert.equal(manifest.length, 27, 'Should contain 27 maps');
+  assert.equal(Object.keys(spawnPoints).length, 27, 'Should have one curated spawn for each map');
 
   const ids = new Set();
   for (const m of manifest) {
@@ -31,17 +31,17 @@ test('Map catalog has exactly 24 Dark Souls 2 maps', async () => {
     assert.equal(m.spawnFly[1], Number((m.spawnWalk[1] + 30).toFixed(2)));
     ids.add(m.id);
   }
-  assert.equal(ids.size, 24, 'All 24 map IDs must be unique');
+  assert.equal(ids.size, 27, 'All 27 map IDs must be unique');
 });
 
-test('All 24 map JavaScript bundles exist on disk', async () => {
+test('All 27 map JavaScript bundles exist on disk', async () => {
   const files = await readdir(mapsDir);
   const jsFiles = files.filter((f) => f.endsWith('.js'));
-  assert.equal(jsFiles.length, 24, 'Should have 24 .js map files');
+  assert.equal(jsFiles.length, 27, 'Should have 27 .js map files');
 });
 
-test('Decode and verify sample maps (Majula and Things Betwixt)', async () => {
-  for (const mapId of ['m10_02', 'm10_04']) {
+test('Decode and verify sample maps (Majula, Things Betwixt, and Shulva DLC)', async () => {
+  for (const mapId of ['m10_02', 'm10_04', 'm50_35']) {
     const jsContent = await readFile(resolve(mapsDir, `${mapId}.js`), 'utf8');
     assert.ok(jsContent.startsWith('globalThis.__atlasReceive('), 'Should match atlas loader signature');
 
