@@ -166,6 +166,11 @@ export class ItemManager {
     }
   }
 
+  public clearPrompt() {
+    this.nearestSpot = null;
+    this.promptEl?.classList.add('hidden');
+  }
+
   private updatePrompt(spot: TreasureSpot | null) {
     if (!this.promptEl) return;
     if (!spot) {

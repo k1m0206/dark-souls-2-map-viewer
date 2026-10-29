@@ -32,6 +32,8 @@ import { CameraControls } from './controls';
 import { installErrorLogging, recordAppError } from './error-log';
 import { ItemRadar } from './item-radar';
 import { ItemManager } from './item-manager';
+import { NPCManager } from './npc-manager';
+import { NPCRenderer } from './npc-renderer';
 import { mat4 } from 'gl-matrix';
 import type { TreasureSpot } from './all-items';
 import './styles.css';
@@ -383,6 +385,8 @@ async function bootstrap() {
   const scene = new DS2Scene(gl);
   const skyRenderer = new SkyRenderer(gl);
   const itemManager = new ItemManager(gl);
+  const npcManager = new NPCManager();
+  const npcRenderer = gl ? new NPCRenderer(gl) : null;
   const itemRadar = new ItemRadar();
   const controls = new CameraControls(canvas, joystickZone);
 
@@ -830,6 +834,7 @@ async function bootstrap() {
       controls.restoreState(spawn, 0, 0);
     }
     itemManager.setMaps(scene.loadedMapIds());
+    npcManager.setMaps(scene.loadedMapIds());
 
     // 传送不连通的异空间地图：单独自己加载一个地图，完成！
     if (isIsolated) {
@@ -873,6 +878,7 @@ async function bootstrap() {
     }
 
     itemManager.setMaps(scene.loadedMapIds());
+    npcManager.setMaps(scene.loadedMapIds());
     await hideLoading(`大陆 ${totalMaps} 张地图全境就绪`);
   }
 
@@ -904,6 +910,7 @@ async function bootstrap() {
         controls.restoreState(spawn, 0, 0);
       }
       itemManager.setMaps(scene.loadedMapIds());
+    npcManager.setMaps(scene.loadedMapIds());
       lastSeamlessScan = 0;
       return;
     }
@@ -912,6 +919,7 @@ async function bootstrap() {
       try {
         await loadFullWorld(mapId, abortCtrl.signal, spawnOverride);
         itemManager.setMaps(scene.loadedMapIds());
+    npcManager.setMaps(scene.loadedMapIds());
         lastSeamlessScan = 0;
       } catch (err: unknown) {
         if ((err as Error)?.name === 'AbortError') return;
@@ -960,6 +968,7 @@ async function bootstrap() {
         controls.restoreState(spawn, 0, 0);
       }
       itemManager.setMaps(scene.loadedMapIds());
+    npcManager.setMaps(scene.loadedMapIds());
 
       await hideLoading(`${mapDef.name} 加载完成`);
       lastSeamlessScan = 0;
@@ -1024,6 +1033,8 @@ async function bootstrap() {
     itemRadar.close();
     itemManager.hideDetail();
     itemManager.setMaps([]);
+    npcManager.hideDialogue();
+    npcManager.setMaps([]);
     setPanel(false);
     if (activeAbortController) {
       activeAbortController.abort();
@@ -1353,8 +1364,21 @@ async function bootstrap() {
         currentTime / 1000
       );
 
-      // 实时近距离感应与底部 HUD 交互提示
-      itemManager.update([controls.position[0], controls.position[1], controls.position[2]]);
+      // 渲染 3D NPC（防火女与各商人）模型、贴图与法线呼吸动画
+      npcRenderer?.render(
+        scene.getViewProjection(),
+        [controls.position[0], controls.position[1], controls.position[2]],
+        npcManager.getActiveNpcs(),
+        currentTime / 1000
+      );
+
+      // 实时近距离感应与底部 HUD 交互提示 (NPC 优先)
+      npcManager.update([controls.position[0], controls.position[1], controls.position[2]]);
+      if (!npcManager.getNearestNpc()) {
+        itemManager.update([controls.position[0], controls.position[1], controls.position[2]]);
+      } else {
+        itemManager.clearPrompt();
+      }
 
       // Update telemetry
       const coordEl = el('coord-val');
