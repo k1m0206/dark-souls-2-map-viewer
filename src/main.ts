@@ -23,7 +23,7 @@ import { MAPS, MAP_DICT } from './maps';
 import { loadDecodedMap, releaseDecodedMap } from './format';
 import { DS2Scene } from './scene';
 import { SkyRenderer } from './sky-renderer';
-import { distanceToRegion, isRegionFar, linkedRegions, nearbyRegions } from './seamless';
+import { distanceToRegion, isRegionFar, nearbyRegions } from './seamless';
 import { CameraControls } from './controls';
 import { installErrorLogging, recordAppError } from './error-log';
 import './styles.css';
@@ -61,6 +61,7 @@ function renderAppHtml(): string {
       <div class="welcome-scroll-wrap">
         <div class="welcome-hero">
           <h2>多兰古雷格<em>地图志</em></h2>
+          <span class="welcome-subtitle-badge">全境 27 张地图 · 全量大世界同屏</span>
         </div>
 
         <div class="welcome-map-section">
@@ -77,9 +78,9 @@ function renderAppHtml(): string {
 
       <!-- 底部固定栏 -->
       <div class="welcome-fixed-bar">
-        <button id="start" type="button" class="btn-welcome-start" title="进入地图">
+        <button id="start" type="button" class="btn-welcome-start" title="进入全量大世界">
           <i data-lucide="flame"></i>
-          <span id="welcome-start-label">进入</span>
+          <span id="welcome-start-label">进入全量大世界</span>
           <i data-lucide="arrow-up" style="transform: rotate(90deg)"></i>
         </button>
       </div>
@@ -224,9 +225,13 @@ function renderAppHtml(): string {
                 </label>
               </div>
               <div class="setting-card-group">
-                <label class="group-label">加载</label>
-                <label class="setting-select-row" for="seamless-mode">
-                  <span>无缝探索</span>
+                <label class="group-label">地图加载</label>
+                <label class="setting-select-row" for="load-all-mode">
+                  <span>全量大世界 (27张同屏)</span>
+                  <input id="load-all-mode" type="checkbox" checked />
+                </label>
+                <label class="setting-select-row" for="seamless-mode" id="row-seamless-mode">
+                  <span>动态邻近加载</span>
                   <input id="seamless-mode" type="checkbox" checked />
                 </label>
               </div>
@@ -279,8 +284,9 @@ function renderAppHtml(): string {
       <!-- 加载遮罩 -->
       <section id="loading" hidden aria-live="polite">
         <span class="spinner"></span>
-        <h2 id="load-title">多兰古雷格</h2>
+        <h2 id="load-title">多兰古雷格全量大世界</h2>
         <progress id="progress" max="1" value="0"></progress>
+        <p id="load-sub"></p>
       </section>
 
       <!-- 错误提示 -->
@@ -334,6 +340,7 @@ async function bootstrap() {
   let fov = 75;
   let isUIHidden = false;
   let activeAbortController: AbortController | null = null;
+  let loadAllEnabled = true; // 默认加载全量大世界 (27张地图同屏)
   let seamlessEnabled = true;
   let seamlessAbort: AbortController | null = null;
   let seamlessGeneration = 0;
@@ -362,7 +369,7 @@ async function bootstrap() {
   }
 
   async function maintainSeamlessRegions() {
-    if (!seamlessEnabled || seamlessBusy || !scene.hasMap(selected) || !document.body.classList.contains('map-view')) return;
+    if (seamlessBusy || !scene.hasMap(selected) || !document.body.classList.contains('map-view')) return;
     seamlessBusy = true;
     const generation = seamlessGeneration;
     const abortCtrl = new AbortController();
@@ -374,7 +381,7 @@ async function bootstrap() {
         const currentGround = scene.mapGroundHeight(selected, point[0], feetY, point[2]);
         if (!currentGround || Math.abs(currentGround.groundY - feetY) > 1.5) {
           for (const id of scene.loadedMapIds()) {
-            if (id === selected || !linkedRegions(selected).includes(id)) continue;
+            if (id === selected) continue;
             const ground = scene.mapGroundHeight(id, point[0], feetY, point[2]);
             if (ground && Math.abs(ground.groundY - feetY) <= 1.5) {
               updateCurrentRegion(id);
@@ -384,13 +391,22 @@ async function bootstrap() {
         }
       } else {
         const currentDistance = distanceToRegion(selected, point);
-        const other = scene.loadedMapIds()
-          .filter((id) => id !== selected && linkedRegions(selected).includes(id))
-          .sort((a, b) => distanceToRegion(a, point) - distanceToRegion(b, point))[0];
-        if (other && currentDistance > 30 && distanceToRegion(other, point) + 15 < currentDistance) {
-          updateCurrentRegion(other);
+        const candidateMaps = scene.loadedMapIds().filter((id) => id !== selected);
+        const other = candidateMaps.sort((a, b) => distanceToRegion(a, point) - distanceToRegion(b, point))[0];
+        if (other) {
+          const distOther = distanceToRegion(other, point);
+          if (distOther < 120 && (currentDistance > 40 || distOther + 20 < currentDistance)) {
+            updateCurrentRegion(other);
+          }
         }
       }
+
+      // 全量大世界模式下所有已加载地图常驻，无需卸载与切片加载
+      if (loadAllEnabled) {
+        return;
+      }
+
+      if (!seamlessEnabled) return;
 
       // 动态预加载相邻更多区域 (感应半径 500，最多加载 5 个相邻地图)
       const nearby = nearbyRegions(selected, point, 500, 5);
@@ -607,6 +623,71 @@ async function bootstrap() {
     }
   }
 
+  // Load Full World Pipeline (全量 27 张地图全境同屏)
+  async function loadFullWorld(targetMapId: string, signal: AbortSignal) {
+    const targetDef = MAP_DICT.get(targetMapId) || MAPS[0];
+    selected = targetDef.id;
+    scene.setActiveMap(targetDef.id);
+    el('area-title').textContent = targetDef.name;
+    el('loading').hidden = false;
+    el('error').hidden = true;
+    el('load-title').textContent = '多兰古雷格全量大世界';
+    const progressEl = el<HTMLProgressElement>('progress');
+    const subEl = el<HTMLElement>('load-sub');
+    if (subEl) subEl.textContent = `准备载入全境地图 (1/27: ${targetDef.name})...`;
+    if (progressEl) progressEl.value = 0.05;
+
+    // 1. 优先加载并就绪当前起点地图
+    if (!scene.hasMap(targetMapId)) {
+      const decodedTarget = await loadDecodedMap(targetMapId, signal, (_stage, pct) => {
+        if (progressEl) progressEl.value = 0.05 + (pct / 100) * 0.1;
+      });
+      if (signal.aborted) return;
+      scene.addMap(decodedTarget);
+      controls.collider = scene.collider;
+    }
+
+    const spawn = controls.mode === 'walk' ? targetDef.spawnWalk : targetDef.spawnFly;
+    controls.restoreState(spawn, 0, 0);
+
+    // 2. 按空间距离近远对剩余未加载地图排序，就近渐进载入
+    const targetCenter = targetDef.center;
+    const remainingMaps = MAPS.filter((m) => !scene.hasMap(m.id)).sort((a, b) => {
+      const da = Math.hypot(a.center[0] - targetCenter[0], a.center[2] - targetCenter[2]);
+      const db = Math.hypot(b.center[0] - targetCenter[0], b.center[2] - targetCenter[2]);
+      return da - db;
+    });
+
+    const totalMaps = MAPS.length;
+    let loadedCount = scene.loadedMapIds().length;
+    if (progressEl) progressEl.value = Math.max(0.15, loadedCount / totalMaps);
+
+    // 3. 批量流式载入全部地图 (每批 2 张，帧间让步 16ms 确保 UI 流畅与渲染更新)
+    const batchSize = 2;
+    for (let i = 0; i < remainingMaps.length; i += batchSize) {
+      if (signal.aborted) return;
+      const batch = remainingMaps.slice(i, i + batchSize);
+
+      for (const m of batch) {
+        if (signal.aborted) return;
+        if (subEl) subEl.textContent = `[${loadedCount + 1}/${totalMaps}] 载入 ${m.name}...`;
+        const decoded = await loadDecodedMap(m.id, signal);
+        if (signal.aborted) return;
+        scene.addMap(decoded);
+        loadedCount++;
+        if (progressEl) progressEl.value = loadedCount / totalMaps;
+      }
+      controls.collider = scene.collider;
+
+      await new Promise((r) => setTimeout(r, 16));
+    }
+
+    if (progressEl) progressEl.value = 1.0;
+    if (subEl) subEl.textContent = '多兰古雷格全境 27 张地图加载完成';
+    await new Promise((r) => setTimeout(r, 120));
+    el('loading').hidden = true;
+  }
+
   // Load Map Pipeline
   async function switchMap(mapId: string) {
     controls.clear();
@@ -618,13 +699,45 @@ async function bootstrap() {
     activeAbortController = abortCtrl;
 
     const mapDef = MAP_DICT.get(mapId) || MAPS[0];
-    selected = mapDef.id;
 
+    // 全量大世界模式下，若目标地图已在显存中，瞬移传送无需加载等待
+    if (loadAllEnabled && scene.hasMap(mapId)) {
+      selected = mapDef.id;
+      scene.setActiveMap(mapDef.id);
+      el('area-title').textContent = mapDef.name;
+      const spawn = controls.mode === 'walk' ? mapDef.spawnWalk : mapDef.spawnFly;
+      controls.restoreState(spawn, 0, 0);
+      lastSeamlessScan = 0;
+      return;
+    }
+
+    if (loadAllEnabled) {
+      try {
+        await loadFullWorld(mapId, abortCtrl.signal);
+        lastSeamlessScan = 0;
+      } catch (err: unknown) {
+        if ((err as Error)?.name === 'AbortError') return;
+        recordAppError(err, 'loadFullWorld');
+        el('loading').hidden = true;
+        el('error').hidden = false;
+        el('error-detail').textContent = (err as Error)?.message || '地图全境加载异常';
+      } finally {
+        if (activeAbortController === abortCtrl) {
+          activeAbortController = null;
+        }
+      }
+      return;
+    }
+
+    // 单张 / 动态邻近加载模式
+    selected = mapDef.id;
     el('area-title').textContent = mapDef.name;
     el('loading').hidden = false;
     el('error').hidden = true;
     el('load-title').textContent = mapDef.name;
     const progressEl = el<HTMLProgressElement>('progress');
+    const subEl = el<HTMLElement>('load-sub');
+    if (subEl) subEl.textContent = '正在读取几何网格...';
     if (progressEl) progressEl.value = 0.15;
 
     try {
@@ -765,20 +878,42 @@ async function bootstrap() {
   el<HTMLInputElement>('sky-mode').onchange = (e) => {
     skyEnabled = (e.target as HTMLInputElement).checked;
   };
-  el<HTMLInputElement>('seamless-mode').onchange = (event) => {
-    seamlessEnabled = (event.target as HTMLInputElement).checked;
+  el<HTMLInputElement>('load-all-mode').onchange = (event) => {
+    loadAllEnabled = (event.target as HTMLInputElement).checked;
     cancelSeamlessLoad();
-    if (!seamlessEnabled) {
+    if (!loadAllEnabled) {
+      // 切换到局部/动态模式：精简过远地图，保留当前及附近区域
+      const point = [controls.position[0], controls.position[1], controls.position[2]];
+      const nearby = seamlessEnabled ? nearbyRegions(selected, point, 500, 5) : [];
+      const keep = new Set([selected, ...nearby]);
       for (const id of scene.loadedMapIds()) {
-        if (id !== selected) {
+        if (!keep.has(id)) {
           scene.removeMap(id);
           releaseDecodedMap(id);
         }
       }
       controls.collider = scene.collider;
     } else {
-      lastSeamlessScan = 0;
-      void maintainSeamlessRegions();
+      // 切换回全量大世界：加载所有尚未加载的地图
+      void loadFullWorld(selected, new AbortController().signal);
+    }
+  };
+  el<HTMLInputElement>('seamless-mode').onchange = (event) => {
+    seamlessEnabled = (event.target as HTMLInputElement).checked;
+    cancelSeamlessLoad();
+    if (!loadAllEnabled) {
+      if (!seamlessEnabled) {
+        for (const id of scene.loadedMapIds()) {
+          if (id !== selected) {
+            scene.removeMap(id);
+            releaseDecodedMap(id);
+          }
+        }
+        controls.collider = scene.collider;
+      } else {
+        lastSeamlessScan = 0;
+        void maintainSeamlessRegions();
+      }
     }
   };
 
@@ -850,7 +985,7 @@ async function bootstrap() {
 
     if (document.body.classList.contains('map-view')) {
       controls.update(dt);
-      if (seamlessEnabled && currentTime - lastSeamlessScan >= 600) {
+      if ((loadAllEnabled || seamlessEnabled) && currentTime - lastSeamlessScan >= 600) {
         lastSeamlessScan = currentTime;
         void maintainSeamlessRegions();
       }

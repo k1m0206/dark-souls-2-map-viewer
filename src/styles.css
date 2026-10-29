@@ -706,6 +706,17 @@ header > * {
   color: #faf6ea;
   margin: 0 0 10px;
 }
+.welcome-subtitle-badge {
+  display: inline-block;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: #cfbe85;
+  background: rgba(119, 115, 80, 0.25);
+  border: 1px solid rgba(206, 185, 124, 0.4);
+  padding: 4px 12px;
+  border-radius: 12px;
+  margin-top: 4px;
+}
 .welcome-hero h2 em {
   font-style: normal;
   color: #ecd597;
@@ -1107,6 +1118,13 @@ footer > * { pointer-events: auto; }
 #loading p, #error p {
   font-size: 12px;
   color: #a4ac94;
+}
+#load-sub {
+  font-size: 12px;
+  color: #c9bea0;
+  margin: -4px 0 12px;
+  letter-spacing: 0.5px;
+  min-height: 18px;
 }
 progress {
   width: 100%;

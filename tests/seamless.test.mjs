@@ -152,3 +152,21 @@ test('Hysteresis unloading: distant regions are marked far while nearby are kept
   // 巨人陨落之森离如蜜很近 (<= 800)
   assert.equal(isRegionFar('m10_10', majulaSpawn, 800), false);
 });
+
+test('Full world spatial sorting prioritizes nearby regions before distant kingdoms', () => {
+  const majulaCenter = [-11, -46, -33];
+  const sorted = [...ALL_MAP_IDS]
+    .filter((id) => id !== 'm10_04')
+    .sort((a, b) => {
+      const distA = distanceToRegion(a, majulaCenter);
+      const distB = distanceToRegion(b, majulaCenter);
+      return distA - distB;
+    });
+
+  // Top closest maps to Majula must include adjacent Grave of Saints, Things Betwixt, or nearby areas
+  const top5 = sorted.slice(0, 5);
+  assert.ok(top5.includes('m10_34') || top5.includes('m10_02') || top5.includes('m10_29'));
+  // Dragon Shrine / Aerie / Undead Crypt should be in the back half
+  const aerieIdx = sorted.indexOf('m10_27');
+  assert.ok(aerieIdx > 10, `Dragon Aerie should be in back half of sorted list, got index ${aerieIdx}`);
+});
