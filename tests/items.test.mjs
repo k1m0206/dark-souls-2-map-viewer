@@ -140,6 +140,21 @@ test('verifies in-game 3D chest models and authentic textures exist and are vali
     assert.ok(Array.isArray(mesh.normals) && mesh.normals.length === mesh.positions.length, `${name} normals length mismatch`);
     assert.ok(Array.isArray(mesh.uvs) && mesh.uvs.length === (mesh.positions.length / 3) * 2, `${name} uvs length mismatch`);
     assert.ok(Array.isArray(mesh.indices) && mesh.indices.length > 1500, `${name} indices must have > 500 triangles`);
+
+    // Verify bone bind transformation has closed the chest lid onto the body
+    let maxY = -Infinity;
+    let minY = Infinity;
+    for (let i = 1; i < mesh.positions.length; i += 3) {
+      const y = mesh.positions[i];
+      if (y > maxY) maxY = y;
+      if (y < minY) minY = y;
+    }
+    assert.ok(minY >= -0.05, `${name} base should be at or near ground Y=0`);
+    if (name === 'wooden_chest') {
+      assert.ok(maxY > 1.0, `wooden_chest lid must reach ~1.03m (closed on top of body), got ${maxY}`);
+    } else if (name === 'iron_chest') {
+      assert.ok(maxY > 0.75, `iron_chest lid must reach ~0.79m (closed on top of body), got ${maxY}`);
+    }
   }
 
   // Chest textures
