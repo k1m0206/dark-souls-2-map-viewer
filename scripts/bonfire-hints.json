@@ -1,0 +1,17 @@
+{
+  "source": "https://github.com/rythin-sr/ASL-Scripts/blob/master/DarkSoulsII.asl",
+  "coordinateNote": "Autosplitter positions are X,Z,Y relative to this viewer's X,Y,Z.",
+  "anchors": {
+    "m10_04": { "name": "如蜜远火", "position": [-16.5, 5.5, 10.5] },
+    "m10_10": { "name": "梅伦提拉篝火", "position": [-183, 1.5, 80] },
+    "m10_31": { "name": "海德巨火塔篝火", "position": [281.5, -5.5, 14] },
+    "m10_16": { "name": "麦道夫篝火", "position": [601.5, -0.5, -87.5] },
+    "m10_23": { "name": "桥边篝火", "position": [41.5, 28.5, -245.5] },
+    "m10_17": { "name": "毒池篝火", "position": [324.5, 48.5, -477] },
+    "m10_19": { "name": "门槛桥篝火", "position": [593.5, 165.5, -582] },
+    "m10_32": { "name": "分歧路篝火", "position": [-160, 32.5, -329.5] },
+    "m10_33": { "name": "法洛斯篝火", "position": [-215, 97.5, -560] },
+    "m10_14": { "name": "辉石镇营地篝火", "position": [-140, 137, -693] },
+    "m20_21": { "name": "王城门前篝火", "position": [-371, 72.5, -465.5] }
+  }
+}
