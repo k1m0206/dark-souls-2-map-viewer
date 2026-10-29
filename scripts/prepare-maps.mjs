@@ -30,10 +30,10 @@ export const MAP_CONFIGS = [
   {
     id: 'm10_29',
     file: '10_29_Majula.iv',
-    name: '如蜜 · 地底通道与通路',
-    enName: 'Majula (Subterranean Passages)',
+    name: '一线天 · 狭间通路',
+    enName: 'Things Betwixt to Majula Passage',
     category: '初期启程',
-    desc: '连结如蜜与海德巨火塔、废渊及周边区域的地下回廊。'
+    desc: '连结一线天森林与如蜜的狭间岩洞与峡谷山道，穿越岩隙即可步入如蜜海滨。'
   },
   {
     id: 'm10_10',
@@ -258,6 +258,7 @@ async function prepareAllMaps() {
     const chunkMeta = [];
     const binaryParts = [];
     let binaryOffset = 0;
+    const processedChunks = [];
 
     for (let i = 0; i < numChunks; i++) {
       const idxDataOffs = view.getUint32(chunkTableIdx + 0x00, true);
@@ -266,11 +267,30 @@ async function prepareAllMaps() {
       const posDataCount = view.getUint32(chunkTableIdx + 0x0C, true);
       chunkTableIdx += 0x10;
 
-      totalIndices += idxDataCount;
-      totalPositions += posDataCount;
-
       const indices = new Uint16Array(buf.buffer.slice(buf.byteOffset + idxDataOffs, buf.byteOffset + idxDataOffs + idxDataCount * 2));
       const pos = new Float32Array(buf.buffer.slice(buf.byteOffset + posDataOffs, buf.byteOffset + posDataOffs + posDataCount * 12));
+
+      // Skip identical duplicate chunks (resolves duplicate geometry and Z-fighting flicker)
+      let isDuplicate = false;
+      for (const prev of processedChunks) {
+        if (prev.posDataCount === posDataCount && prev.idxDataCount === idxDataCount) {
+          let maxDiff = 0;
+          for (let pIdx = 0; pIdx < pos.length; pIdx += 10) {
+            const d = Math.abs(pos[pIdx] - prev.pos[pIdx]);
+            if (d > maxDiff) maxDiff = d;
+          }
+          if (maxDiff < 0.01) {
+            isDuplicate = true;
+            console.log(`  [Deduplication] Skipped duplicate chunk ${i} in ${config.id} (${posDataCount} verts, ${Math.round(idxDataCount / 3)} tris)`);
+            break;
+          }
+        }
+      }
+      if (isDuplicate) continue;
+      processedChunks.push({ posDataCount, idxDataCount, pos });
+
+      totalIndices += idxDataCount;
+      totalPositions += posDataCount;
 
 
       let min = [Infinity, Infinity, Infinity];

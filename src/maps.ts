@@ -59,15 +59,15 @@ const MAP_CATALOG: Omit<MapDefinition, 'spawnWalk' | 'spawnFly' | 'isDlc'>[] = [
   },
   {
     id: 'm10_29',
-    name: '如蜜 · 地底通道与通路',
-    enName: 'Majula (Subterranean Passages)',
+    name: '一线天 · 狭间通路',
+    enName: 'Things Betwixt to Majula Passage',
     category: '初期启程',
-    desc: '连结如蜜与海德巨火塔、废渊及周边区域的地下回廊。',
+    desc: '连结一线天森林与如蜜的狭间岩洞与峡谷山道，穿越岩隙即可步入如蜜海滨。',
     color: [0.1, 0.3, 0.1],
     bounds: { min: [-170.65, 12.18, -213.51], max: [-58.82, 50.69, -71.99] },
     center: [-114.74, 31.43, -142.75],
-    triangles: 129746,
-    vertices: 261427
+    triangles: 106810,
+    vertices: 192619
   },
   {
     id: 'm10_10',
@@ -90,8 +90,8 @@ const MAP_CATALOG: Omit<MapDefinition, 'spawnWalk' | 'spawnFly' | 'isDlc'>[] = [
     color: [0.3, 0.3, 0.3],
     bounds: { min: [318.77, -87.06, -46.07], max: [420.45, -3.84, 24.98] },
     center: [369.61, -45.45, -10.54],
-    triangles: 127864,
-    vertices: 340890
+    triangles: 109588,
+    vertices: 286062
   },
   {
     id: 'm10_31',
@@ -258,8 +258,8 @@ const MAP_CATALOG: Omit<MapDefinition, 'spawnWalk' | 'spawnFly' | 'isDlc'>[] = [
     color: [0.3, 0.1, 0.1],
     bounds: { min: [-252.2, -232.72, -1174.21], max: [45.38, -55.58, -830.52] },
     center: [-103.41, -144.15, -1002.37],
-    triangles: 271976,
-    vertices: 701690
+    triangles: 250406,
+    vertices: 636980
   },
   {
     id: 'm10_15',
