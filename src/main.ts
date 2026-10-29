@@ -23,7 +23,7 @@ import { MAPS, MAP_DICT } from './maps';
 import { loadDecodedMap, releaseDecodedMap } from './format';
 import { DS2Scene } from './scene';
 import { SkyRenderer } from './sky-renderer';
-import { distanceToRegion, isRegionFar, nearbyRegions } from './seamless';
+import { distanceToRegion, isRegionFar, nearbyRegions, getCompatibleWorldMaps, isWarpIsolatedMap } from './seamless';
 import { CameraControls } from './controls';
 import { installErrorLogging, recordAppError } from './error-log';
 import './styles.css';
@@ -231,7 +231,7 @@ function renderAppHtml(): string {
               <div class="setting-card-group">
                 <label class="group-label">地图加载</label>
                 <label class="setting-select-row" for="load-all-mode">
-                  <span>全量大世界 (27张同屏)</span>
+                  <span>大陆全量大世界 (连通同屏)</span>
                   <input id="load-all-mode" type="checkbox" checked />
                 </label>
                 <label class="setting-select-row" for="seamless-mode" id="row-seamless-mode">
@@ -378,6 +378,8 @@ async function bootstrap() {
 
   async function maintainSeamlessRegions() {
     if (seamlessBusy || !scene.hasMap(selected) || !document.body.classList.contains('map-view')) return;
+    // 传送不连通的独立异空间地图（三大王冠 DLC、回忆、暗穴）独立自洽，无需进行相邻扫描
+    if (isWarpIsolatedMap(selected)) return;
     seamlessBusy = true;
     const generation = seamlessGeneration;
     const abortCtrl = new AbortController();
@@ -569,6 +571,14 @@ async function bootstrap() {
     if (!container) return;
     container.replaceChildren();
 
+    const startText = el('welcome-start-label');
+    const curMap = MAP_DICT.get(selected);
+    if (startText && curMap) {
+      startText.textContent = isWarpIsolatedMap(selected)
+        ? `进入 · ${curMap.name}`
+        : `从 ${curMap.name} 进入大陆`;
+    }
+
     const filtered = MAPS.filter((m) =>
       m.name.includes(searchVal) ||
       m.enName.toLowerCase().includes(searchVal.toLowerCase()) ||
@@ -580,18 +590,18 @@ async function bootstrap() {
       card.type = 'button';
       card.className = `welcome-map-card ${selected === m.id ? 'active' : ''}`;
       const originIdx = MAPS.findIndex((item) => item.id === m.id) + 1;
+      const isIsolated = isWarpIsolatedMap(m.id);
       card.innerHTML = `
         <span class="welcome-map-num">${String(originIdx).padStart(2, '0')}</span>
         <div class="welcome-map-info">
           <strong>${m.name}</strong>
+          <small>${isIsolated ? '传送独立空间' : '多兰古雷格大陆'}</small>
         </div>
       `;
 
       card.onclick = () => {
         selected = m.id;
         drawWelcomeList();
-        const startText = el('welcome-start-label');
-        if (startText) startText.textContent = m.name;
       };
 
       card.ondblclick = () => {
@@ -629,10 +639,15 @@ async function bootstrap() {
       btn.className = 'map-card';
       btn.setAttribute('aria-pressed', String(selected === m.id));
       const originIdx = MAPS.findIndex((item) => item.id === m.id) + 1;
+      const isIsolated = isWarpIsolatedMap(m.id);
       btn.innerHTML = `
         <span class="map-number">${String(originIdx).padStart(2, '0')}</span>
-        <div>
+        <div class="map-card-info">
           <strong>${m.name}</strong>
+          <small>${m.enName}</small>
+          <div class="map-card-tags">
+            <span class="map-origin-tag ${m.isDlc ? 'is-dlc' : ''}">${isIsolated ? '独立异空间' : '大陆主陆'}</span>
+          </div>
         </div>
       `;
 
@@ -650,7 +665,16 @@ async function bootstrap() {
     }
   }
 
-  // Load Full World Pipeline (全量 27 张地图全境同屏)
+  // 检查当前显存中已加载的地图是否与目标地图同域兼容（无穿模重叠）
+  function isWorldCompatible(targetMapId: string): boolean {
+    const allowed = new Set(getCompatibleWorldMaps(targetMapId));
+    for (const id of scene.loadedMapIds()) {
+      if (!allowed.has(id)) return false;
+    }
+    return true;
+  }
+
+  // Load Full World Pipeline (多兰古雷格大陆 / 传送独立异空间)
   async function loadFullWorld(targetMapId: string, signal: AbortSignal) {
     const targetDef = MAP_DICT.get(targetMapId) || MAPS[0];
     selected = targetDef.id;
@@ -658,16 +682,29 @@ async function bootstrap() {
     el('area-title').textContent = targetDef.name;
     el('loading').hidden = false;
     el('error').hidden = true;
-    el('load-title').textContent = '多兰古雷格全量大世界';
+
+    const compatibleMapIds = getCompatibleWorldMaps(targetMapId);
+    const isIsolated = isWarpIsolatedMap(targetMapId);
+
+    el('load-title').textContent = isIsolated ? targetDef.name : '多兰古雷格全量大陆';
     const progressEl = el<HTMLProgressElement>('progress');
     const subEl = el<HTMLElement>('load-sub');
-    if (subEl) subEl.textContent = `准备载入全境地图 (1/27: ${targetDef.name})...`;
+    if (subEl) subEl.textContent = isIsolated ? `正在载入独立异空间地图...` : `准备载入大陆地图 (1/${compatibleMapIds.length}: ${targetDef.name})...`;
     if (progressEl) progressEl.value = 0.05;
+
+    // 清理当前场景中不属于 compatibleMapIds 的地图 (例如从本体切换到 DLC，或从 DLC 切换到本体)
+    for (const id of scene.loadedMapIds()) {
+      if (!compatibleMapIds.includes(id)) {
+        scene.removeMap(id);
+        releaseDecodedMap(id);
+      }
+    }
+    controls.collider = scene.collider;
 
     // 1. 优先加载并就绪当前起点地图
     if (!scene.hasMap(targetMapId)) {
       const decodedTarget = await loadDecodedMap(targetMapId, signal, (_stage, pct) => {
-        if (progressEl) progressEl.value = 0.05 + (pct / 100) * 0.1;
+        if (progressEl) progressEl.value = 0.05 + (pct / 100) * 0.15;
       });
       if (signal.aborted) return;
       scene.addMap(decodedTarget);
@@ -677,15 +714,27 @@ async function bootstrap() {
     const spawn = controls.mode === 'walk' ? targetDef.spawnWalk : targetDef.spawnFly;
     controls.restoreState(spawn, 0, 0);
 
-    // 2. 按空间距离近远对剩余未加载地图排序，就近渐进载入
-    const targetCenter = targetDef.center;
-    const remainingMaps = MAPS.filter((m) => !scene.hasMap(m.id)).sort((a, b) => {
-      const da = Math.hypot(a.center[0] - targetCenter[0], a.center[2] - targetCenter[2]);
-      const db = Math.hypot(b.center[0] - targetCenter[0], b.center[2] - targetCenter[2]);
-      return da - db;
-    });
+    // 传送不连通的异空间地图：单独自己加载一个地图，完成！
+    if (isIsolated) {
+      if (progressEl) progressEl.value = 1.0;
+      if (subEl) subEl.textContent = `${targetDef.name} 独立空间加载完成`;
+      await new Promise((r) => setTimeout(r, 100));
+      el('loading').hidden = true;
+      return;
+    }
 
-    const totalMaps = MAPS.length;
+    // 2. 对于多兰古雷格大陆，按空间距离排序加载 compatibleMapIds 中剩余未载入的地图
+    const targetCenter = targetDef.center;
+    const compatibleDefs = compatibleMapIds.map((id) => MAP_DICT.get(id)!).filter(Boolean);
+    const remainingMaps = compatibleDefs
+      .filter((m) => !scene.hasMap(m.id))
+      .sort((a, b) => {
+        const da = Math.hypot(a.center[0] - targetCenter[0], a.center[2] - targetCenter[2]);
+        const db = Math.hypot(b.center[0] - targetCenter[0], b.center[2] - targetCenter[2]);
+        return da - db;
+      });
+
+    const totalMaps = compatibleMapIds.length;
     let loadedCount = scene.loadedMapIds().length;
     if (progressEl) progressEl.value = Math.max(0.15, loadedCount / totalMaps);
 
@@ -710,7 +759,7 @@ async function bootstrap() {
     }
 
     if (progressEl) progressEl.value = 1.0;
-    if (subEl) subEl.textContent = '多兰古雷格全境 27 张地图加载完成';
+    if (subEl) subEl.textContent = `多兰古雷格大陆 ${totalMaps} 张地图加载完成`;
     await new Promise((r) => setTimeout(r, 120));
     el('loading').hidden = true;
   }
@@ -727,8 +776,8 @@ async function bootstrap() {
 
     const mapDef = MAP_DICT.get(mapId) || MAPS[0];
 
-    // 全量大世界模式下，若目标地图已在显存中，瞬移传送无需加载等待
-    if (loadAllEnabled && scene.hasMap(mapId)) {
+    // 全量大世界模式下，若目标地图已在显存中且与当前世界域兼容，瞬移传送无需加载等待
+    if (loadAllEnabled && scene.hasMap(mapId) && isWorldCompatible(mapId)) {
       selected = mapDef.id;
       scene.setActiveMap(mapDef.id);
       el('area-title').textContent = mapDef.name;
