@@ -367,8 +367,8 @@ export const MAPS: MapDefinition[] = MAP_CATALOG.map((map) => {
   if (!spawnWalk) throw new Error(`Missing spawn point for ${map.id}`);
   const spawnFly: [number, number, number] = [
     spawnWalk[0],
-    Number((spawnWalk[1] + 30).toFixed(2)),
-    Number(Math.min(spawnWalk[2] + 25, map.bounds.max[2] - 2).toFixed(2)),
+    Number((spawnWalk[1] + 3).toFixed(2)),
+    spawnWalk[2],
   ];
   return { ...map, isDlc: DLC_MAP_IDS.has(map.id), spawnWalk, spawnFly };
 });

@@ -28,7 +28,8 @@ test('Map catalog has exactly 27 Dark Souls 2 maps', async () => {
     assert.ok(m.spawnFly, `Map ${m.name} must have a flight spawn point`);
     assert.deepEqual(m.spawnWalk, spawnPoints[m.id], `Map ${m.name} must use its curated walk spawn`);
     assert.equal(m.spawnFly[0], m.spawnWalk[0]);
-    assert.equal(m.spawnFly[1], Number((m.spawnWalk[1] + 30).toFixed(2)));
+    assert.equal(m.spawnFly[1], Number((m.spawnWalk[1] + 3).toFixed(2)));
+    assert.equal(m.spawnFly[2], m.spawnWalk[2]);
     ids.add(m.id);
   }
   assert.equal(ids.size, 27, 'All 27 map IDs must be unique');

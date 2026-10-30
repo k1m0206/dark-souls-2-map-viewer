@@ -3,7 +3,6 @@ import {
   createIcons,
   Compass,
   Footprints,
-  Eye,
   EyeOff,
   ChevronUp,
   ChevronDown,
@@ -32,8 +31,6 @@ import { CameraControls } from './controls';
 import { installErrorLogging, recordAppError } from './error-log';
 import { ItemRadar } from './item-radar';
 import { ItemManager } from './item-manager';
-import { NPCManager } from './npc-manager';
-import { NPCRenderer } from './npc-renderer';
 import { mat4 } from 'gl-matrix';
 import type { TreasureSpot } from './all-items';
 import './styles.css';
@@ -43,7 +40,6 @@ installErrorLogging();
 const lucideIcons = {
   Compass,
   Footprints,
-  Eye,
   EyeOff,
   ChevronUp,
   ChevronDown,
@@ -134,10 +130,6 @@ function renderAppHtml(): string {
           <button id="btn-item-radar" class="btn-ghost" title="道具雷达">
             <i data-lucide="gem"></i>
             <span>物品</span>
-          </button>
-          <button id="btn-wire-toggle" class="btn-ghost" title="显示模式">
-            <i data-lucide="eye"></i>
-            <span id="wire-text">线框</span>
           </button>
           <button id="btn-hide-ui" class="btn-ghost" title="隐藏界面">
             <i data-lucide="eye-off"></i>
@@ -385,8 +377,6 @@ async function bootstrap() {
   const scene = new DS2Scene(gl);
   const skyRenderer = new SkyRenderer(gl);
   const itemManager = new ItemManager(gl);
-  const npcManager = new NPCManager();
-  const npcRenderer = gl ? new NPCRenderer(gl) : null;
   const itemRadar = new ItemRadar();
   const controls = new CameraControls(canvas, joystickZone);
 
@@ -783,7 +773,7 @@ async function bootstrap() {
   async function loadFullWorld(
     targetMapId: string,
     signal: AbortSignal,
-    spawnOverride?: { position: [number, number, number]; yaw?: number; pitch?: number; mode?: 'walk' | 'flight' }
+    spawnOverride?: { position: [number, number, number]; yaw?: number; pitch?: number; mode?: 'walk' | 'flight'; itemSpot?: TreasureSpot }
   ) {
     const targetDef = MAP_DICT.get(targetMapId) || MAPS[0];
     selected = targetDef.id;
@@ -828,13 +818,12 @@ async function bootstrap() {
 
     if (spawnOverride) {
       if (spawnOverride.mode) updateModeUI(spawnOverride.mode, true);
-      controls.restoreState(spawnOverride.position, spawnOverride.yaw ?? 0, spawnOverride.pitch ?? 0);
+      controls.restoreState(spawnOverride.itemSpot ? safeItemTeleportPosition(spawnOverride.itemSpot) : spawnOverride.position, spawnOverride.yaw ?? 0, spawnOverride.pitch ?? 0);
     } else {
       const spawn = controls.mode === 'walk' ? targetDef.spawnWalk : targetDef.spawnFly;
       controls.restoreState(spawn, 0, 0);
     }
     itemManager.setMaps(scene.loadedMapIds());
-    npcManager.setMaps(scene.loadedMapIds());
 
     // 传送不连通的异空间地图：单独自己加载一个地图，完成！
     if (isIsolated) {
@@ -878,14 +867,13 @@ async function bootstrap() {
     }
 
     itemManager.setMaps(scene.loadedMapIds());
-    npcManager.setMaps(scene.loadedMapIds());
     await hideLoading(`大陆 ${totalMaps} 张地图全境就绪`);
   }
 
   // Load Map Pipeline
   async function switchMap(
     mapId: string,
-    spawnOverride?: { position: [number, number, number]; yaw?: number; pitch?: number; mode?: 'walk' | 'flight' }
+    spawnOverride?: { position: [number, number, number]; yaw?: number; pitch?: number; mode?: 'walk' | 'flight'; itemSpot?: TreasureSpot }
   ) {
     controls.clear();
     cancelSeamlessLoad();
@@ -904,13 +892,12 @@ async function bootstrap() {
       el('area-title').textContent = mapDef.name;
       if (spawnOverride) {
         if (spawnOverride.mode) updateModeUI(spawnOverride.mode, true);
-        controls.restoreState(spawnOverride.position, spawnOverride.yaw ?? 0, spawnOverride.pitch ?? 0);
+        controls.restoreState(spawnOverride.itemSpot ? safeItemTeleportPosition(spawnOverride.itemSpot) : spawnOverride.position, spawnOverride.yaw ?? 0, spawnOverride.pitch ?? 0);
       } else {
         const spawn = controls.mode === 'walk' ? mapDef.spawnWalk : mapDef.spawnFly;
         controls.restoreState(spawn, 0, 0);
       }
       itemManager.setMaps(scene.loadedMapIds());
-    npcManager.setMaps(scene.loadedMapIds());
       lastSeamlessScan = 0;
       return;
     }
@@ -919,7 +906,6 @@ async function bootstrap() {
       try {
         await loadFullWorld(mapId, abortCtrl.signal, spawnOverride);
         itemManager.setMaps(scene.loadedMapIds());
-    npcManager.setMaps(scene.loadedMapIds());
         lastSeamlessScan = 0;
       } catch (err: unknown) {
         if ((err as Error)?.name === 'AbortError') return;
@@ -962,13 +948,12 @@ async function bootstrap() {
       // Position camera
       if (spawnOverride) {
         if (spawnOverride.mode) updateModeUI(spawnOverride.mode, true);
-        controls.restoreState(spawnOverride.position, spawnOverride.yaw ?? 0, spawnOverride.pitch ?? 0);
+        controls.restoreState(spawnOverride.itemSpot ? safeItemTeleportPosition(spawnOverride.itemSpot) : spawnOverride.position, spawnOverride.yaw ?? 0, spawnOverride.pitch ?? 0);
       } else {
         const spawn = controls.mode === 'walk' ? mapDef.spawnWalk : mapDef.spawnFly;
         controls.restoreState(spawn, 0, 0);
       }
       itemManager.setMaps(scene.loadedMapIds());
-    npcManager.setMaps(scene.loadedMapIds());
 
       await hideLoading(`${mapDef.name} 加载完成`);
       lastSeamlessScan = 0;
@@ -996,6 +981,7 @@ async function bootstrap() {
     yaw?: number;
     pitch?: number;
     mode?: 'walk' | 'flight';
+    itemSpot?: TreasureSpot;
   }) {
     if (entering) return;
     entering = true;
@@ -1033,8 +1019,6 @@ async function bootstrap() {
     itemRadar.close();
     itemManager.hideDetail();
     itemManager.setMaps([]);
-    npcManager.hideDialogue();
-    npcManager.setMaps([]);
     setPanel(false);
     if (activeAbortController) {
       activeAbortController.abort();
@@ -1076,8 +1060,6 @@ async function bootstrap() {
   function setUIHidden(hidden: boolean) {
     isUIHidden = hidden;
     document.body.classList.toggle('ui-hidden', hidden);
-    document.querySelector('header')?.classList.toggle('hidden', hidden);
-    document.querySelector('footer')?.classList.toggle('hidden', hidden);
     el('joystick').style.display = hidden ? 'none' : 'flex';
     el('right-controls').style.display = hidden ? 'none' : 'flex';
     if (!hidden) {
@@ -1085,18 +1067,27 @@ async function bootstrap() {
     }
   }
 
-  // Wireframe toggle
-  function toggleWireframe() {
-    isWireframe = !isWireframe;
-    const wireBtn = el('btn-wire-toggle');
-    const wireText = el('wire-text');
-    wireBtn?.classList.toggle('active', isWireframe);
-    if (wireText) wireText.textContent = isWireframe ? '素模' : '线框';
-    const sel = el<HTMLSelectElement>('display-mode-select');
-    if (sel) sel.value = isWireframe ? 'wire' : 'solid';
+  // Teleport to Item Spot from Radar
+  function safeItemTeleportPosition(spot: TreasureSpot): [number, number, number] {
+    const map = MAP_DICT.get(spot.mapId);
+    for (const radius of [1.2, 1.8, 2.5, 3.5, 5]) {
+      for (let i = 0; i < 12; i++) {
+        const angle = (i * Math.PI) / 6;
+        const x = spot.pos[0] + Math.cos(angle) * radius;
+        const z = spot.pos[2] + Math.sin(angle) * radius;
+        const ground = scene.mapGroundHeight(spot.mapId, x, spot.pos[1] + 1, z, 6);
+        if (!ground || ground.normalY < 0.6 || Math.abs(ground.groundY - spot.pos[1]) > 3) continue;
+        const stable = [[0.3, 0], [-0.3, 0], [0, 0.3], [0, -0.3]].every(([ox, oz]) => {
+          const edge = scene.mapGroundHeight(spot.mapId, x + ox, ground.groundY, z + oz, 3);
+          return edge && edge.normalY >= 0.6 && Math.abs(edge.groundY - ground.groundY) < 0.5;
+        });
+        if (stable) return [x, ground.groundY + controls.eyeHeight, z];
+      }
+    }
+    showToast('物品附近无安全落点，已返回地图起点');
+    return map?.spawnWalk ?? MAPS[0].spawnWalk;
   }
 
-  // Teleport to Item Spot from Radar
   function teleportToItem(spot: TreasureSpot) {
     const targetMapId = spot.mapId;
     const itemName = spot.items.map((i) => `${i.name}${i.count > 1 ? ` ×${i.count}` : ''}`).join('、');
@@ -1112,9 +1103,8 @@ async function bootstrap() {
       const mapDef = MAP_DICT.get(targetMapId);
       if (mapDef) el('area-title').textContent = mapDef.name;
       updateModeUI('walk', true);
-      controls.restoreState(targetPos, 0, -0.22);
+      controls.restoreState(safeItemTeleportPosition(spot), 0, -0.22);
       controls.clear();
-      showToast(`已传送到 [${itemName}] 面前`);
       itemManager.update([controls.position[0], controls.position[1], controls.position[2]]);
       return;
     }
@@ -1126,6 +1116,7 @@ async function bootstrap() {
       yaw: 0,
       pitch: -0.22,
       mode: 'walk',
+      itemSpot: spot,
     });
   }
 
@@ -1174,14 +1165,9 @@ async function bootstrap() {
   el('btn-mode-walk').onclick = () => updateModeUI('walk');
   el('btn-mode-flight').onclick = () => updateModeUI('flight');
 
-  // Wireframe
-  el('btn-wire-toggle').onclick = toggleWireframe;
+  // Display mode is managed from the settings panel.
   el<HTMLSelectElement>('display-mode-select').onchange = (e) => {
     isWireframe = (e.target as HTMLSelectElement).value === 'wire';
-    const wireBtn = el('btn-wire-toggle');
-    const wireText = el('wire-text');
-    wireBtn?.classList.toggle('active', isWireframe);
-    if (wireText) wireText.textContent = isWireframe ? '素模' : '线框';
   };
   el<HTMLInputElement>('sky-mode').onchange = (e) => {
     skyEnabled = (e.target as HTMLInputElement).checked;
@@ -1364,21 +1350,7 @@ async function bootstrap() {
         currentTime / 1000
       );
 
-      // 渲染 3D NPC（防火女与各商人）模型、贴图与法线呼吸动画
-      npcRenderer?.render(
-        scene.getViewProjection(),
-        [controls.position[0], controls.position[1], controls.position[2]],
-        npcManager.getActiveNpcs(),
-        currentTime / 1000
-      );
-
-      // 实时近距离感应与底部 HUD 交互提示 (NPC 优先)
-      npcManager.update([controls.position[0], controls.position[1], controls.position[2]]);
-      if (!npcManager.getNearestNpc()) {
-        itemManager.update([controls.position[0], controls.position[1], controls.position[2]]);
-      } else {
-        itemManager.clearPrompt();
-      }
+      itemManager.update([controls.position[0], controls.position[1], controls.position[2]]);
 
       // Update telemetry
       const coordEl = el('coord-val');

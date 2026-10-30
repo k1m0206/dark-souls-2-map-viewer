@@ -37,7 +37,6 @@ export class ItemManager {
       prompt.className = 'loot-prompt-hud hidden';
       prompt.innerHTML = `
         <button id="btn-interact-loot" class="btn-interact-loot" type="button">
-          <span class="interact-key">[E]</span>
           <i data-lucide="sparkles" class="interact-icon" id="loot-prompt-icon"></i>
           <span id="interact-label" class="interact-label">查看 掉落物</span>
         </button>
@@ -57,21 +56,21 @@ export class ItemManager {
     if (!detail) {
       detail = document.createElement('div');
       detail.id = 'item-detail-overlay';
-      detail.className = 'npc-overlay hidden';
+      detail.className = 'item-detail-overlay hidden';
       detail.innerHTML = `
-        <div class="npc-dialogue-box item-mode" role="dialog" aria-modal="true" aria-labelledby="npc-box-name">
-          <div class="npc-header">
-            <span class="npc-badge" id="npc-box-badge">ITEM</span>
-            <span class="npc-name" id="npc-box-name"></span>
-            <span class="npc-title" id="npc-box-title"></span>
-            <span class="npc-stage-badge" id="npc-box-stage"></span>
-            <button class="npc-header-close-btn" id="detail-close-btn" type="button" aria-label="关闭" title="关闭">
+        <div class="item-detail-dialogue-box item-mode" role="dialog" aria-modal="true" aria-labelledby="item-detail-name-text">
+          <div class="item-detail-header">
+            <span class="item-detail-badge" id="item-detail-badge-text">ITEM</span>
+            <span class="item-detail-name" id="item-detail-name-text"></span>
+            <span class="item-detail-title" id="item-detail-title-text"></span>
+            <span class="item-detail-stage-badge" id="item-detail-stage-text"></span>
+            <button class="item-detail-close-btn" id="detail-close-btn" type="button" aria-label="关闭" title="关闭">
               <i data-lucide="x"></i>
             </button>
           </div>
 
-          <div class="npc-tab-panel" id="npc-panel-items">
-            <div class="npc-body" id="npc-box-items-body">
+          <div class="item-detail-panel" id="item-detail-panel">
+            <div class="item-detail-body" id="item-detail-items-body">
               <div class="item-pickup-dialog-content" id="detail-content"></div>
             </div>
           </div>
@@ -210,10 +209,10 @@ export class ItemManager {
     const mapDef = MAPS.find((m) => m.id === spot.mapId);
     const mapName = mapDef?.name ?? spot.mapId;
 
-    const badgeEl = this.detailOverlayEl.querySelector('#npc-box-badge') as HTMLElement | null;
-    const nameEl = this.detailOverlayEl.querySelector('#npc-box-name');
-    const titleEl = this.detailOverlayEl.querySelector('#npc-box-title');
-    const stageEl = this.detailOverlayEl.querySelector('#npc-box-stage');
+    const badgeEl = this.detailOverlayEl.querySelector('#item-detail-badge-text') as HTMLElement | null;
+    const nameEl = this.detailOverlayEl.querySelector('#item-detail-name-text');
+    const titleEl = this.detailOverlayEl.querySelector('#item-detail-title-text');
+    const stageEl = this.detailOverlayEl.querySelector('#item-detail-stage-text');
 
     if (badgeEl) {
       if (spot.in_chest) {
@@ -234,9 +233,7 @@ export class ItemManager {
 
     if (nameEl) nameEl.textContent = mainTitle;
     if (titleEl) titleEl.textContent = `· ${mapName}`;
-    if (stageEl) {
-      stageEl.textContent = `[ ${spot.in_chest ? '宝箱藏物' : '战利品掉落'} · 共 ${spot.items.length} 项 ]`;
-    }
+    if (stageEl) stageEl.textContent = '';
 
     content.innerHTML = spot.items.map((it: PickableItem) => `
       <div class="item-pickup-card">
@@ -247,9 +244,8 @@ export class ItemManager {
           <div class="item-pickup-info">
             <strong class="item-pickup-name">${escapeHtml(it.name)}</strong>
             <div class="item-pickup-badges">
-              <span class="item-badge-count">数量 ×${it.count}</span>
+              ${it.count > 1 ? `<span class="item-badge-count">×${it.count}</span>` : ''}
               <span class="item-badge-cat">${escapeHtml(it.category)}</span>
-              <span class="item-badge-cat">${spot.in_chest ? '宝箱' : '地面掉落'}</span>
             </div>
           </div>
         </div>

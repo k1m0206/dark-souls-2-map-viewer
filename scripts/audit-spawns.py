@@ -11,6 +11,9 @@ DATA = ROOT.parent / 'data' / 'DarkSouls2CollisionData'
 MANIFEST = json.loads((ROOT / 'public-lite/maps/manifest.json').read_text(encoding='utf-8'))
 SPAWNS = json.loads((ROOT / 'src/spawn-points.json').read_text(encoding='utf-8'))
 BONFIRES = json.loads((ROOT / 'scripts/bonfire-hints.json').read_text(encoding='utf-8'))['anchors']
+NO_BONFIRE_MAP_IDS = set(json.loads((ROOT / 'scripts/bonfire-hints.json').read_text(encoding='utf-8'))['noBonfireMapIds'])
+assert set(SPAWNS) == set(BONFIRES) | NO_BONFIRE_MAP_IDS
+assert not set(BONFIRES) & NO_BONFIRE_MAP_IDS
 
 
 def read_triangles(path):

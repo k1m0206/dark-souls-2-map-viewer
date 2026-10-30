@@ -340,8 +340,8 @@ async function prepareAllMaps() {
     if (!spawnWalk) throw new Error(`Missing curated spawn point for ${config.id}`);
     const spawnFly = [
       spawnWalk[0],
-      Number((spawnWalk[1] + 30).toFixed(2)),
-      Number(Math.min(spawnWalk[2] + 25, globalMax[2] - 2).toFixed(2))
+      Number((spawnWalk[1] + 3).toFixed(2)),
+      spawnWalk[2]
     ];
 
     const triangles = Math.round(totalIndices / 3);

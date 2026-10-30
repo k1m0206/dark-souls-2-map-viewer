@@ -1,17 +1,30 @@
 {
-  "source": "https://github.com/rythin-sr/ASL-Scripts/blob/master/DarkSoulsII.asl",
-  "coordinateNote": "Autosplitter positions are X,Z,Y relative to this viewer's X,Y,Z.",
+  "source": "Game MSB o00_0100 bonfire objects; autosplitter cross-check: https://github.com/rythin-sr/ASL-Scripts/blob/master/DarkSoulsII.asl",
+  "coordinateNote": "For mainland MSBs, viewer X/Y/Z = MSB Z/Y/X; Crown DLC MSBs use X/Y/Z directly. Spawn positions include 1.5 m eye height.",
   "anchors": {
+    "m10_02": { "name": "防火女的住处", "position": [-140.39, 12.03, -179.64] },
     "m10_04": { "name": "如蜜远火", "position": [-16.5, 5.5, 10.5] },
+    "m10_29": { "name": "狭间通路篝火", "position": [-124.01, 19.4, -167.53] },
     "m10_10": { "name": "梅伦提拉篝火", "position": [-183, 1.5, 80] },
     "m10_31": { "name": "海德巨火塔篝火", "position": [281.5, -5.5, 14] },
+    "m10_18": { "name": "密港篝火", "position": [431.13, -66.76, -4.84] },
     "m10_16": { "name": "麦道夫篝火", "position": [601.5, -0.5, -87.5] },
     "m10_23": { "name": "桥边篝火", "position": [41.5, 28.5, -245.5] },
     "m10_17": { "name": "毒池篝火", "position": [324.5, 48.5, -477] },
     "m10_19": { "name": "门槛桥篝火", "position": [593.5, 165.5, -582] },
+    "m10_34": { "name": "圣人墓地入口篝火", "position": [48.93, -29.97, -125.08] },
+    "m10_25": { "name": "黑溪谷入口篝火", "position": [-109.58, -203.66, -137.18] },
     "m10_32": { "name": "分歧路篝火", "position": [-160, 32.5, -329.5] },
     "m10_33": { "name": "法洛斯篝火", "position": [-215, 97.5, -560] },
-    "m10_14": { "name": "辉石镇营地篝火", "position": [-140, 137, -693] },
-    "m20_21": { "name": "王城门前篝火", "position": [-371, 72.5, -465.5] }
-  }
+    "m10_14": { "name": "辉石镇营地篝火", "position": [-148.94, 138.64, -685.47] },
+    "m20_21": { "name": "王城门前篝火", "position": [-371, 72.5, -465.5] },
+    "m20_11": { "name": "阿玛纳祭坛篝火", "position": [-385.27, -6.69, -756.95] },
+    "m20_24": { "name": "不死灵庙篝火", "position": [-182.29, -126.93, -1053.01] },
+    "m10_15": { "name": "安第尔之馆前庭篝火", "position": [-272.59, 52.57, -421.26] },
+    "m10_27": { "name": "卫龙巢穴篝火", "position": [-451.98, 273.65, -856.9] },
+    "m50_35": { "name": "圣壁之都入口篝火", "position": [7.61, 40.33, -69.33] },
+    "m50_36": { "name": "黑雾之塔篝火", "position": [-151.64, 179.56, 398.57] },
+    "m50_37": { "name": "埃斯・洛耶斯外壁篝火", "position": [-186.17, -23, -57.82] }
+  },
+  "noBonfireMapIds": ["m10_30", "m20_10", "m20_26", "m40_03"]
 }
