@@ -165,7 +165,12 @@ export class NPCManager {
   }
 
   public getNpcShopItems(npcId: string): NPCShopItem[] {
-    const rawList = (merchantShopData as unknown as Record<string, [string, string, number, number | null][]>)[npcId];
+    const shopData = merchantShopData as unknown as Record<string, [string, string, number, number | null][]>;
+    let rawList = shopData[npcId];
+    if (!rawList) {
+      const baseKey = npcId.replace(/_[a-z0-9]+$/, '');
+      rawList = shopData[baseKey];
+    }
     if (!rawList || rawList.length === 0) return [];
 
     const details = merchantDetailsData as unknown as Record<string, NativeShopDetail>;

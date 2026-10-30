@@ -103,6 +103,59 @@ test('npc-data.ts defines valid NPC records with world positions and dialogues',
   // Emerald Herald (夏娜洛特) must be placed in Majula (m10_04)
   assert.ok(content.includes('m10_04'), 'Emerald Herald should be placed in Majula (m10_04)');
   assert.ok(content.includes('绿衣朝圣者 夏娜洛特'), 'Should have Chinese name for Emerald Herald');
+
+  // Verify coordinates are in world alignment [Z, Y, X] (Herald near bonfire cliff)
+  assert.ok(content.includes('-14.57'), 'Emerald Herald world X should be around -14.57');
+  assert.ok(content.includes('9.15'), 'Emerald Herald world Z should be around 9.15');
+});
+
+test('all NPCs reside within map physical boundaries and align with world coordinates', () => {
+  const content = readFileSync(npcDataPath, 'utf8');
+  const jsonMatch = content.match(/export const KNOWN_NPCS: NPCDefinition\[\] = (\[[\s\S]*?\]);/);
+  assert.ok(jsonMatch, 'Should parse KNOWN_NPCS from npc-data.ts');
+  const npcs = JSON.parse(jsonMatch[1]);
+
+  const manifest = JSON.parse(readFileSync(fileURLToPath(new URL('../public-lite/maps/manifest.json', import.meta.url)), 'utf8'));
+  const bounds = Object.fromEntries(manifest.map((m) => [m.id, m.bounds]));
+
+  for (const npc of npcs) {
+    assert.ok(Array.isArray(npc.pos) && npc.pos.length === 3, `${npc.id} must have 3D pos`);
+    for (const c of npc.pos) {
+      assert.ok(Number.isFinite(c), `${npc.id} pos coordinate must be finite number`);
+    }
+
+    const b = bounds[npc.mapId];
+    if (b) {
+      // NPC must be reasonably close or within map bounds (margin of 10m)
+      const margin = 10;
+      assert.ok(
+        npc.pos[0] >= b.min[0] - margin && npc.pos[0] <= b.max[0] + margin,
+        `${npc.name} (${npc.id}) X=${npc.pos[0]} out of bounds [${b.min[0]}, ${b.max[0]}] for ${npc.mapId}`
+      );
+      assert.ok(
+        npc.pos[1] >= b.min[1] - margin && npc.pos[1] <= b.max[1] + margin,
+        `${npc.name} (${npc.id}) Y=${npc.pos[1]} out of bounds [${b.min[1]}, ${b.max[1]}] for ${npc.mapId}`
+      );
+      assert.ok(
+        npc.pos[2] >= b.min[2] - margin && npc.pos[2] <= b.max[2] + margin,
+        `${npc.name} (${npc.id}) Z=${npc.pos[2]} out of bounds [${b.min[2]}, ${b.max[2]}] for ${npc.mapId}`
+      );
+    }
+  }
+});
+
+test('dialogue modal header close button is anchored to the right', () => {
+  const stylesPath = fileURLToPath(new URL('../src/styles.css', import.meta.url));
+  const css = readFileSync(stylesPath, 'utf8');
+
+  assert.ok(
+    css.includes('.npc-header-close-btn') && css.includes('margin-left: auto !important;'),
+    'Close button must use margin-left: auto !important to anchor to the far right'
+  );
+  assert.ok(
+    css.includes('.npc-header') && css.includes('justify-content: space-between;'),
+    'Header container must use space-between'
+  );
 });
 
 test('npc-models.json exists, contains 3D character meshes with valid geometry', () => {

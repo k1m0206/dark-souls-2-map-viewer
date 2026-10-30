@@ -1434,10 +1434,13 @@ body.orientation-landscape #btn-hide-ui span {
 .npc-header {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
+  width: 100%;
+  gap: 12px;
   margin-bottom: 8px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding-bottom: 6px;
+  box-sizing: border-box;
 }
 
 .npc-dialogue-box.item-mode .npc-header {
@@ -1445,16 +1448,32 @@ body.orientation-landscape #btn-hide-ui span {
   padding-bottom: 8px;
 }
 
+.npc-header-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.npc-header-title-block {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
 .npc-header-close-btn {
-  margin-left: 8px;
+  margin-left: auto !important;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  min-width: 28px;
-  min-height: 28px;
-  flex: 0 0 28px;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  flex: 0 0 32px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.2);
