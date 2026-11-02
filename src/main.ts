@@ -21,6 +21,7 @@ import {
   BookOpen,
   Gem,
   MapPin,
+  Map,
 } from 'lucide';
 import { MAPS, MAP_DICT } from './maps';
 import { loadDecodedMap, releaseDecodedMap } from './format';
@@ -33,6 +34,7 @@ import { ItemRadar } from './item-radar';
 import { ItemManager } from './item-manager';
 import { mat4 } from 'gl-matrix';
 import type { TreasureSpot } from './all-items';
+import { mountProgressionView } from './progression';
 import './styles.css';
 
 installErrorLogging();
@@ -88,11 +90,17 @@ function renderAppHtml(): string {
 
       <!-- 底部固定栏 -->
       <div class="welcome-fixed-bar">
-        <button id="start" type="button" class="btn-welcome-start" title="进入全量大世界">
-          <i data-lucide="flame"></i>
-          <span id="welcome-start-label">进入全量大世界</span>
-          <i data-lucide="arrow-up" style="transform: rotate(90deg)"></i>
-        </button>
+        <div class="welcome-fixed-inner">
+          <button id="btn-welcome-progression" type="button" class="btn-welcome-progression" title="全流程全要素互动路线攻略">
+            <i data-lucide="map"></i>
+            <span>全流程攻略</span>
+          </button>
+          <button id="start" type="button" class="btn-welcome-start" title="进入全量大世界">
+            <i data-lucide="flame"></i>
+            <span id="welcome-start-label">进入全量大世界</span>
+            <i data-lucide="arrow-up" style="transform: rotate(90deg)"></i>
+          </button>
+        </div>
       </div>
     </section>
 
@@ -127,6 +135,10 @@ function renderAppHtml(): string {
         </div>
 
         <div class="header-actions">
+          <button id="btn-header-progression" class="btn-ghost" title="全流程攻略">
+            <i data-lucide="map"></i>
+            <span>攻略</span>
+          </button>
           <button id="btn-item-radar" class="btn-ghost" title="道具雷达">
             <i data-lucide="gem"></i>
             <span>物品</span>
@@ -220,6 +232,10 @@ function renderAppHtml(): string {
                   <button id="btn-drawer-radar" type="button" class="btn-setting-action">
                     <i data-lucide="gem"></i>
                     <span>道具</span>
+                  </button>
+                  <button id="btn-drawer-progression" type="button" class="btn-setting-action" title="全流程攻略">
+                    <i data-lucide="map"></i>
+                    <span>攻略</span>
                   </button>
                 </div>
               </div>
@@ -331,6 +347,9 @@ function renderAppHtml(): string {
       <div id="toast" hidden></div>
 
     </div>
+
+    <!-- 3. 全流程全要素互动攻略界面 -->
+    <div id="progression-view" class="progression-view-fullscreen" hidden></div>
   `;
 }
 
@@ -522,7 +541,8 @@ async function bootstrap() {
 
   // Viewport Orientation
   function isStageRotatedLandscape(): boolean {
-    if (!document.body.classList.contains('map-view')) return false;
+    const isLandscapeActive = document.body.classList.contains('map-view') || document.body.classList.contains('progression-view-active');
+    if (!isLandscapeActive) return false;
     // 原生全屏横屏生效或设备物理即为横屏时，直接利用原生横屏视口，无需 CSS 旋转
     if (isNativeLandscapeActive || window.innerWidth >= window.innerHeight) {
       return false;
@@ -536,9 +556,10 @@ async function bootstrap() {
     document.body.classList.toggle('orientation-landscape', landscape);
     document.body.classList.toggle('orientation-portrait', !landscape);
 
+    const isLandscapeActive = document.body.classList.contains('map-view') || document.body.classList.contains('progression-view-active');
     const needRotate = isStageRotatedLandscape();
     document.body.classList.toggle('rotated-landscape', needRotate);
-    document.body.classList.toggle('native-landscape', !needRotate && document.body.classList.contains('map-view'));
+    document.body.classList.toggle('native-landscape', !needRotate && isLandscapeActive);
   }
 
   function handleResize() {
@@ -1120,8 +1141,102 @@ async function bootstrap() {
     });
   }
 
+  // Full Progression Flowchart View (横屏互动攻略)
+  let progressionMounted = false;
+  let previousViewMode: 'welcome' | 'stage' = 'welcome';
+
+  async function openProgressionView(from: 'welcome' | 'stage' = 'welcome') {
+    previousViewMode = from;
+    const progressionEl = el('progression-view');
+    if (!progressionEl) return;
+
+    if (from === 'stage') {
+      controls.clear();
+      setPanel(false);
+      itemRadar.close();
+      itemManager.hideDetail();
+      el('explore-stage').hidden = true;
+    } else {
+      el('welcome').hidden = true;
+    }
+
+    document.body.classList.add('progression-view-active');
+
+    // 小黑盒原生横屏全屏适配（客户端支持时自动物理旋转至全屏横屏）
+    if (typeof hbSDK !== 'undefined' && hbSDK.viewport?.setDisplay) {
+      try {
+        const res = await hbSDK.viewport.setDisplay({ orientation: 'landscape', fullscreen: true });
+        if (res && res.supported) {
+          isNativeLandscapeActive = true;
+        }
+      } catch (err) {
+        console.warn('[DS2] hbSDK setDisplay landscape 失败:', err);
+      }
+    }
+
+    syncViewportOrientationClass();
+    void syncInsets();
+    handleResize();
+
+    progressionEl.hidden = false;
+
+    if (!progressionMounted) {
+      progressionMounted = true;
+      mountProgressionView(progressionEl, {
+        onBack: () => void closeProgressionView(),
+        onOpenMap: (mapId: string) => {
+          void closeProgressionView();
+          if (MAP_DICT.has(mapId)) {
+            selected = mapId;
+            if (previousViewMode === 'stage') {
+              void switchMap(mapId);
+            } else {
+              void enterMapFromWelcome();
+            }
+          }
+        },
+      });
+    }
+  }
+
+  async function closeProgressionView() {
+    const progressionEl = el('progression-view');
+    if (progressionEl) {
+      progressionEl.hidden = true;
+    }
+    document.body.classList.remove('progression-view-active');
+
+    if (previousViewMode === 'stage') {
+      el('explore-stage').hidden = false;
+      syncViewportOrientationClass();
+      void syncInsets();
+      handleResize();
+      refreshIcons();
+    } else {
+      // 退出到欢迎页时恢复竖屏非全屏原生展示
+      if (typeof hbSDK !== 'undefined' && hbSDK.viewport?.setDisplay) {
+        try {
+          await hbSDK.viewport.setDisplay({ orientation: 'portrait', fullscreen: false });
+        } catch (err) {
+          console.warn('[DS2] hbSDK setDisplay portrait 失败:', err);
+        } finally {
+          isNativeLandscapeActive = false;
+        }
+      }
+      el('welcome').hidden = false;
+      syncViewportOrientationClass();
+      void syncInsets();
+      handleResize();
+      drawWelcomeList();
+      refreshIcons();
+    }
+  }
+
   // Bind Event Handlers
   el('start').onclick = () => void enterMapFromWelcome();
+  el('btn-welcome-progression').onclick = () => openProgressionView('welcome');
+  el('btn-header-progression').onclick = () => openProgressionView('stage');
+  el('btn-drawer-progression').onclick = () => openProgressionView('stage');
   el('btn-exit').onclick = returnToWelcome;
   el('btn-return-welcome').onclick = returnToWelcome;
   el('error-close').onclick = returnToWelcome;

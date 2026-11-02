@@ -1,6 +1,8 @@
 import { miniappManifest } from '@heybox/hb-sdk/vite';
 import { defineConfig } from 'vite';
 import { fileURLToPath } from 'node:url';
+import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 
 const path = (p) => fileURLToPath(new URL(p, import.meta.url));
 
@@ -8,6 +10,8 @@ export default defineConfig(({ command }) => ({
   base: './',
   publicDir: 'public-lite',
   plugins: [
+    react(),
+    tailwindcss(),
     miniappManifest(),
     ...(command === 'serve' ? [{
       name: 'dev-runtime-gate-auto-unlock',
