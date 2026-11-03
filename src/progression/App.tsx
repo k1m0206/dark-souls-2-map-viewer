@@ -13,8 +13,10 @@ import { EndingsGuideModal } from './components/EndingsGuideModal';
 import { ProgressSummaryModal } from './components/ProgressSummaryModal';
 import { SpoilerPromptModal } from './components/SpoilerPromptModal';
 import { MerchantCatalogModal } from './components/MerchantCatalogModal';
+import { SteamAchievementsModal } from './components/SteamAchievementsModal';
 import { StageQuickNav } from './components/StageQuickNav';
 import { MAP_NODES } from './data/soulsData';
+import { STEAM_ACHIEVEMENTS } from './data/achievementsData';
 import { MapNode, NPCId, UserProgress } from './types/souls';
 import { 
   filterMapNodes, 
@@ -114,6 +116,7 @@ export default function App({ onBack, onOpenMap }: ProgressionAppProps = {}) {
   const [isEndingsModalOpen, setIsEndingsModalOpen] = useState(false);
   const [isProgressModalOpen, setIsProgressModalOpen] = useState(false);
   const [isMerchantModalOpen, setIsMerchantModalOpen] = useState(false);
+  const [isAchievementsModalOpen, setIsAchievementsModalOpen] = useState(false);
 
   // Canvas Viewport Pan & Zoom (Optimized for widescreen landscape flowchart)
   const [panOffset, setPanOffset] = useState({ x: 40, y: -650 });
@@ -186,6 +189,31 @@ export default function App({ onBack, onOpenMap }: ProgressionAppProps = {}) {
     localStorage.removeItem(STORAGE_KEY);
   };
 
+  const handleToggleAchievement = (achievementId: string) => {
+    setUserProgress(prev => {
+      const current = prev.unlockedAchievements || [];
+      const exists = current.includes(achievementId);
+      const updated = exists
+        ? current.filter(id => id !== achievementId)
+        : [...current, achievementId];
+      return { ...prev, unlockedAchievements: updated };
+    });
+  };
+
+  const handleBatchSetAchievements = (achievementIds: string[]) => {
+    setUserProgress(prev => ({
+      ...prev,
+      unlockedAchievements: Array.from(new Set([...(prev.unlockedAchievements || []), ...achievementIds])),
+    }));
+  };
+
+  const handleResetAchievements = () => {
+    setUserProgress(prev => ({
+      ...prev,
+      unlockedAchievements: [],
+    }));
+  };
+
   // Jump camera to coordinates
   const handleJumpToStage = (stageX: number, stageY: number = -650) => {
     setPanOffset({ x: stageX, y: stageY });
@@ -226,6 +254,9 @@ export default function App({ onBack, onOpenMap }: ProgressionAppProps = {}) {
         isSpoilerProtectionOn={isSpoilerProtectionOn}
         onSelectMapNode={handleNavigateToNode}
         onOpenMerchantCatalog={() => setIsMerchantModalOpen(true)}
+        onOpenAchievementsModal={() => setIsAchievementsModalOpen(true)}
+        unlockedAchievementsCount={userProgress.unlockedAchievements?.length || 0}
+        totalAchievementsCount={STEAM_ACHIEVEMENTS.length}
         onBack={onBack}
       />
 
@@ -260,6 +291,8 @@ export default function App({ onBack, onOpenMap }: ProgressionAppProps = {}) {
           onNavigateToNode={handleNavigateToNode}
           isSpoilerProtectionOn={isSpoilerProtectionOn}
           onOpenMap={onOpenMap}
+          onToggleAchievement={handleToggleAchievement}
+          onOpenAchievementsModal={() => setIsAchievementsModalOpen(true)}
         />
       )}
 
@@ -281,10 +314,13 @@ export default function App({ onBack, onOpenMap }: ProgressionAppProps = {}) {
         onOpenEndingsModal={() => setIsEndingsModalOpen(true)}
         onOpenProgressModal={() => setIsProgressModalOpen(true)}
         onOpenMerchantModal={() => setIsMerchantModalOpen(true)}
+        onOpenAchievementsModal={() => setIsAchievementsModalOpen(true)}
         onResetView={handleResetView}
         completionPercentage={stats.totalProgressPercentage}
         defeatedBossCount={stats.defeatedBossesCount}
         totalBossCount={stats.totalBosses}
+        unlockedAchievementsCount={userProgress.unlockedAchievements?.length || 0}
+        totalAchievementsCount={STEAM_ACHIEVEMENTS.length}
         onBack={onBack}
       />
 
@@ -292,6 +328,21 @@ export default function App({ onBack, onOpenMap }: ProgressionAppProps = {}) {
       {!selectedNode && (
         <StageQuickNav onJumpToStage={handleJumpToStage} />
       )}
+
+      {/* Steam Achievements Guide & Tracker Modal */}
+      <SteamAchievementsModal
+        isOpen={isAchievementsModalOpen}
+        onClose={() => setIsAchievementsModalOpen(false)}
+        nodes={MAP_NODES}
+        userProgress={userProgress}
+        onToggleAchievement={handleToggleAchievement}
+        onBatchSetAchievements={handleBatchSetAchievements}
+        onResetAchievements={handleResetAchievements}
+        onNavigateToMap={(mapId) => {
+          setIsAchievementsModalOpen(false);
+          handleNavigateToNode(mapId);
+        }}
+      />
 
       {/* Merchant & Spell Catalog Modal */}
       <MerchantCatalogModal

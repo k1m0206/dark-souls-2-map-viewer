@@ -12,7 +12,8 @@ import {
   Coins, 
   ArrowRight,
   ArrowLeft,
-  BookOpen
+  BookOpen,
+  Award
 } from 'lucide-react';
 import { RouteFilterType } from '../utils/progressionLogic';
 import { NPCId } from '../types/souls';
@@ -32,6 +33,9 @@ interface HeaderProps {
   onSelectMapNode?: (mapId: string) => void;
   onOpenMerchantCatalog?: () => void;
   onBack?: () => void;
+  onOpenAchievementsModal?: () => void;
+  unlockedAchievementsCount?: number;
+  totalAchievementsCount?: number;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -47,6 +51,9 @@ export const Header: React.FC<HeaderProps> = ({
   onSelectMapNode,
   onOpenMerchantCatalog,
   onBack,
+  onOpenAchievementsModal,
+  unlockedAchievementsCount = 0,
+  totalAchievementsCount = 38,
 }) => {
   const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
   const searchContainerRef = useRef<HTMLDivElement>(null);
@@ -278,6 +285,21 @@ export const Header: React.FC<HeaderProps> = ({
             <CheckSquare className="w-3.5 h-3.5 text-amber-400" />
             <span className="font-mono text-amber-400 font-bold">{completionPercentage}%</span>
           </div>
+
+          {/* Steam Achievements Button */}
+          {onOpenAchievementsModal && (
+            <button
+              onClick={onOpenAchievementsModal}
+              className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-lg bg-amber-950/40 hover:bg-amber-900/60 border border-amber-600/60 hover:border-amber-400 text-amber-200 text-[11px] sm:text-xs font-semibold transition-all shadow-sm active:scale-95 shrink-0"
+              title="查看 Steam 官方 38 项全成就指引与防错过预警"
+            >
+              <Award className="w-3.5 h-3.5 text-amber-400" />
+              <span className="hidden xs:inline">成就</span>
+              <span className="font-mono text-amber-300 font-bold">
+                {unlockedAchievementsCount}/{totalAchievementsCount}
+              </span>
+            </button>
+          )}
 
           {/* Reset Camera View button */}
           <button

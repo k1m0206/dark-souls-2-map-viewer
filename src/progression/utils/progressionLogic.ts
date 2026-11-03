@@ -391,6 +391,9 @@ export function normalizeProgress(saved: Partial<UserProgress> | null): UserProg
     ? Math.max(0, Math.min(3, saved.aldiaConversations!)) : 0;
   initial.vendrickDefeated = initial.defeatedBosses.includes('vendrick') || saved.vendrickDefeated === true;
   initial.fourCrownsCollected = saved.fourCrownsCollected === true;
+  initial.unlockedAchievements = Array.isArray(saved.unlockedAchievements)
+    ? [...new Set(saved.unlockedAchievements.filter(id => typeof id === 'string'))]
+    : [];
   return initial;
 }
 
@@ -403,6 +406,7 @@ export function getInitialProgress(): UserProgress {
     aldiaConversations: 0,
     vendrickDefeated: false,
     fourCrownsCollected: false,
+    unlockedAchievements: [],
   };
 }
 

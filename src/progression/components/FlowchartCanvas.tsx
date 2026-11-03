@@ -14,12 +14,14 @@ import {
   ChevronRight,
   ShieldAlert,
   Compass,
-  ShoppingBag
+  ShoppingBag,
+  Award
 } from 'lucide-react';
 import { MapNode, UserProgress } from '../types/souls';
 import { calculateNodePosition, generateBezierPath, checkLineCrossesCards, generateSmartConnectionPath } from '../utils/progressionLogic';
 import { STAGES_CONFIG } from '../data/soulsData';
 import { getMerchantsForMap } from '../data/merchantData';
+import { getAchievementsForMap } from '../data/achievementsData';
 
 const SMART_ROUTED_KEYS = new Set([
   'sinners_rise->majula',
@@ -473,6 +475,11 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
           // Merchants present in this location
           const localMerchants = getMerchantsForMap(node.id);
 
+          // Achievements in this location
+          const localAchievements = getAchievementsForMap(node.id);
+          const hasMissable = localAchievements.some(a => a.isMissable);
+          const completedAchCount = localAchievements.filter(a => userProgress.unlockedAchievements?.includes(a.id)).length;
+
           return (
             <div
               key={node.id}
@@ -519,23 +526,39 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
                     )}
                   </div>
 
-                  {/* Map Cleared Checkbox */}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onToggleMapComplete(node.id);
-                    }}
-                    className={`flex items-center justify-center w-6 h-6 rounded-lg border transition-all active:scale-90 ${
-                      isCompleted
-                        ? 'bg-emerald-600 border-emerald-400 text-white shadow-sm'
-                        : 'bg-black/50 border-stone-600 hover:border-amber-400 text-transparent'
-                    }`}
-                    title={isCompleted ? '已标记为探索完成' : '点击标记为探索完成'}
-                    aria-label={`标记 ${node.name} 为完成`}
-                  >
-                    <Check className="w-4 h-4 stroke-[3]" />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    {localAchievements.length > 0 && (
+                      <span 
+                        className={`text-xs px-2 py-0.5 rounded-md font-mono flex items-center gap-1 font-semibold ${
+                          hasMissable
+                            ? 'bg-rose-950/80 border border-rose-600/80 text-rose-200 shadow-sm animate-pulse'
+                            : 'bg-amber-950/60 border border-amber-600/60 text-amber-300'
+                        }`}
+                        title={`${hasMissable ? '🚨 包含易错过成就！' : ''}关联 Steam 成就 (${completedAchCount}/${localAchievements.length})`}
+                      >
+                        <Award className="w-3 h-3 text-amber-400 shrink-0" />
+                        <span>{completedAchCount}/{localAchievements.length}</span>
+                      </span>
+                    )}
+
+                    {/* Map Cleared Checkbox */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleMapComplete(node.id);
+                      }}
+                      className={`flex items-center justify-center w-6 h-6 rounded-lg border transition-all active:scale-90 ${
+                        isCompleted
+                          ? 'bg-emerald-600 border-emerald-400 text-white shadow-sm'
+                          : 'bg-black/50 border-stone-600 hover:border-amber-400 text-transparent'
+                      }`}
+                      title={isCompleted ? '已标记为探索完成' : '点击标记为探索完成'}
+                      aria-label={`标记 ${node.name} 为完成`}
+                    >
+                      <Check className="w-4 h-4 stroke-[3]" />
+                    </button>
+                  </div>
                 </div>
 
                 {/* Title & Lore Name (Increased font proportion) */}
@@ -593,6 +616,17 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
                     >
                       <ShoppingBag className="w-3 h-3 text-amber-400 shrink-0" />
                       <span>{localMerchants.length}位商人/导师</span>
+                    </span>
+                  )}
+
+                  {/* Missable Achievement Warning Alert Pill */}
+                  {hasMissable && (
+                    <span 
+                      className="text-xs px-2 py-0.5 rounded-md bg-rose-950/80 border border-rose-600/80 text-rose-200 font-bold flex items-center gap-1 shrink-0 animate-pulse shadow-sm"
+                      title="本区域包含易错过 Steam 成就的决断节点（如 NPC 对话、助战存活或关键道具保留）"
+                    >
+                      <AlertTriangle className="w-3 h-3 text-rose-400 shrink-0" />
+                      <span>防错过预警</span>
                     </span>
                   )}
                 </div>

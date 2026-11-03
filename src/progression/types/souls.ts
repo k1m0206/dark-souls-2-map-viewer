@@ -52,6 +52,7 @@ export interface Boss {
   isGreatSoul?: boolean;
   tips: string;
   transposeWeapon: string;
+  relatedAchievementIds?: string[];
 }
 
 export interface CollectibleItem {
@@ -114,6 +115,7 @@ export interface MapNode {
   checklists: MapChecklistItem[];
   choices?: ChoicePoint[];
   trapsAndTricks: string[];
+  relatedAchievementIds?: string[];
   connectionsTo: {
     targetId: string;
     requirement?: string;
@@ -148,6 +150,7 @@ export interface GameEnding {
     text: string;
     checkKey: string;
   }[];
+  relatedAchievementIds?: string[];
 }
 
 export type MerchantItemCategory = 
@@ -190,6 +193,31 @@ export interface MerchantNPC {
   items: MerchantItem[];
 }
 
+export type AchievementCategory = 
+  | 'story'
+  | 'boss'
+  | 'npc_inheritance'
+  | 'magic_mastery'
+  | 'covenant'
+  | 'special';
+
+export interface SteamAchievement {
+  id: string;
+  name: string;
+  nameEn: string;
+  description: string;
+  descriptionEn: string;
+  category: AchievementCategory;
+  categoryName: string;
+  isMissable: boolean;
+  missableWarning?: string;
+  unlockGuide: string;
+  relatedMapIds: string[];
+  keyBossId?: string;
+  keyNpcId?: string;
+  iconName: string;
+}
+
 export interface UserProgress {
   completedMaps: string[];
   completedChecklists: string[];
@@ -198,5 +226,6 @@ export interface UserProgress {
   aldiaConversations: number;
   vendrickDefeated: boolean;
   fourCrownsCollected: boolean;
+  unlockedAchievements: string[];
 }
 

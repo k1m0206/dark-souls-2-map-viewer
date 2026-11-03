@@ -17,7 +17,8 @@ import {
   Layers,
   HelpCircle,
   Trash2,
-  ShoppingBag
+  ShoppingBag,
+  Award
 } from 'lucide-react';
 import { RouteFilterType } from '../utils/progressionLogic';
 import { NPCId } from '../types/souls';
@@ -37,10 +38,13 @@ interface NavigationMenuDrawerProps {
   onOpenEndingsModal: () => void;
   onOpenProgressModal: () => void;
   onOpenMerchantModal: () => void;
+  onOpenAchievementsModal?: () => void;
   onResetView: () => void;
   completionPercentage: number;
   defeatedBossCount: number;
   totalBossCount: number;
+  unlockedAchievementsCount?: number;
+  totalAchievementsCount?: number;
   onBack?: () => void;
 }
 
@@ -57,10 +61,13 @@ export const NavigationMenuDrawer: React.FC<NavigationMenuDrawerProps> = ({
   onOpenEndingsModal,
   onOpenProgressModal,
   onOpenMerchantModal,
+  onOpenAchievementsModal,
   onResetView,
   completionPercentage,
   defeatedBossCount,
   totalBossCount,
+  unlockedAchievementsCount = 0,
+  totalAchievementsCount = 38,
   onBack,
 }) => {
   // Close on Escape key
@@ -295,6 +302,34 @@ export const NavigationMenuDrawer: React.FC<NavigationMenuDrawerProps> = ({
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
               <span>专题攻略图鉴</span>
             </h3>
+
+            {onOpenAchievementsModal && (
+              <button
+                onClick={() => {
+                  onClose();
+                  onOpenAchievementsModal();
+                }}
+                className="w-full p-3.5 rounded-xl bg-gradient-to-r from-amber-950/60 via-[#1b1c28] to-stone-900 border border-amber-500/70 hover:border-amber-400 text-left transition-all group flex items-center justify-between shadow-md shadow-amber-950/30"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded-lg bg-amber-900/60 border border-amber-500/60 flex items-center justify-center shrink-0">
+                    <Award className="w-5 h-5 text-amber-300 group-hover:scale-110 transition-transform" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-amber-200">Steam 官方 38 项全成就</span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-900/80 border border-amber-500 text-amber-200 font-mono font-bold shrink-0">
+                        {unlockedAchievementsCount}/{totalAchievementsCount}
+                      </span>
+                    </div>
+                    <p className="text-xs text-stone-300 mt-0.5 truncate">
+                      官方中英双语 · 防错过决策预警 · 地图节点一键跳转追踪
+                    </p>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-amber-400 shrink-0 group-hover:translate-x-1 transition-transform ml-2" />
+              </button>
+            )}
 
             <div className="grid grid-cols-2 sm:grid-cols-2 gap-2.5">
               <button

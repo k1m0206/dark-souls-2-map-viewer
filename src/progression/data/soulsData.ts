@@ -57,6 +57,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'things_betwixt',
     name: '一线天森林',
     nameEn: 'Things Betwixt',
+    relatedAchievementIds: ['self_recollection','this_is_dark_souls'],
     stage: 'prologue',
     stageName: '序章与起源',
     branch: 'main',
@@ -154,6 +155,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'majula',
     name: '如蜜',
     nameEn: 'Majula',
+    relatedAchievementIds: ['the_dark_soul','this_is_dark_souls','covenant_of_the_meek','covenant_of_the_fittest','curious_map','gathering_of_exiles','supreme_weapon','master_of_miracles','gesture_maestro'],
     stage: 'prologue',
     stageName: '核心大本营',
     branch: 'main',
@@ -308,6 +310,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'forest_of_fallen_giants',
     name: '巨人陨落之森',
     nameEn: 'Forest of Fallen Giants',
+    relatedAchievementIds: ['last_giant','curious_map','gathering_of_exiles','holder_of_the_fort','gesture_maestro'],
     stage: 'four_souls',
     stageName: '四大古魂之路',
     branch: 'branch_sinner',
@@ -324,6 +327,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'last_giant',
         name: '最后的巨人',
         nameEn: 'The Last Giant',
+    relatedAchievementIds: ['last_giant'],
         isOptional: false,
         tips: '修脚打法，注意踩踏；残血会撕断自己手臂当大棒挥击。',
         transposeWeapon: '巨人石斧'
@@ -332,6 +336,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'pursuer',
         name: '咒缚者',
         nameEn: 'The Pursuer',
+    relatedAchievementIds: ['curious_map'],
         isOptional: true,
         tips: '向右前方翻滚避开突刺。可弹反后操作场地弩炮造成大量伤害，通常需多次命中；注意弩炮也能误伤白灵。',
         transposeWeapon: '咒缚者特大剑 / 咒缚者大盾'
@@ -382,7 +387,7 @@ export const MAP_NODES: MapNode[] = [
       },
       {
         id: 'fofg_c2',
-        task: '深入洞穴找到制图师凯尔，对话至重复获得【如蜜豪宅钥匙】',
+        task: '【🏆防错过成就警告·奇妙的地图·切勿杀害凯尔】深入洞穴找到制图师凯尔，对话至重复获得【如蜜豪宅钥匙】；切勿攻击或击杀凯尔！后期点亮如蜜地下8团火后再来与他对话跳成就！',
         category: 'npc'
       },
       {
@@ -427,6 +432,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'lost_bastille',
     name: '遗忘囚笼',
     nameEn: 'The Lost Bastille',
+    relatedAchievementIds: ['sinners_bonfire','lucatiel','smith_for_life','clangorous_covenant','supreme_weapon','master_of_sorceries','gesture_maestro'],
     stage: 'four_souls',
     stageName: '四大古魂之路',
     branch: 'branch_sinner',
@@ -443,6 +449,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'ruin_sentinels',
         name: '茫然三卫兵 (雷吉姆、亚历桑德、法宾)',
         nameEn: 'Ruin Sentinels',
+    relatedAchievementIds: ['sinners_bonfire'],
         isOptional: true,
         tips: '先在高台击杀第一名，再根据另外两名的位置决定继续在台上迎战或跳下。可召唤巡礼者贝尔克娜；小丑托马斯不在此处。',
         transposeWeapon: '强力追踪灵魂箭（Heavy Homing Soul Arrow）'
@@ -486,7 +493,7 @@ export const MAP_NODES: MapNode[] = [
       },
       {
         id: 'lb_c2',
-        task: '将炸药桶推下斜坡炸开墙壁，点燃【熟练麦道夫】铁匠房的篝火，交付余烬解锁强化与质变',
+        task: '【🏆防错过成就·毕生铁匠】点燃熟练麦道夫铁匠房营火并将熔铁城【将熄余烬】交付给他后，必须在他处消费（强化/变质）满 14,000 魂，再次对话继承装备跳成就！',
         category: 'secret'
       },
       {
@@ -563,6 +570,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'belfry_luna',
     name: '月亮钟楼 (支线)',
     nameEn: 'Belfry Luna',
+    relatedAchievementIds: ['clangorous_covenant'],
     stage: 'four_souls',
     stageName: '四大古魂之路',
     branch: 'branch_sinner',
@@ -579,6 +587,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'belfry_gargoyles',
         name: '守钟的石像鬼',
         nameEn: 'Belfry Gargoyles',
+    relatedAchievementIds: ['clangorous_covenant'],
         isOptional: true,
         tips: '多目标战，最多五只同时活跃，总共六只。优先集中伤害击杀一只，避免把多只都打入喷火阶段；不要只压低血量却不收尾。',
         transposeWeapon: '石像鬼双叉枪（Gargoyle Bident）'
@@ -640,6 +649,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'sinners_rise',
     name: '罪人塔',
     nameEn: 'Sinner\'s Rise',
+    relatedAchievementIds: ['sinners_bonfire','lucatiel'],
     stage: 'four_souls',
     stageName: '四大古魂之路',
     branch: 'branch_sinner',
@@ -656,6 +666,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'lost_sinner',
         name: '【始源之火 1/4】被遗忘的罪人',
         nameEn: 'The Lost Sinner',
+    relatedAchievementIds: ['sinners_bonfire','lucatiel','curious_map'],
         isOptional: false,
         isGreatSoul: true,
         tips: '极为敏捷的剑术。如果事先用牢房钥匙点燃Boss房两侧火油，Boss房将变亮，锁定距离大增！可召唤鲁卡提耶助阵。',
@@ -706,7 +717,7 @@ export const MAP_NODES: MapNode[] = [
       },
       {
         id: 'sr_c3',
-        task: '召唤鲁卡提耶，击败伟大的始源古魂BOSS【被遗忘的罪人】',
+        task: '【🏆防错过成就警告·米勒的鲁卡提耶】在升降机底部召唤鲁卡提耶，击败被遗忘的罪人且确保她存活！若她失足落水或Boss战阵亡，请立即重置（累计需存活3次）！',
         category: 'boss'
       },
       {
@@ -729,6 +740,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'heides_tower',
     name: '海德巨火塔',
     nameEn: 'Heide\'s Tower of Flame',
+    relatedAchievementIds: ['covenant_of_the_meek','protector_covenant','gathering_of_exiles','master_of_miracles','gesture_maestro'],
     stage: 'four_souls',
     stageName: '四大古魂之路',
     branch: 'branch_iron_king',
@@ -745,6 +757,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'dragonrider',
         name: '龙骑兵',
         nameEn: 'Dragonrider',
+    relatedAchievementIds: ['protector_covenant','gathering_of_exiles'],
         isOptional: false,
         tips: '战前可拉动两处扩展战斗平台的机关。也可不扩建平台，利用开局站位诱使其突刺落水；新手建议先升起平台再正常绕身战斗。',
         transposeWeapon: '龙骑兵戟 / 龙骑兵双刃剑 / 龙骑兵大弓'
@@ -821,6 +834,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'cathedral_of_blue',
     name: '青之圣堂 (支线)',
     nameEn: 'Cathedral of Blue',
+    relatedAchievementIds: ['protector_covenant','gesture_maestro'],
     stage: 'four_souls',
     stageName: '四大古魂之路',
     branch: 'branch_iron_king',
@@ -837,6 +851,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'old_dragonslayer',
         name: '古老的猎龙者',
         nameEn: 'Old Dragonslayer',
+    relatedAchievementIds: ['protector_covenant'],
         isOptional: true,
         tips: '招式类似一代翁斯坦，注意暗属性突刺冲锋与飞天震地，绕背翻滚后输出。',
         transposeWeapon: '猎龙之枪'
@@ -896,6 +911,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'no_mans_wharf',
     name: '密港',
     nameEn: 'No-man\'s Wharf',
+    relatedAchievementIds: ['lucatiel','gathering_of_exiles','master_of_sorceries','gesture_maestro'],
     stage: 'four_souls',
     stageName: '四大古魂之路',
     branch: 'branch_iron_king',
@@ -912,6 +928,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'flexile_sentry',
         name: '四臂守卫 (流放守卫)',
         nameEn: 'Flexile Sentry',
+    relatedAchievementIds: ['lucatiel'],
         isOptional: false,
         tips: '前后各有双臂(持刺剑与棒槌)；战斗中海水会不断上涨降低翻滚速度，需速战速决！可召唤鲁卡提耶。',
         transposeWeapon: '扭曲之刃（曲剑）／弓形大刀／刺针棍'
@@ -976,7 +993,7 @@ export const MAP_NODES: MapNode[] = [
       },
       {
         id: 'nmw_c4',
-        task: '召唤鲁卡提耶，击败幽灵船舱内的BOSS【四臂守卫】',
+        task: '【🏆防错过成就警告·米勒的鲁卡提耶】必须在密港民房耗尽对话并在四臂守卫雾门前召唤她参战，击败Boss且必须确保她存活通关（全流程需累计存活3次）！若中途阵亡需立即大退或自杀重来！',
         category: 'boss'
       },
       {
@@ -1003,6 +1020,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'huntsmans_copse',
     name: '狩猎森林',
     nameEn: 'Huntsman\'s Copse',
+    relatedAchievementIds: ['gathering_of_exiles','gesture_maestro'],
     stage: 'four_souls',
     stageName: '四大古魂之路',
     branch: 'branch_iron_king',
@@ -1019,6 +1037,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'skeleton_lords',
         name: '骷髅王 (三王)',
         nameEn: 'Skeleton Lords',
+    relatedAchievementIds: ['gathering_of_exiles'],
         isOptional: false,
         tips: '先集火法师骷髅王，逐个击杀！每击杀一个王会分裂出数只小骷髅，切忌同时击杀三王导致小怪围攻。',
         transposeWeapon: '咆哮戟'
@@ -1113,6 +1132,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'undead_purgatory',
     name: '不死人刑场 (支线)',
     nameEn: 'Undead Purgatory',
+    relatedAchievementIds: ['sanguinary_covenant','gesture_maestro'],
     stage: 'four_souls',
     stageName: '四大古魂之路',
     branch: 'branch_iron_king',
@@ -1188,6 +1208,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'harvest_valley',
     name: '流油谷',
     nameEn: 'Harvest Valley',
+    relatedAchievementIds: ['brilliant_covenant','gathering_of_exiles','selfless_giver','master_of_miracles','gesture_maestro'],
     stage: 'four_souls',
     stageName: '四大古魂之路',
     branch: 'branch_iron_king',
@@ -1276,6 +1297,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'earthen_peak',
     name: '推土塔 (推土坊)',
     nameEn: 'Earthen Peak',
+    relatedAchievementIds: ['lucatiel','garrulous_miser','gathering_of_exiles','gesture_maestro'],
     stage: 'four_souls',
     stageName: '四大古魂之路',
     branch: 'branch_iron_king',
@@ -1292,6 +1314,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'covetous_demon',
         name: '贪婪恶魔',
         nameEn: 'Covetous Demon',
+    relatedAchievementIds: ['lucatiel'],
         isOptional: false,
         tips: '极其笨重，绕到身侧或尾部狂打；可用弓箭射击天花板吊罐释放尸体吸引其进食。',
         transposeWeapon: '贪婪恶魔骨镰'
@@ -1300,6 +1323,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'mytha',
         name: '毒妃米妲',
         nameEn: 'Mytha, the Baneful Queen',
+    relatedAchievementIds: ['lucatiel'],
         isOptional: false,
         tips: '推荐在中层篝火附近点燃火把，烧毁风车转轴，排掉Boss场地中央毒液。外圈仍有毒，米妲进入毒中仍会回血。可召唤小丑托马斯。',
         transposeWeapon: '米妲弯刃（Mytha\'s Bent Blade，匕首）'
@@ -1332,7 +1356,7 @@ export const MAP_NODES: MapNode[] = [
     checklists: [
       {
         id: 'ep_lucatiel_meet',
-        task: '挑战入口贪婪恶魔前，探索下层毒罐支路、进入法洛斯机关对面的房间，与鲁卡提耶耗尽对话',
+        task: '【🏆防错过成就警告·米勒的鲁卡提耶】挑战入口贪婪恶魔前，探索下层毒罐支路、进入法洛斯机关对面的房间，与鲁卡提耶耗尽对话（解锁后续镕铁恶魔召唤助战）！',
         category: 'npc'
       },
       {
@@ -1347,7 +1371,7 @@ export const MAP_NODES: MapNode[] = [
       },
       {
         id: 'ep_c2',
-        task: '在外侧阳台找到吉里甘，按需付2000魂架梯取宝；击败米妲后他会移居如蜜，无需把买梯子当作搬迁条件',
+        task: '【🏆防错过成就·多话的守财奴】在外侧阳台找到吉里甘；击败米妲后他移居如蜜，后续必须在如蜜花费 12,000 魂让他架起最长梯子，对话继承长刀与饰品跳成就！',
         category: 'npc'
       },
       {
@@ -1410,6 +1434,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'iron_keep',
     name: '镕铁城',
     nameEn: 'Iron Keep',
+    relatedAchievementIds: ['iron_keep_bonfire','lucatiel','covenant_of_ancients','clangorous_covenant','gesture_maestro'],
     stage: 'four_souls',
     stageName: '四大古魂之路',
     branch: 'branch_iron_king',
@@ -1426,6 +1451,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'smelter_demon',
         name: '镕铁恶魔 (可选)',
         nameEn: 'Smelter Demon',
+    relatedAchievementIds: ['lucatiel'],
         isOptional: true,
         tips: '三阶段火焰爆发自燃掉血；穿高火抗装备、喝水滴回血，躲避砸地冲击波。击败可开启极近篝火。',
         transposeWeapon: '镕铁剑'
@@ -1434,6 +1460,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'old_iron_king',
         name: '【始源之火 2/4】铁之古王',
         nameEn: 'Old Iron King',
+    relatedAchievementIds: ['iron_keep_bonfire','curious_map'],
         isOptional: false,
         isGreatSoul: true,
         tips: '巨大熔岩伊扎里斯恶魔！站在拐角避开横扫火柱与激光；最大的杀手是场地角落的【失足岩浆小洞】，切勿后滚掉入岩浆！',
@@ -1549,6 +1576,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'belfry_sol',
     name: '太阳钟楼 (支线)',
     nameEn: 'Belfry Sol',
+    relatedAchievementIds: ['clangorous_covenant','master_of_sorceries'],
     stage: 'four_souls',
     stageName: '四大古魂之路',
     branch: 'branch_iron_king',
@@ -1612,6 +1640,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'shaded_woods',
     name: '虚影森林',
     nameEn: 'Shaded Woods',
+    relatedAchievementIds: ['moonlight_greatsword','reflections_disembodiment','change_of_clothes','abysmal_covenant','gesture_maestro'],
     stage: 'four_souls',
     stageName: '四大古魂之路',
     branch: 'branch_brightstone',
@@ -1628,6 +1657,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'scorp_najka',
         name: '蝎子纳吉卡',
         nameEn: 'Scorpion Najka',
+    relatedAchievementIds: ['moonlight_greatsword','gesture_maestro'],
         isOptional: false,
         tips: '潜入沙中时站在石板地面上可免受地底突刺偷袭；可召唤蝎子男塔克共同迎战。',
         transposeWeapon: '灵魂降雹（Soul Shower）'
@@ -1765,6 +1795,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'doors_of_pharros',
     name: '法洛斯门径',
     nameEn: 'Doors of Pharros',
+    relatedAchievementIds: ['gnawing_covenant'],
     stage: 'four_souls',
     stageName: '四大古魂之路',
     branch: 'branch_brightstone',
@@ -1781,6 +1812,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'royal_rat_authority',
         name: '鼠王试炼 (可选)',
         nameEn: 'Royal Rat Authority',
+    relatedAchievementIds: ['gnawing_covenant'],
         isOptional: true,
         tips: '开局迅速用火球或弓箭清掉4只剧毒小鼠；对巨鼠贴肚皮钻胯下猛砍后腿，当心中毒。',
         transposeWeapon: '酸液喷射（Acid Surge）'
@@ -1847,6 +1879,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'brightstone_cove',
     name: '辉石镇盖儿·诺姆',
     nameEn: 'Brightstone Cove Tseldora',
+    relatedAchievementIds: ['brightstone_bonfire','moonlight_greatsword','gesture_maestro'],
     stage: 'four_souls',
     stageName: '四大古魂之路',
     branch: 'branch_brightstone',
@@ -1863,6 +1896,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'prowling_magus',
         name: '徘徊主教与信徒',
         nameEn: 'Prowling Magus and Congregation',
+    relatedAchievementIds: ['moonlight_greatsword'],
         isOptional: false,
         tips: '群体战。先冲上前秒掉两只回血白袍圣职，再清杂兵，最后围殴主教，极其脆皮。',
         transposeWeapon: '不掉落可兑换的Boss灵魂'
@@ -2014,6 +2048,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'grave_of_saints',
     name: '圣人墓地',
     nameEn: 'Grave of Saints',
+    relatedAchievementIds: ['gnawing_covenant'],
     stage: 'four_souls',
     stageName: '四大古魂之路',
     branch: 'branch_gutter',
@@ -2030,6 +2065,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'royal_rat_vanguard',
         name: '鼠王先锋 (可选)',
         nameEn: 'Royal Rat Vanguard',
+    relatedAchievementIds: ['gnawing_covenant'],
         isOptional: true,
         tips: '无数老鼠涌出；盯紧背上有显眼黑色浓密莫西干鬃毛的本体鼠王，速杀它即通关。',
         transposeWeapon: '剧毒雾（Toxic Mist）'
@@ -2082,6 +2118,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'the_gutter',
     name: '废渊',
     nameEn: 'The Gutter',
+    relatedAchievementIds: ['gulch_bonfire'],
     stage: 'four_souls',
     stageName: '四大古魂之路',
     branch: 'branch_gutter',
@@ -2152,6 +2189,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'black_gulch',
     name: '黑溪谷',
     nameEn: 'Black Gulch',
+    relatedAchievementIds: ['gulch_bonfire','lucatiel','abysmal_covenant'],
     stage: 'four_souls',
     stageName: '四大古魂之路',
     branch: 'branch_gutter',
@@ -2168,6 +2206,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'the_rotten',
         name: '【始源之火 4/4】腐败物',
         nameEn: 'The Rotten',
+    relatedAchievementIds: ['gulch_bonfire','lucatiel','curious_map'],
         isOptional: false,
         isGreatSoul: true,
         tips: '由无数哀嚎躯体拼合而成的巨兽。注意避开场地四周的燃烧火坑；斩断其右臂可使其无法挥舞大菜刀并掉落法洛斯石头。可召唤鲁卡提耶。',
@@ -2220,7 +2259,7 @@ export const MAP_NODES: MapNode[] = [
       },
       {
         id: 'bg_c2',
-        task: '在悬崖边点燃火把观察落脚点，跳下第一层石沿找到【鲁卡提耶】对话',
+        task: '【🏆防错过成就警告·米勒的鲁卡提耶】悬崖下层小平台暗穴中必须与鲁卡提耶耗尽所有对话！腐败物雾门前召唤她参战并确保她存活（累计需存活3次）！',
         category: 'npc'
       },
       {
@@ -2269,6 +2308,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'shrine_of_winter',
     name: '冬之庙',
     nameEn: 'Shrine of Winter',
+    relatedAchievementIds: ['curious_map'],
     stage: 'drangleic',
     stageName: '王城大道',
     branch: 'main',
@@ -2332,6 +2372,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'drangleic_castle',
     name: '王城多兰古雷格',
     nameEn: 'Drangleic Castle',
+    relatedAchievementIds: ['looking_glass_knight','moonlight_greatsword','abysmal_covenant','selfless_giver','master_of_sorceries','master_of_miracles','master_of_pyromancies','master_of_hexes','gesture_maestro'],
     stage: 'drangleic',
     stageName: '王国中枢',
     branch: 'main',
@@ -2348,6 +2389,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'twin_dragonriders',
         name: '双龙骑兵',
         nameEn: 'Twin Dragonriders',
+    relatedAchievementIds: ['moonlight_greatsword'],
         isOptional: false,
         tips: '一人持大弓在高台射击，另一人持戟在下方近战；诱导近战龙骑兵击毁高台立柱使红衣龙骑兵摔下，逐一斩杀。',
         transposeWeapon: '龙骑兵大盾'
@@ -2356,6 +2398,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'looking_glass_knight',
         name: '镜之骑士',
         nameEn: 'Looking-glass Knight',
+    relatedAchievementIds: ['looking_glass_knight'],
         isOptional: false,
         tips: '暴风雨暴雨之巅决战。其巨镜能格挡一切正面攻击；下插巨镜时会召唤镜中暗灵(线上可召唤真实玩家)，务必趁召唤时打断或先清暗灵！',
         transposeWeapon: '国王之镜／荆棘大剑（Thorned Greatsword）'
@@ -2472,6 +2515,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'dark_chasm_of_old',
     name: '古老暗穴 (隐藏深渊)',
     nameEn: 'Dark Chasm of Old',
+    relatedAchievementIds: ['abysmal_covenant','selfless_giver','master_of_hexes'],
     stage: 'drangleic',
     stageName: '深渊契约挑战',
     branch: 'main',
@@ -2488,6 +2532,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'darklurker',
         name: '【全魂2最强法系BOSS】黑暗潜伏者 (暗天使)',
         nameEn: 'Darklurker',
+    relatedAchievementIds: ['abysmal_covenant','selfless_giver','master_of_hexes'],
         isOptional: true,
         tips: '【高难死斗】：全游戏最强法术Boss！悬浮四翼暗天使。一阶段释放暗影爆弹、巨型灵魂光剑、灵魂结晶枪、追踪黑洞；二阶段分裂为两个完全独立的暗天使同时施法！【破法】：火抗极低！堆高暗抗与魔抗(佩戴暗晶+2与大魔力防护)，二阶段分裂瞬间使用高伤咒术【混沌风暴】或【火焰风暴】在正下方同时命中双体造成数倍伤害瞬间蒸发！',
         transposeWeapon: '吸精（Lifedrain Patch）'
@@ -2558,6 +2603,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'shrine_of_amana',
     name: '阿玛娜祭坛',
     nameEn: 'Shrine of Amana',
+    relatedAchievementIds: ['vendrick'],
     stage: 'drangleic',
     stageName: '祭坛水境',
     branch: 'main',
@@ -2574,6 +2620,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'demon_of_song',
         name: '歌唱恶魔 (青蛙恶魔)',
         nameEn: 'Demon of Song',
+    relatedAchievementIds: ['vendrick'],
         isOptional: false,
         tips: '外层包裹坚不可摧的骨质硬壳；仅在其张开骷髅人脸外皮露出本体时攻击才有效！拉开距离，避开压杀与突进后惩罚面部。',
         transposeWeapon: '斑斓鞭'
@@ -2648,6 +2695,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'undead_crypt',
     name: '不死灵庙',
     nameEn: 'Undead Crypt',
+    relatedAchievementIds: ['kings_ring','vendrick','gesture_maestro'],
     stage: 'undead_crypt',
     stageName: '死者之都',
     branch: 'main',
@@ -2664,6 +2712,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'velstadt',
         name: '王盾 韦施塔德',
         nameEn: 'Velstadt, the Royal Aegis',
+    relatedAchievementIds: ['kings_ring','vendrick'],
         isOptional: false,
         tips: '手持巨大黄金圣铃大锤的忠诚卫士。二阶段下跪念咒附魔暗属性并释放暗球，趁其念咒绕背猛攻；暗抗高，怕雷属性。',
         transposeWeapon: '圣铃大槌'
@@ -2672,6 +2721,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'vendrick',
         name: '国王 凡克拉德 (可选/第二结局必打)',
         nameEn: 'King Vendrick',
+    relatedAchievementIds: ['vendrick'],
         isOptional: true,
         tips: '最多五枚【巨人灵魂】放在背包可降低其防御倍率：0枚32倍、4枚2倍、5枚正常。最后巨人的Boss魂不能代替巨人灵魂。贴身绕至左后侧观察横斩，不要求必须集齐五枚才能挑战。',
         transposeWeapon: '王之特大剑／国王之盾／统治者大剑（Ruler\'s Sword）'
@@ -2731,7 +2781,7 @@ export const MAP_NODES: MapNode[] = [
       },
       {
         id: 'uc_c5',
-        task: '【重要抉择】：凡克拉德此时为中立状态，先不打他；等后续搜集满4-5个巨人灵魂再返回斩杀他！',
+        task: '【🏆防错过成就警告·凡德拉德】国王凡克拉德此时为中立游荡状态，切勿此时盲目开战！背包中必须持有4-5颗【巨人之魂】（切勿在背包捏掉）才能削弱其32倍防御力！等收集齐巨人灵魂后再返回斩杀解锁成就！',
         category: 'secret'
       },
       {
@@ -2816,6 +2866,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'aldias_keep',
     name: '安第尔之馆',
     nameEn: 'Aldia\'s Keep',
+    relatedAchievementIds: ['lucatiel','moonlight_greatsword'],
     stage: 'dragon_shrine',
     stageName: '巨龙神域',
     branch: 'main',
@@ -2832,6 +2883,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'guardian_dragon',
         name: '看守龙',
         nameEn: 'Guardian Dragon',
+    relatedAchievementIds: ['ancient_dragon'],
         isOptional: false,
         tips: '巨大的飞龙。当其攀附在铁笼鸟笼壁上喷吐大范围漫天烈焰时，迅速跑到其正下方死角；修脚打法即可。',
         transposeWeapon: '龙翼特大剑（Drakewing Ultra Greatsword）／喷火枪（Spitfire Spear）'
@@ -2872,7 +2924,7 @@ export const MAP_NODES: MapNode[] = [
     checklists: [
       {
         id: 'ak_c1',
-        task: '与馆前鲁卡提耶进行最终对话前，先确认四处会面与累计三次助战存活条件；不够先返回添火补足，再来继承装备',
+        task: '【🚨🏆防错过成就警告·米勒的鲁卡提耶·不可逆决断点】在馆前木屋与鲁卡提耶进行最终对话前，必须已在4处耗尽对话且累计在Boss战存活至少3次！若条件未满足就与她对话，她会彻底消失导致成就永久失败！满足条件则赠送全套装备跳成就！',
         category: 'npc'
       },
       {
@@ -2943,6 +2995,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'dragon_aerie',
     name: '卫龙巢穴',
     nameEn: 'Dragon Aerie',
+    relatedAchievementIds: ['ancient_dragon'],
     stage: 'dragon_shrine',
     stageName: '巨龙神域',
     branch: 'main',
@@ -3014,6 +3067,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'dragon_shrine',
     name: '龙祭坛',
     nameEn: 'Dragon Shrine',
+    relatedAchievementIds: ['ancient_dragon','covenant_of_ancients'],
     stage: 'dragon_shrine',
     stageName: '巨龙神域',
     branch: 'main',
@@ -3030,6 +3084,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'ancient_dragon',
         name: '古龙 (可选极难Boss)',
         nameEn: 'Ancient Dragon',
+    relatedAchievementIds: ['ancient_dragon'],
         isOptional: true,
         tips: '正常对话即可取得灰雾核心，主动攻击才触发可选Boss战。喷火范围大、伤害高，观察起飞动作及时撤出火焰区域，近身时注意踩踏。击败得到一枚巨人灵魂，不要求击杀它才能推进主线。',
         transposeWeapon: '此处掉巨人灵魂；古龙之魂需另到辉石镇古龙回忆取得，可换弯曲龙大剑（Curved Dragon Greatsword）'
@@ -3135,6 +3190,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'memories_of_ancients',
     name: '巨人回忆群 (洛/奥罗/瓦姆)',
     nameEn: 'Memories of the Ancients',
+    relatedAchievementIds: ['ancient_dragon','holder_of_the_fort','moonlight_greatsword'],
     stage: 'memories',
     stageName: '穿越古昔记忆',
     branch: 'main',
@@ -3151,6 +3207,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'giant_lord',
         name: '【关键核心BOSS】巨人王',
         nameEn: 'Giant Lord',
+    relatedAchievementIds: ['holder_of_the_fort','moonlight_greatsword','curious_map'],
         isOptional: false,
         tips: '在【巨人洛的回忆】城墙尽头。奔跑途中躲避投石机巨石与滚石；钻入其两脚后侧贴脚修脚，注意抬脚重踩；弱暗弱火。击败获得【巨人的共鸣】！',
         transposeWeapon: '反作用（Repel）；巨人王可在不为人知之地篝火添火重复挑战'
@@ -3233,6 +3290,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'kings_memory',
     name: '国王记忆与凡克拉德之死 (支线)',
     nameEn: 'King\'s Memory & Vendrick',
+    relatedAchievementIds: ['vendrick'],
     stage: 'memories',
     stageName: '穿越古昔记忆',
     branch: 'main',
@@ -3311,6 +3369,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'throne_of_want',
     name: '渴望王座',
     nameEn: 'Throne of Want',
+    relatedAchievementIds: ['the_heir','the_dark_soul','curious_map','moonlight_greatsword'],
     stage: 'throne_endings',
     stageName: '终局决战',
     branch: 'ending',
@@ -3327,6 +3386,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'throne_duo',
         name: '王座看守者 & 王座监视者',
         nameEn: 'Throne Defender & Throne Watcher',
+    relatedAchievementIds: ['the_heir','moonlight_greatsword'],
         isOptional: false,
         tips: '双人组。一个偏重甲慢速，一个轻盈敏捷；【核心机制】：两人必须几乎同时击杀！若其中一人倒地太久，另一人会念咒将其以满血完全复活！',
         transposeWeapon: '看守者大剑 / 监视者大剑'
@@ -3335,6 +3395,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'nashandra',
         name: '【深渊之相】杜娜湘卓 (王妃)',
         nameEn: 'Nashandra',
+    relatedAchievementIds: ['the_heir','curious_map','moonlight_greatsword'],
         isOptional: false,
         tips: '深渊之祖马努斯最小的碎片化身。场地生成诅咒紫雾石球，迅速滚开砍碎石球；使用雷属性或高物攻武器猛砍其白骨巨躯。',
         transposeWeapon: '渴望弓／渴望镰刀／渴望铃'
@@ -3343,6 +3404,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'aldia_boss',
         name: '【第二结局隐藏BOSS】原罪学者 安第尔',
         nameEn: 'Aldia, Scholar of the First Sin',
+    relatedAchievementIds: ['the_heir'],
         isOptional: true,
         tips: '完成第四始源火、不死灵庙、龙祭坛三处对话，并在击败王妃前击败凡克拉德即可触发；回答是或否不影响。避开火环，等护体火焰减弱时输出。',
         transposeWeapon: '不掉落灵魂或道具，无Boss魂兑换'
@@ -3433,6 +3495,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'ending_inherit',
     name: '结局一：继承王座',
     nameEn: 'Inherit the Throne',
+    relatedAchievementIds: ['the_heir','the_dark_soul'],
     stage: 'throne_endings',
     stageName: '多结局归宿',
     branch: 'ending',
@@ -3468,6 +3531,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'ending_leave',
     name: '结局二：抛弃王座 / 遁入因果之外',
     nameEn: 'Leave the Throne (Scholar of the First Sin)',
+    relatedAchievementIds: ['the_heir','the_dark_soul'],
     stage: 'throne_endings',
     stageName: '多结局归宿',
     branch: 'ending',
@@ -3515,6 +3579,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'dlc_shulva',
     name: 'DLC 1：圣壁之都萨鲁瓦',
     nameEn: 'Crown of the Sunken King',
+    relatedAchievementIds: ['master_of_miracles','master_of_hexes'],
     stage: 'dlc',
     stageName: '失落的王冠',
     branch: 'branch_dlc',
@@ -3531,6 +3596,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'elana',
         name: '污秽艾莲娜',
         nameEn: 'Elana, the Squalid Queen',
+    relatedAchievementIds: ['master_of_hexes'],
         isOptional: false,
         tips: '深渊碎片之一。会召唤王盾韦施塔德骨灰或猪群；趁其施法间隙爆发输出。',
         transposeWeapon: '愤怒斧'
@@ -3539,6 +3605,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'sinh',
         name: '睡龙 希瓦尔',
         nameEn: 'Sinh, the Slumbering Dragon',
+    relatedAchievementIds: ['master_of_hexes'],
         isOptional: false,
         tips: '频繁在空中吐毒与俯冲；身上带有极强武器腐蚀腐烂度，多备修理光粉；击败获得【沉没之王的王冠】。',
         transposeWeapon: '尤格之枪'
@@ -3547,6 +3614,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'gank_squad',
         name: '盗墓三人组 (死者峡谷支线)',
         nameEn: 'Graverobber, Varg, & Cerah',
+    relatedAchievementIds: ['master_of_miracles'],
         isOptional: true,
         tips: '哈维尔战士、双刀盗贼与大弓猎人；绕大水池秦王绕柱风筝，先杀后排弓手。',
         transposeWeapon: '无Boss魂兑换'
@@ -3620,6 +3688,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'dlc_brume_tower',
     name: 'DLC 2：黑雾之塔',
     nameEn: 'Crown of the Old Iron King',
+    relatedAchievementIds: ['master_of_sorceries','master_of_pyromancies'],
     stage: 'dlc',
     stageName: '失落的王冠',
     branch: 'branch_dlc',
@@ -3636,6 +3705,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'fume_knight',
         name: '【魂2最强BOSS】烟之骑士 雷姆',
         nameEn: 'Fume Knight (Raime)',
+    relatedAchievementIds: ['master_of_pyromancies'],
         isOptional: false,
         tips: '推荐先用溶土之楔清除场外四座煤炭神像，防止烟骑士靠近时回血。观察直剑与特大剑连段，二阶段注意慢速火焰横扫，避免提前连滚。',
         transposeWeapon: '烟之特大剑 / 烟之剑'
@@ -3644,6 +3714,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'sir_alonne',
         name: '骑士 亚伦 (记忆挑战)',
         nameEn: 'Sir Alonne',
+    relatedAchievementIds: ['master_of_pyromancies'],
         isOptional: true,
         tips: '古王昔日最亲密挚友。在光滑的大理石大殿上决斗，极致的居合斩与刀法；若无伤击败他，亚伦会触发特殊的切腹自尽死亡动画！',
         transposeWeapon: '亚伦妖刀'
@@ -3652,6 +3723,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'blue_smelter',
         name: '蓝镕铁恶魔 (铁之回廊支线)',
         nameEn: 'Blue Smelter Demon',
+    relatedAchievementIds: ['master_of_sorceries'],
         isOptional: true,
         tips: '魔力属性高伤害恶魔；战前跑酷铁之回廊拉杆机关，堆高魔抗。',
         transposeWeapon: '老化熔铁剑'
@@ -3737,6 +3809,7 @@ export const MAP_NODES: MapNode[] = [
     id: 'dlc_eleum_loyce',
     name: 'DLC 3：冰雪之都埃斯洛耶斯',
     nameEn: 'Crown of the Ivory King',
+    relatedAchievementIds: ['master_of_sorceries','master_of_miracles','master_of_hexes'],
     stage: 'dlc',
     stageName: '失落的王冠',
     branch: 'branch_dlc',
@@ -3753,6 +3826,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'ivory_king',
         name: '【史诗团战】灼热的白王',
         nameEn: 'Burnt Ivory King',
+    relatedAchievementIds: ['master_of_hexes'],
         isOptional: false,
         tips: '默认已有一名洛耶斯骑士，解冻后推荐再救三名，共四名。三名可牺牲封住刷怪门，余下一名协助战斗；未找齐仍可挑战，但要承受更多杂兵压力。',
         transposeWeapon: '白王特大剑'
@@ -3769,6 +3843,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'lud_zallen',
         name: '苍之卫士 鲁德 & 扎连 (壁外雪原支线)',
         nameEn: 'Lud and Zallen',
+    relatedAchievementIds: ['master_of_miracles'],
         isOptional: true,
         tips: '魂系列最恶名昭彰的「暴风雪驯鹿马拉松跑酷」壁外雪原！双雪豹连战，血量降至一定程度另一只狂暴回血。',
         transposeWeapon: '鲁德魂：洛耶斯大剑；扎连魂：洛耶斯盾'
@@ -4236,6 +4311,7 @@ export const GAME_ENDINGS: GameEnding[] = [
     id: 'ending_inherit',
     name: '结局一：继承王座 (点燃初火 / 封闭王座)',
     nameEn: 'Inherit the Throne',
+    relatedAchievementIds: ['the_heir','the_dark_soul'],
     subtitle: '多兰古雷格的正统登基之道',
     description: '击败渴望王妃杜娜湘卓后，踏入由石像巨人们身躯铸造的石室王座中。随着石门缓缓合拢，你成为了多兰古雷格新的主宰。无论你是选择点燃初始之火延缓时代的终结，还是选择在王座中静默等待黑暗，因果的锁链都将再次紧扣。',
     loreQuote: '「王啊，请登上王座。究竟是要继承光芒，还是承受苦难，均取决于你的意志……」',
@@ -4259,6 +4335,7 @@ export const GAME_ENDINGS: GameEnding[] = [
     id: 'ending_leave',
     name: '结局二：离开王座',
     nameEn: 'Leave the Throne',
+    relatedAchievementIds: ['the_heir','the_dark_soul'],
     subtitle: '挣脱虚假轮回的求道者之路',
     description: '在击败杜娜湘卓与原罪学者安第尔后，主角拒绝踏入被神明设定的王座石棺。背对着王座，你毅然决然地迈出宏伟的大殿之门。既没有选择光，也没有选择暗，而是与安第尔一同，走向无人踏足过的「因果之外」的真理追寻之路。',
     loreQuote: '「既无光，亦无暗……前方究竟有何在等待？即使如此，人啊，为何依然不断追求？哪怕前路渺茫，依然前行。」',

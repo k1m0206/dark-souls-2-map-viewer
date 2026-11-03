@@ -21,11 +21,14 @@ import {
   MapPin,
   ShoppingBag,
   Coins,
-  BookOpen
+  BookOpen,
+  Award
 } from 'lucide-react';
 import { MapNode, UserProgress } from '../types/souls';
 import { SpoilerText } from './SpoilerText';
 import { getMerchantsForMap, MERCHANT_CATEGORY_CONFIG } from '../data/merchantData';
+import { getAchievementsForMap } from '../data/achievementsData';
+import { AchievementIcon } from './AchievementIcon';
 import { PROGRESSION_TO_3D_MAP_ID, PROGRESSION_RETURN_MAPS } from '../data/mapNavigation';
 
 interface MapDetailPageProps {
@@ -40,6 +43,8 @@ interface MapDetailPageProps {
   onNavigateToNode: (nodeId: string) => void;
   isSpoilerProtectionOn?: boolean;
   onOpenMap?: (mapId: string) => void;
+  onToggleAchievement?: (achievementId: string) => void;
+  onOpenAchievementsModal?: () => void;
 }
 
 export const MapDetailPage: React.FC<MapDetailPageProps> = ({
@@ -54,11 +59,17 @@ export const MapDetailPage: React.FC<MapDetailPageProps> = ({
   onNavigateToNode,
   isSpoilerProtectionOn = true,
   onOpenMap,
+  onToggleAchievement,
+  onOpenAchievementsModal,
 }) => {
-  const [activeTab, setActiveTab] = useState<'checklist' | 'choices' | 'bosses' | 'items' | 'npc' | 'tricks' | 'merchants'>('checklist');
+  const [activeTab, setActiveTab] = useState<'checklist' | 'choices' | 'bosses' | 'items' | 'npc' | 'tricks' | 'merchants' | 'achievements'>('checklist');
   const [merchantSearchFilter, setMerchantSearchFilter] = useState('');
 
   const mapMerchants = getMerchantsForMap(node.id);
+  const mapAchievements = getAchievementsForMap(node.id);
+  const unlockedSet = new Set(userProgress.unlockedAchievements || []);
+  const completedMapAchievementsCount = mapAchievements.filter(a => unlockedSet.has(a.id)).length;
+  const hasMissableAchievements = mapAchievements.some(a => a.isMissable);
 
   // If node has choices, user might want to see choices easily
   useEffect(() => {
@@ -229,8 +240,45 @@ export const MapDetailPage: React.FC<MapDetailPageProps> = ({
                   {node.choices?.length ?? 0} 处
                 </div>
               </div>
+
+              {mapAchievements.length > 0 && (
+                <>
+                  <div className="h-6 w-px bg-stone-800" />
+                  <div 
+                    className="text-center px-2 py-1 cursor-pointer hover:bg-stone-800/50 rounded-lg transition-colors" 
+                    onClick={() => setActiveTab('achievements')}
+                    title="点击切换到 Steam 成就板块"
+                  >
+                    <div className="text-[10px] text-stone-400">Steam成就</div>
+                    <div className="font-mono text-xs sm:text-sm font-bold text-amber-300 flex items-center justify-center gap-1">
+                      🏆 {completedMapAchievementsCount}/{mapAchievements.length}
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
+
+          {/* Missable Achievement Warning Alert Banner */}
+          {hasMissableAchievements && (
+            <div className="mt-3 p-3 rounded-xl bg-rose-950/40 border border-rose-800/80 flex items-start gap-2.5 shadow-sm">
+              <AlertTriangle className="w-5 h-5 text-rose-400 flex-shrink-0 mt-0.5 animate-pulse" />
+              <div className="text-xs text-rose-200">
+                <div className="font-bold text-rose-300 text-xs sm:text-sm flex items-center gap-1.5 flex-wrap">
+                  <span>🚨 包含重要防错过成就决策节点！</span>
+                  <button 
+                    onClick={() => setActiveTab('achievements')}
+                    className="underline text-amber-300 hover:text-amber-100 font-normal text-xs"
+                  >
+                    查看详情与攻略 →
+                  </button>
+                </div>
+                <div className="mt-0.5 text-rose-200/90 leading-relaxed">
+                  本区域涉及易错过成就的重要决策（如 NPC 剧情、Boss 存活助战或关键道具保留）。请仔细阅读成就指引与清单中的防错过警告，切勿盲目推进。
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Lore Quote */}
           {node.lore && (
@@ -354,6 +402,23 @@ export const MapDetailPage: React.FC<MapDetailPageProps> = ({
             <AlertTriangle className="w-4 h-4 text-yellow-400" />
             <span>机关近道与路线</span>
           </button>
+
+          {mapAchievements.length > 0 && (
+            <button
+              onClick={() => setActiveTab('achievements')}
+              className={`px-3.5 py-2 rounded-xl font-semibold flex items-center gap-1.5 transition-all shrink-0 ${
+                activeTab === 'achievements'
+                  ? 'bg-amber-600/30 border border-amber-500 text-amber-200 shadow-sm'
+                  : 'bg-stone-900/60 border border-stone-800 text-stone-400 hover:text-stone-200'
+              }`}
+            >
+              <Award className="w-4 h-4 text-amber-400" />
+              <span>Steam成就 ({completedMapAchievementsCount}/{mapAchievements.length})</span>
+              {hasMissableAchievements && (
+                <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse ml-0.5" />
+              )}
+            </button>
+          )}
         </div>
 
         {/* TAB 1: CHECKLIST */}
@@ -974,6 +1039,152 @@ export const MapDetailPage: React.FC<MapDetailPageProps> = ({
                           </div>
                         );
                       })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* TAB 8: STEAM ACHIEVEMENTS */}
+        {activeTab === 'achievements' && mapAchievements.length > 0 && (
+          <div className="space-y-4 animate-fade-in">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 bg-stone-900/60 border border-stone-800 rounded-xl">
+              <div>
+                <h3 className="text-base font-bold text-amber-200 flex items-center gap-2">
+                  <Award className="w-5 h-5 text-amber-400" />
+                  <span>本区域关联 Steam 成就 ({completedMapAchievementsCount}/{mapAchievements.length})</span>
+                </h3>
+                <p className="text-xs text-stone-400 mt-0.5">
+                  已关联 {mapAchievements.length} 项 Steam 成就，重点留意易错过决策预警以防永久错过
+                </p>
+              </div>
+
+              {onOpenAchievementsModal && (
+                <button
+                  onClick={onOpenAchievementsModal}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-950/60 hover:bg-amber-900/70 text-amber-200 border border-amber-600/60 text-xs transition-colors shadow-sm shrink-0 self-start sm:self-auto"
+                >
+                  <Award className="w-4 h-4 text-amber-400" />
+                  <span>全 38 项成就总览 →</span>
+                </button>
+              )}
+            </div>
+
+            <div className="space-y-3">
+              {mapAchievements.map(ach => {
+                const isCompleted = unlockedSet.has(ach.id);
+
+                return (
+                  <div
+                    key={ach.id}
+                    className={`p-3.5 sm:p-4 rounded-xl border transition-all ${
+                      isCompleted
+                        ? 'bg-stone-900/50 border-stone-800'
+                        : ach.isMissable
+                        ? 'bg-rose-950/20 border-rose-800/70 shadow-sm'
+                        : 'bg-stone-900/30 border-stone-800/70'
+                    }`}
+                  >
+                    <div className="flex items-start gap-3 sm:gap-4">
+                      {onToggleAchievement ? (
+                        <div 
+                          className="cursor-pointer shrink-0" 
+                          onClick={() => onToggleAchievement(ach.id)}
+                          title="点击标记达成/未达成"
+                        >
+                          <AchievementIcon
+                            achievementId={ach.id}
+                            isUnlocked={isCompleted}
+                            name={ach.name}
+                            size={56}
+                            className="hover:scale-105 transition-transform"
+                          />
+                        </div>
+                      ) : (
+                        <AchievementIcon
+                          achievementId={ach.id}
+                          isUnlocked={isCompleted}
+                          name={ach.name}
+                          size={56}
+                        />
+                      )}
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h4 className={`text-base font-bold ${isCompleted ? 'text-stone-300' : 'text-amber-100'}`}>
+                              {ach.name}
+                            </h4>
+                            <span className="text-xs font-mono text-stone-400">
+                              {ach.nameEn}
+                            </span>
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-stone-800 text-stone-300 border border-stone-700">
+                              {ach.categoryName}
+                            </span>
+                            {ach.isMissable && (
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-700 font-semibold flex items-center gap-1 animate-pulse">
+                                <AlertTriangle className="w-2.5 h-2.5" />
+                                易错过警示
+                              </span>
+                            )}
+                          </div>
+
+                          {onToggleAchievement && (
+                            <button
+                              onClick={() => onToggleAchievement(ach.id)}
+                              className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs transition-colors border ${
+                                isCompleted
+                                  ? 'bg-emerald-950/50 text-emerald-300 border-emerald-600/60 hover:bg-emerald-900/50'
+                                  : 'bg-stone-800/80 text-stone-400 border-stone-700 hover:text-amber-200 hover:border-amber-600/50'
+                              }`}
+                            >
+                              {isCompleted ? (
+                                <>
+                                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                                  <span>已达成</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Square className="w-3.5 h-3.5 text-stone-500" />
+                                  <span>标记达成</span>
+                                </>
+                              )}
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Description */}
+                        <div className="mt-1 text-xs text-stone-300 flex flex-col gap-0.5">
+                          <p>{ach.description}</p>
+                          <p className="text-stone-500 font-mono text-[11px]">{ach.descriptionEn}</p>
+                        </div>
+
+                        {/* Missable Warning Callout */}
+                        {ach.isMissable && ach.missableWarning && (
+                          <div className="mt-2.5 p-2.5 rounded-lg bg-rose-950/40 border border-rose-800/70 text-xs text-rose-200 leading-relaxed shadow-sm">
+                            <div className="flex items-center gap-1.5 font-semibold text-rose-300 mb-0.5">
+                              <AlertTriangle className="w-3.5 h-3.5 text-rose-400 flex-shrink-0" />
+                              <span>【防错过关键决策预警】</span>
+                            </div>
+                            <p className="whitespace-pre-line text-rose-100 text-[11.5px] pl-5">
+                              {ach.missableWarning}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Unlock Guide */}
+                        <div className="mt-2 p-2.5 rounded-lg bg-black/40 border border-stone-800 text-xs text-stone-300">
+                          <div className="flex items-center gap-1 text-amber-400 font-medium mb-1 text-[11px]">
+                            <Sparkles className="w-3 h-3" />
+                            <span>解锁攻略要点：</span>
+                          </div>
+                          <p className="whitespace-pre-line text-stone-300 text-[11.5px] leading-relaxed">
+                            {ach.unlockGuide}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 );
