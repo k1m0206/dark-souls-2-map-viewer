@@ -14,8 +14,7 @@ import {
   Swords,
   Users,
   Shield,
-  Star,
-  Info
+  Star
 } from 'lucide-react';
 import { MapNode, UserProgress, SteamAchievement, AchievementCategory } from '../types/souls';
 import { STEAM_ACHIEVEMENTS } from '../data/achievementsData';
@@ -439,20 +438,6 @@ export const SteamAchievementsModal: React.FC<SteamAchievementsModalProps> = ({
               );
             })
           )}
-        </div>
-
-        {/* Footer Bar */}
-        <div className="px-3 py-2 border-t border-stone-800/80 bg-stone-950 flex flex-wrap items-center justify-between text-xs text-stone-400 gap-2 shrink-0">
-          <div className="flex items-center gap-1.5 text-[11px] sm:text-xs">
-            <Info className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-            <span>点击任意地图标签可立即关闭弹窗并跳转定位至对应节点。</span>
-          </div>
-          <button
-            onClick={onClose}
-            className="px-3 py-1 bg-stone-800 hover:bg-stone-700 text-stone-200 rounded-lg border border-stone-700 transition-colors ml-auto text-xs"
-          >
-            完成
-          </button>
         </div>
       </div>
     </div>
