@@ -260,27 +260,6 @@ export const MapDetailPage: React.FC<MapDetailPageProps> = ({
             </div>
           </div>
 
-          {/* Missable Achievement Warning Alert Banner */}
-          {hasMissableAchievements && (
-            <div className="mt-3 p-3 rounded-xl bg-rose-950/40 border border-rose-800/80 flex items-start gap-2.5 shadow-sm">
-              <AlertTriangle className="w-5 h-5 text-rose-400 flex-shrink-0 mt-0.5 animate-pulse" />
-              <div className="text-xs text-rose-200">
-                <div className="font-bold text-rose-300 text-xs sm:text-sm flex items-center gap-1.5 flex-wrap">
-                  <span>包含本周目防错过成就致命锁死节点！</span>
-                  <button 
-                    onClick={() => setActiveTab('achievements')}
-                    className="underline text-amber-300 hover:text-amber-100 font-normal text-xs"
-                  >
-                    查看详情与攻略 →
-                  </button>
-                </div>
-                <div className="mt-0.5 text-rose-200/90 leading-relaxed">
-                  本区域涉及本周目防错过成就的致命锁死操作（一旦做错某操作，本周目永久无法完成该成就，必须下周目NG+重来）。请仔细阅读成就指引与防错过警示，切勿盲目推进。
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Lore Quote */}
           {node.lore && (
             <div className="mt-4 p-3 rounded-xl bg-amber-950/25 border-l-4 border-amber-600 text-xs sm:text-sm text-amber-200/90 font-serif italic leading-relaxed">
