@@ -534,7 +534,7 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
                             ? 'bg-rose-950/80 border border-rose-600/80 text-rose-200 shadow-sm animate-pulse'
                             : 'bg-amber-950/60 border border-amber-600/60 text-amber-300'
                         }`}
-                        title={`${hasMissable ? '🚨 包含易错过成就！' : ''}关联 Steam 成就 (${completedAchCount}/${localAchievements.length})`}
+                        title={`${hasMissable ? '【防错过预警】' : ''}关联 Steam 成就 (${completedAchCount}/${localAchievements.length})`}
                       >
                         <Award className="w-3 h-3 text-amber-400 shrink-0" />
                         <span>{completedAchCount}/{localAchievements.length}</span>

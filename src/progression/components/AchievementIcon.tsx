@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Award, Lock } from 'lucide-react';
 
 interface AchievementIconProps {
   achievementId: string;
@@ -19,8 +20,6 @@ export const AchievementIcon: React.FC<AchievementIconProps> = ({
 }) => {
   const [hasError, setHasError] = useState(false);
 
-  // If locked and showLockedPlaceholder requested, we can use locked.jpg,
-  // or show the achievement icon with grayscale + dark overlay (modern Steam style)
   const imageSrc = `./achievements/${showLockedPlaceholder && !isUnlocked ? 'locked' : achievementId}.jpg`;
 
   if (hasError) {
@@ -30,7 +29,11 @@ export const AchievementIcon: React.FC<AchievementIconProps> = ({
         style={{ width: size, height: size }}
         title={name}
       >
-        <span className="text-xl">{isUnlocked ? '🏆' : '🔒'}</span>
+        {isUnlocked ? (
+          <Award className="w-6 h-6 text-amber-400" />
+        ) : (
+          <Lock className="w-5 h-5 text-stone-500" />
+        )}
       </div>
     );
   }
@@ -53,8 +56,8 @@ export const AchievementIcon: React.FC<AchievementIconProps> = ({
         className="w-full h-full object-cover"
       />
       {!isUnlocked && (
-        <div className="absolute inset-0 bg-stone-950/35 flex items-center justify-center pointer-events-none">
-          <span className="text-stone-300 text-xs drop-shadow-md">🔒</span>
+        <div className="absolute inset-0 bg-stone-950/40 flex items-center justify-center pointer-events-none">
+          <Lock className="w-3.5 h-3.5 text-stone-300 drop-shadow-md" />
         </div>
       )}
     </div>

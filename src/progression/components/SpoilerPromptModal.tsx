@@ -45,7 +45,7 @@ export const SpoilerPromptModal: React.FC<SpoilerPromptModalProps> = ({
                     开启剧透防护
                   </span>
                   <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/50">
-                    ★ 推荐新手与首通
+                    推荐新手与首通
                   </span>
                 </div>
                 <p className="text-xs text-stone-300 leading-relaxed">

@@ -15,7 +15,9 @@ import {
   Info,
   CheckCircle2,
   ExternalLink,
-  Scale
+  Scale,
+  MapPin,
+  BookOpen
 } from 'lucide-react';
 import { MapNode, UserProgress } from '../types/souls';
 import { SpoilerText } from './SpoilerText';
@@ -312,7 +314,10 @@ export const MapDetailDrawer: React.FC<MapDetailDrawerProps> = ({
 
                     {/* Boss Strategy Tips */}
                     <div className="text-xs text-stone-300 bg-black/40 p-2.5 rounded-lg border border-stone-800/80 mb-2 leading-relaxed">
-                      <span className="text-amber-400 font-semibold">⚔️ 攻略破法：</span>
+                      <span className="text-amber-400 font-semibold flex items-center gap-1 mb-1">
+                        <Sword className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                        <span>攻略破法：</span>
+                      </span>
                       {boss.tips}
                     </div>
 
@@ -368,8 +373,9 @@ export const MapDetailDrawer: React.FC<MapDetailDrawerProps> = ({
                              item.type === 'fragrant_branch' ? '怀念香木' : '关键剧情道具'}
                           </span>
                         </div>
-                        <div className="text-xs text-stone-400 mt-1">
-                          📍 获取位置: {item.location}
+                        <div className="text-xs text-stone-400 mt-1 flex items-start gap-1">
+                          <MapPin className="w-3.5 h-3.5 text-cyan-400 shrink-0 mt-0.5" />
+                          <span>获取位置: {item.location}</span>
                         </div>
                       </div>
                     </div>
@@ -544,8 +550,9 @@ export const MapDetailDrawer: React.FC<MapDetailDrawerProps> = ({
                           </span>
                         </div>
                         {opt.isRecommended ? (
-                          <span className="text-[10px] font-bold font-mono px-2 py-0.5 rounded bg-emerald-950 border border-emerald-500 text-emerald-300 shrink-0">
-                            ★ 推荐选择
+                          <span className="text-[10px] font-bold font-mono px-2 py-0.5 rounded bg-emerald-950 border border-emerald-500 text-emerald-300 shrink-0 flex items-center gap-1">
+                            <Sparkles className="w-3 h-3 text-emerald-400" />
+                            <span>推荐选择</span>
                           </span>
                         ) : (
                           <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-stone-800 border border-stone-700 text-stone-400 shrink-0">
@@ -562,8 +569,9 @@ export const MapDetailDrawer: React.FC<MapDetailDrawerProps> = ({
 
                       {/* Lore Reasoning if present */}
                       {opt.loreReasoning && (
-                        <div className="text-[11px] text-amber-400/80 italic font-serif mb-2">
-                          ✦ 魂学考据：{opt.loreReasoning}
+                        <div className="text-[11px] text-amber-400/80 italic font-serif mb-2 flex items-center gap-1">
+                          <BookOpen className="w-3 h-3 text-amber-400 shrink-0" />
+                          <span>魂学考据：{opt.loreReasoning}</span>
                         </div>
                       )}
 

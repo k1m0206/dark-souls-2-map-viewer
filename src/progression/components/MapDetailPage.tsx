@@ -251,7 +251,8 @@ export const MapDetailPage: React.FC<MapDetailPageProps> = ({
                   >
                     <div className="text-[10px] text-stone-400">Steam成就</div>
                     <div className="font-mono text-xs sm:text-sm font-bold text-amber-300 flex items-center justify-center gap-1">
-                      🏆 {completedMapAchievementsCount}/{mapAchievements.length}
+                      <Award className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                      <span>{completedMapAchievementsCount}/{mapAchievements.length}</span>
                     </div>
                   </div>
                 </>
@@ -265,7 +266,7 @@ export const MapDetailPage: React.FC<MapDetailPageProps> = ({
               <AlertTriangle className="w-5 h-5 text-rose-400 flex-shrink-0 mt-0.5 animate-pulse" />
               <div className="text-xs text-rose-200">
                 <div className="font-bold text-rose-300 text-xs sm:text-sm flex items-center gap-1.5 flex-wrap">
-                  <span>🚨 包含重要防错过成就决策节点！</span>
+                  <span>包含重要防错过成就决策节点！</span>
                   <button 
                     onClick={() => setActiveTab('achievements')}
                     className="underline text-amber-300 hover:text-amber-100 font-normal text-xs"
@@ -517,8 +518,9 @@ export const MapDetailPage: React.FC<MapDetailPageProps> = ({
                 <div className="p-4 rounded-xl bg-gradient-to-r from-amber-950/80 via-amber-900/40 to-black/70 border-2 border-amber-500 flex items-start gap-3 shadow-md">
                   <ShieldCheck className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
                   <div className="text-xs sm:text-sm">
-                    <div className="font-bold text-amber-300 text-sm mb-1">
-                      ★ 推荐玩家如何选择：
+                    <div className="font-bold text-amber-300 text-sm mb-1 flex items-center gap-1.5">
+                      <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
+                      <span>推荐玩家如何选择：</span>
                     </div>
                     <div className="text-amber-100 font-medium leading-relaxed">
                       {choice.recommendedChoice}
@@ -572,8 +574,9 @@ export const MapDetailPage: React.FC<MapDetailPageProps> = ({
 
                         {/* Lore Reasoning */}
                         {opt.loreReasoning && (
-                          <div className="text-xs text-amber-300/80 italic font-serif mb-2.5 pl-2 border-l-2 border-amber-600/60">
-                            ✦ 魂学考据与收益考量：{opt.loreReasoning}
+                          <div className="text-xs text-amber-300/80 italic font-serif mb-2.5 pl-2 border-l-2 border-amber-600/60 flex items-center gap-1.5">
+                            <BookOpen className="w-3 h-3 text-amber-400 shrink-0" />
+                            <span>魂学考据与收益考量：{opt.loreReasoning}</span>
                           </div>
                         )}
 
@@ -664,7 +667,10 @@ export const MapDetailPage: React.FC<MapDetailPageProps> = ({
 
                         {/* Strategy tips */}
                         <div className="text-xs sm:text-sm text-stone-200 bg-black/40 p-3 rounded-xl border border-stone-800 leading-relaxed mb-3">
-                          <span className="text-amber-400 font-bold block mb-1">⚔️ 讨伐策略与弱点破法：</span>
+                          <span className="text-amber-400 font-bold flex items-center gap-1.5 mb-1">
+                            <Sword className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                            <span>讨伐策略与弱点破法：</span>
+                          </span>
                           {boss.tips}
                         </div>
                       </div>
@@ -726,8 +732,9 @@ export const MapDetailPage: React.FC<MapDetailPageProps> = ({
                                item.type === 'fragrant_branch' ? '怀念香木' : '关键剧情钥匙'}
                             </span>
                           </div>
-                          <div className="text-xs text-stone-400 mt-1 leading-relaxed">
-                            📍 获取位置与解法: {item.location}
+                          <div className="text-xs text-stone-400 mt-1 leading-relaxed flex items-start gap-1">
+                            <MapPin className="w-3.5 h-3.5 text-cyan-400 shrink-0 mt-0.5" />
+                            <span>获取位置与解法: {item.location}</span>
                           </div>
                         </div>
                       </div>
