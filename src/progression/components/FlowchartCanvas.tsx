@@ -21,6 +21,17 @@ import { calculateNodePosition, generateBezierPath, checkLineCrossesCards, gener
 import { STAGES_CONFIG } from '../data/soulsData';
 import { getMerchantsForMap } from '../data/merchantData';
 
+const SMART_ROUTED_KEYS = new Set([
+  'sinners_rise->majula',
+  'iron_keep->majula',
+  'brightstone_cove->majula',
+  'shaded_woods->shrine_of_winter',
+  'majula->huntsmans_copse',
+  'majula->the_gutter',
+  'undead_crypt->throne_of_want',
+  'undead_crypt->memories_of_ancients',
+]);
+
 interface FlowchartCanvasProps {
   nodes: MapNode[];
   allNodes: MapNode[];
@@ -155,16 +166,21 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
           endY
         );
 
-        const crossesOtherCards = checkLineCrossesCards(
-          startX,
-          startY,
-          endX,
-          endY,
-          sourceNode.id,
-          targetNode.id,
-          allNodes,
-          nodePositions
-        );
+        const connKey = `${sourceNode.id}->${conn.targetId}`;
+        const isSmartRouted = SMART_ROUTED_KEYS.has(connKey);
+
+        const crossesOtherCards = isSmartRouted
+          ? false
+          : checkLineCrossesCards(
+              startX,
+              startY,
+              endX,
+              endY,
+              sourceNode.id,
+              targetNode.id,
+              allNodes,
+              nodePositions
+            );
 
         const isHighlighted =
           (hoveredNodeId && (hoveredNodeId === sourceNode.id || hoveredNodeId === targetNode.id)) ||
@@ -638,7 +654,7 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
               markerHeight="6"
               orient="auto"
             >
-              <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#7ea0b3" fillOpacity="0.65" />
+              <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#7ea0b3" fillOpacity="0.85" />
             </marker>
             {/* Active backward / Return arrow (Ethereal Moonlight Cyan) */}
             <marker
@@ -659,7 +675,7 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
             const isDimmed = conn.crossesOtherCards && !conn.isHighlighted;
             const isBackward = !!conn.isBackward;
 
-            // Backward return paths use pale moonlit slate-cyan (#7ea0b3) and lower opacity;
+            // Backward return paths use pale moonlit slate-cyan (#7ea0b3) and softer opacity;
             // forward progression lines use brass gold (#c59f58).
             const strokeColor = conn.isHighlighted
               ? (isBackward ? '#38bdf8' : '#fbbf24')
@@ -667,29 +683,28 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
 
             const glowColor = isBackward ? '#0284c7' : '#f59e0b';
 
+            // Comfortable, clearly visible opacities across all states
             const strokeOpacity = conn.isHighlighted
               ? 1
               : isDimmed
-                ? (isBackward ? 0.18 : 0.22)
-                : (isBackward ? 0.42 : 0.85);
+                ? (isBackward ? 0.48 : 0.55)
+                : (isBackward ? 0.70 : 0.88);
 
             const strokeWidth = conn.isHighlighted
               ? 3.5
-              : (isBackward || isDimmed) ? 1.8 : 2.2;
+              : (isBackward || isDimmed) ? 2.0 : 2.4;
 
             const strokeDasharray = conn.isSecret
               ? '5,5'
               : (isBackward && !conn.isHighlighted)
-                ? '6,4'
+                ? '7,4'
                 : isDimmed
                   ? '6,4'
                   : undefined;
 
             const markerEnd = conn.isHighlighted
               ? (isBackward ? 'url(#arrow-return-active)' : 'url(#arrow-active)')
-              : isDimmed
-                ? undefined
-                : (isBackward ? 'url(#arrow-return)' : 'url(#arrow-std)');
+              : (isBackward ? 'url(#arrow-return)' : 'url(#arrow-std)');
 
             return (
               <g key={`${conn.fromId}-${conn.toId}-${idx}`}>
