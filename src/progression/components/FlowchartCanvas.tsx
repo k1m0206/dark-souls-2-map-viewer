@@ -62,6 +62,8 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
+  const [activeNodeId, setActiveNodeId] = useState<string | null>(null);
+  const isPannedRef = useRef(false);
 
   // Pre-calculate positions for all nodes
   const nodePositions = useMemo(() => {
@@ -184,6 +186,7 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
 
         const isHighlighted =
           (hoveredNodeId && (hoveredNodeId === sourceNode.id || hoveredNodeId === targetNode.id)) ||
+          (activeNodeId && (activeNodeId === sourceNode.id || activeNodeId === targetNode.id)) ||
           (selectedNode && (selectedNode.id === sourceNode.id || selectedNode.id === targetNode.id)) ||
           (highlightedNpc !== 'all' &&
             sourceNode.npcInteractions.some(n => n.npcId === highlightedNpc) &&
@@ -203,7 +206,7 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
     });
 
     return paths;
-  }, [allNodes, nodes, nodePositions, hoveredNodeId, selectedNode, highlightedNpc]);
+  }, [allNodes, nodes, nodePositions, hoveredNodeId, activeNodeId, selectedNode, highlightedNpc]);
 
   // Sort paths so highlighted lines and primary direct routes render on top of dimmed crossing lines
   const sortedConnectionPaths = useMemo(() => {
@@ -221,6 +224,7 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
   const pinchDistRef = useRef<number | null>(null);
 
   const handleTouchStart = (e: React.TouchEvent) => {
+    isPannedRef.current = false;
     if ((e.target as HTMLElement).closest('.interactive-node-card')) return;
     if (e.touches.length === 1) {
       touchStartRef.current = {
@@ -238,6 +242,7 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
+    isPannedRef.current = true;
     if (e.touches.length === 2 && pinchDistRef.current !== null) {
       const currentDist = Math.hypot(
         e.touches[0].clientX - e.touches[1].clientX,
@@ -276,6 +281,7 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
   const mouseStartRef = useRef<{ x: number; y: number } | null>(null);
 
   const handleMouseDown = (e: React.MouseEvent) => {
+    isPannedRef.current = false;
     if ((e.target as HTMLElement).closest('.interactive-node-card')) return;
     setIsDragging(true);
     mouseStartRef.current = { x: e.clientX, y: e.clientY };
@@ -283,6 +289,7 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDragging || !mouseStartRef.current) return;
+    isPannedRef.current = true;
     const isRotated = typeof document !== 'undefined' && document.body.classList.contains('rotated-landscape');
     const rawDx = e.clientX - mouseStartRef.current.x;
     const rawDy = e.clientY - mouseStartRef.current.y;
@@ -325,6 +332,12 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
       onTouchCancel={handleTouchEnd}
+      onClick={(e) => {
+        if (isPannedRef.current) return;
+        if (!(e.target as HTMLElement).closest('.interactive-node-card')) {
+          setActiveNodeId(null);
+        }
+      }}
     >
       {/* Dark Souls Subtle Background Atmospheric Pattern */}
       <div 
@@ -444,6 +457,7 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
           if (!pos) return null;
 
           const isSelected = selectedNode?.id === node.id;
+          const isActive = activeNodeId === node.id;
           const isCompleted = userProgress.completedMaps.includes(node.id);
           const hasGreatSoul = node.bosses.some(b => b.isGreatSoul);
           const hasNpcHighlight = highlightedNpc !== 'all' && node.npcInteractions.some(n => n.npcId === highlightedNpc);
@@ -463,7 +477,9 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
             <div
               key={node.id}
               className={`interactive-node-card absolute rounded-2xl p-4 transition-all duration-200 cursor-pointer shadow-2xl flex flex-col justify-between ${
-                isSelected
+                isActive
+                  ? 'ring-2 ring-amber-400 bg-[#1e222f] shadow-amber-500/50 scale-[1.03] z-30'
+                  : isSelected
                   ? 'ring-2 ring-amber-400 bg-[#1e222f] shadow-amber-500/40 scale-[1.02] z-30'
                   : isCompleted
                   ? 'bg-[#121622]/95 border border-emerald-700/70 hover:border-emerald-400 z-10'
@@ -477,7 +493,14 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
                 width: `${pos.width}px`,
                 height: `${pos.height}px`,
               }}
-              onClick={() => onSelectNode(node)}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (isActive) {
+                  onSelectNode(node);
+                } else {
+                  setActiveNodeId(node.id);
+                }
+              }}
               onMouseEnter={() => setHoveredNodeId(node.id)}
               onMouseLeave={() => setHoveredNodeId(null)}
             >
@@ -599,8 +622,15 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
                   )}
                 </div>
 
-                {/* Checklist counter */}
-                <div className="flex items-center gap-1.5 text-stone-300 font-sans">
+                {/* Checklist counter & Details button */}
+                <div
+                  className="flex items-center gap-1.5 text-stone-300 font-sans cursor-pointer hover:text-amber-300 transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSelectNode(node);
+                  }}
+                  title="点击直接打开地点详情"
+                >
                   <span className="text-stone-400 text-xs">事项:</span>
                   <span className={`font-mono text-xs font-bold ${completedTasks === totalTasks && totalTasks > 0 ? 'text-emerald-400' : 'text-amber-400'}`}>
                     {completedTasks}/{totalTasks}
@@ -608,6 +638,27 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
                   <ChevronRight className="w-3.5 h-3.5 text-stone-500" />
                 </div>
               </div>
+
+              {/* Active Selection / Highlight Banner on Mobile */}
+              {isActive && (
+                <div className="mt-2 pt-1.5 border-t border-amber-500/30 flex items-center justify-between text-[11px] text-amber-300 font-medium">
+                  <span className="flex items-center gap-1.5 text-amber-400">
+                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse shadow-sm shadow-amber-400/80" />
+                    <span>路线已聚焦</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelectNode(node);
+                    }}
+                    className="px-2 py-0.5 rounded bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-amber-200 text-xs flex items-center gap-1 transition-colors active:scale-95"
+                  >
+                    <span>进入详情</span>
+                    <ChevronRight className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
             </div>
           );
         })}
@@ -674,6 +725,7 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
           {sortedConnectionPaths.map((conn, idx) => {
             const isDimmed = conn.crossesOtherCards && !conn.isHighlighted;
             const isBackward = !!conn.isBackward;
+            const hasFocus = !!(activeNodeId || hoveredNodeId);
 
             // Backward return paths use pale moonlit slate-cyan (#7ea0b3) and softer opacity;
             // forward progression lines use brass gold (#c59f58).
@@ -683,16 +735,20 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
 
             const glowColor = isBackward ? '#0284c7' : '#f59e0b';
 
-            // Comfortable, clearly visible opacities across all states
+            // High default visibility without needing hover or tap;
+            // when a node is actively focused/hovered, connected lines shine at 1.0 with glow,
+            // while unrelated lines gently soften to 0.35
             const strokeOpacity = conn.isHighlighted
               ? 1
-              : isDimmed
-                ? (isBackward ? 0.48 : 0.55)
-                : (isBackward ? 0.70 : 0.88);
+              : hasFocus
+                ? 0.35
+                : isDimmed
+                  ? (isBackward ? 0.60 : 0.65)
+                  : (isBackward ? 0.80 : 0.92);
 
             const strokeWidth = conn.isHighlighted
               ? 3.5
-              : (isBackward || isDimmed) ? 2.0 : 2.4;
+              : (isBackward || isDimmed) ? 2.2 : 2.5;
 
             const strokeDasharray = conn.isSecret
               ? '5,5'
