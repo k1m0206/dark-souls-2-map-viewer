@@ -1,15 +1,15 @@
 import { MerchantNPC, MerchantItem, MerchantItemCategory } from '../types/souls';
 
 export const MERCHANT_CATEGORY_CONFIG: Record<MerchantItemCategory, { label: string; badgeColor: string }> = {
-  magic: { label: '魔法', badgeColor: 'bg-blue-950/80 text-blue-300 border-blue-600/60' },
-  miracle: { label: '奇迹', badgeColor: 'bg-amber-950/80 text-amber-300 border-amber-600/60' },
-  pyromancy: { label: '咒术', badgeColor: 'bg-red-950/80 text-red-300 border-red-600/60' },
-  hex: { label: '暗术', badgeColor: 'bg-purple-950/80 text-purple-300 border-purple-600/60' },
-  weapon_shield: { label: '武器/盾牌', badgeColor: 'bg-stone-800 text-stone-200 border-stone-600' },
-  armor: { label: '防具/套装', badgeColor: 'bg-emerald-950/80 text-emerald-300 border-emerald-600/60' },
-  ring: { label: '戒指', badgeColor: 'bg-cyan-950/80 text-cyan-300 border-cyan-600/60' },
-  key_item: { label: '关键道具', badgeColor: 'bg-yellow-950/80 text-yellow-300 border-yellow-600/60' },
-  consumable: { label: '消耗品/素材', badgeColor: 'bg-stone-900 text-stone-400 border-stone-700' },
+  magic: { label: '魔法', badgeColor: 'bg-stone-800/90 text-stone-300 border-stone-700' },
+  miracle: { label: '奇迹', badgeColor: 'bg-stone-800/90 text-stone-300 border-stone-700' },
+  pyromancy: { label: '咒术', badgeColor: 'bg-stone-800/90 text-stone-300 border-stone-700' },
+  hex: { label: '暗术', badgeColor: 'bg-stone-800/90 text-stone-300 border-stone-700' },
+  weapon_shield: { label: '武器/盾牌', badgeColor: 'bg-stone-800/90 text-stone-300 border-stone-700' },
+  armor: { label: '防具/套装', badgeColor: 'bg-stone-800/90 text-stone-300 border-stone-700' },
+  ring: { label: '戒指', badgeColor: 'bg-stone-800/90 text-stone-300 border-stone-700' },
+  key_item: { label: '关键道具', badgeColor: 'bg-amber-950/40 text-amber-300/90 border-amber-800/50' },
+  consumable: { label: '消耗品/素材', badgeColor: 'bg-stone-900 text-stone-400 border-stone-800' },
 };
 
 export const DRANGLEIC_MERCHANTS: MerchantNPC[] = [
