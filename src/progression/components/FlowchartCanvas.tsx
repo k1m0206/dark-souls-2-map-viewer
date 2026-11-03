@@ -71,6 +71,7 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
       isHighlighted: boolean;
       isSecret?: boolean;
       crossesOtherCards?: boolean;
+      isBackward?: boolean;
     }[] = [];
 
     const visibleNodeIds = new Set(nodes.map(n => n.id));
@@ -180,6 +181,7 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
           isHighlighted: !!isHighlighted,
           isSecret: conn.isSecret,
           crossesOtherCards,
+          isBackward: !isForward,
         });
       });
     });
@@ -602,6 +604,7 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
           xmlns="http://www.w3.org/2000/svg"
         >
           <defs>
+            {/* Standard forward arrow (Brass Gold) */}
             <marker
               id="arrow-std"
               viewBox="0 0 10 10"
@@ -613,6 +616,7 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
             >
               <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#c59f58" />
             </marker>
+            {/* Active forward arrow (Bright Ember Gold) */}
             <marker
               id="arrow-active"
               viewBox="0 0 10 10"
@@ -624,11 +628,68 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
             >
               <path d="M 0 1 L 9 5 L 0 9 z" fill="#fbbf24" />
             </marker>
+            {/* Backward / Return arrow (Pale Moonlit Slate Cyan) */}
+            <marker
+              id="arrow-return"
+              viewBox="0 0 10 10"
+              refX="8"
+              refY="5"
+              markerWidth="6"
+              markerHeight="6"
+              orient="auto"
+            >
+              <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#7ea0b3" fillOpacity="0.65" />
+            </marker>
+            {/* Active backward / Return arrow (Ethereal Moonlight Cyan) */}
+            <marker
+              id="arrow-return-active"
+              viewBox="0 0 10 10"
+              refX="8"
+              refY="5"
+              markerWidth="7"
+              markerHeight="7"
+              orient="auto"
+            >
+              <path d="M 0 1 L 9 5 L 0 9 z" fill="#38bdf8" />
+            </marker>
           </defs>
 
           {/* Render Connection Curves */}
           {sortedConnectionPaths.map((conn, idx) => {
             const isDimmed = conn.crossesOtherCards && !conn.isHighlighted;
+            const isBackward = !!conn.isBackward;
+
+            // Backward return paths use pale moonlit slate-cyan (#7ea0b3) and lower opacity;
+            // forward progression lines use brass gold (#c59f58).
+            const strokeColor = conn.isHighlighted
+              ? (isBackward ? '#38bdf8' : '#fbbf24')
+              : (isBackward ? '#7ea0b3' : '#c59f58');
+
+            const glowColor = isBackward ? '#0284c7' : '#f59e0b';
+
+            const strokeOpacity = conn.isHighlighted
+              ? 1
+              : isDimmed
+                ? (isBackward ? 0.18 : 0.22)
+                : (isBackward ? 0.42 : 0.85);
+
+            const strokeWidth = conn.isHighlighted
+              ? 3.5
+              : (isBackward || isDimmed) ? 1.8 : 2.2;
+
+            const strokeDasharray = conn.isSecret
+              ? '5,5'
+              : (isBackward && !conn.isHighlighted)
+                ? '6,4'
+                : isDimmed
+                  ? '6,4'
+                  : undefined;
+
+            const markerEnd = conn.isHighlighted
+              ? (isBackward ? 'url(#arrow-return-active)' : 'url(#arrow-active)')
+              : isDimmed
+                ? undefined
+                : (isBackward ? 'url(#arrow-return)' : 'url(#arrow-std)');
 
             return (
               <g key={`${conn.fromId}-${conn.toId}-${idx}`}>
@@ -637,21 +698,21 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
                   <path
                     d={conn.pathString}
                     fill="none"
-                    stroke="#f59e0b"
+                    stroke={glowColor}
                     strokeWidth="7"
                     strokeOpacity="0.45"
                     strokeLinecap="round"
                   />
                 )}
-                {/* Core Path: faint and dashed when crossing other cards in normal state; restores to full gold brightness when highlighted */}
+                {/* Core Path: faint and dashed when crossing other cards or returning in normal state; restores to bright highlight when active */}
                 <path
                   d={conn.pathString}
                   fill="none"
-                  stroke={conn.isHighlighted ? '#fbbf24' : '#c59f58'}
-                  strokeOpacity={conn.isHighlighted ? 1 : isDimmed ? 0.22 : 0.85}
-                  strokeWidth={conn.isHighlighted ? 3.5 : isDimmed ? 1.8 : 2.2}
-                  strokeDasharray={conn.isSecret ? '5,5' : isDimmed ? '6,4' : undefined}
-                  markerEnd={conn.isHighlighted ? 'url(#arrow-active)' : isDimmed ? undefined : 'url(#arrow-std)'}
+                  stroke={strokeColor}
+                  strokeOpacity={strokeOpacity}
+                  strokeWidth={strokeWidth}
+                  strokeDasharray={strokeDasharray}
+                  markerEnd={markerEnd}
                   className="transition-all duration-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)]"
                 />
               </g>
