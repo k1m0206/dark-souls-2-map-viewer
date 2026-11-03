@@ -17,7 +17,7 @@ import {
   ShoppingBag
 } from 'lucide-react';
 import { MapNode, UserProgress } from '../types/souls';
-import { calculateNodePosition, generateBezierPath } from '../utils/progressionLogic';
+import { calculateNodePosition, generateBezierPath, checkLineCrossesCards } from '../utils/progressionLogic';
 import { STAGES_CONFIG } from '../data/soulsData';
 import { getMerchantsForMap } from '../data/merchantData';
 
@@ -70,6 +70,7 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
       requirement?: string;
       isHighlighted: boolean;
       isSecret?: boolean;
+      crossesOtherCards?: boolean;
     }[] = [];
 
     const visibleNodeIds = new Set(nodes.map(n => n.id));
@@ -104,6 +105,17 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
 
         const pathString = generateBezierPath(startX, startY, endX, endY);
 
+        const crossesOtherCards = checkLineCrossesCards(
+          startX,
+          startY,
+          endX,
+          endY,
+          sourceNode.id,
+          targetNode.id,
+          allNodes,
+          nodePositions
+        );
+
         const isHighlighted =
           (hoveredNodeId && (hoveredNodeId === sourceNode.id || hoveredNodeId === targetNode.id)) ||
           (selectedNode && (selectedNode.id === sourceNode.id || selectedNode.id === targetNode.id)) ||
@@ -118,12 +130,24 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
           requirement: conn.requirement,
           isHighlighted: !!isHighlighted,
           isSecret: conn.isSecret,
+          crossesOtherCards,
         });
       });
     });
 
     return paths;
   }, [allNodes, nodes, nodePositions, hoveredNodeId, selectedNode, highlightedNpc]);
+
+  // Sort paths so highlighted lines and primary direct routes render on top of dimmed crossing lines
+  const sortedConnectionPaths = useMemo(() => {
+    return [...connectionPaths].sort((a, b) => {
+      if (a.isHighlighted && !b.isHighlighted) return 1;
+      if (!a.isHighlighted && b.isHighlighted) return -1;
+      if (!a.crossesOtherCards && b.crossesOtherCards) return 1;
+      if (a.crossesOtherCards && !b.crossesOtherCards) return -1;
+      return 0;
+    });
+  }, [connectionPaths]);
 
   // Touch panning and pinch-to-zoom support for mobile screens
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
@@ -554,32 +578,36 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
           </defs>
 
           {/* Render Connection Curves */}
-          {connectionPaths.map((conn, idx) => (
-            <g key={`${conn.fromId}-${conn.toId}-${idx}`}>
-              {/* Outer glow stroke when highlighted */}
-              {conn.isHighlighted && (
+          {sortedConnectionPaths.map((conn, idx) => {
+            const isDimmed = conn.crossesOtherCards && !conn.isHighlighted;
+
+            return (
+              <g key={`${conn.fromId}-${conn.toId}-${idx}`}>
+                {/* Outer glow stroke when highlighted */}
+                {conn.isHighlighted && (
+                  <path
+                    d={conn.pathString}
+                    fill="none"
+                    stroke="#f59e0b"
+                    strokeWidth="7"
+                    strokeOpacity="0.45"
+                    strokeLinecap="round"
+                  />
+                )}
+                {/* Core Path: faint and dashed when crossing other cards in normal state; restores to full gold brightness when highlighted */}
                 <path
                   d={conn.pathString}
                   fill="none"
-                  stroke="#f59e0b"
-                  strokeWidth="7"
-                  strokeOpacity="0.45"
-                  strokeLinecap="round"
+                  stroke={conn.isHighlighted ? '#fbbf24' : '#c59f58'}
+                  strokeOpacity={conn.isHighlighted ? 1 : isDimmed ? 0.22 : 0.85}
+                  strokeWidth={conn.isHighlighted ? 3.5 : isDimmed ? 1.8 : 2.2}
+                  strokeDasharray={conn.isSecret ? '5,5' : isDimmed ? '6,4' : undefined}
+                  markerEnd={conn.isHighlighted ? 'url(#arrow-active)' : isDimmed ? undefined : 'url(#arrow-std)'}
+                  className="transition-all duration-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)]"
                 />
-              )}
-              {/* Core Path with subtle drop shadow for crisp visibility on top of cards */}
-              <path
-                d={conn.pathString}
-                fill="none"
-                stroke={conn.isHighlighted ? '#fbbf24' : '#c59f58'}
-                strokeOpacity={conn.isHighlighted ? 1 : 0.85}
-                strokeWidth={conn.isHighlighted ? '3.5' : '2.2'}
-                strokeDasharray={conn.isSecret ? '5,5' : undefined}
-                markerEnd={conn.isHighlighted ? 'url(#arrow-active)' : 'url(#arrow-std)'}
-                className="transition-all duration-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)]"
-              />
-            </g>
-          ))}
+              </g>
+            );
+          })}
         </svg>
       </div>
     </div>

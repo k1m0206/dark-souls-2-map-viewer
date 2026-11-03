@@ -193,6 +193,56 @@ export function generateBezierPath(
   return `M ${startX} ${startY} C ${cp1X} ${cp1Y}, ${cp2X} ${cp2Y}, ${endX} ${endY}`;
 }
 
+/**
+ * Checks whether a cubic Bezier curve between two cards intersects any other intermediate cards.
+ */
+export function checkLineCrossesCards(
+  startX: number,
+  startY: number,
+  endX: number,
+  endY: number,
+  sourceId: string,
+  targetId: string,
+  allNodes: MapNode[],
+  posMap: Map<string, NodePosition>
+): boolean {
+  const deltaX = Math.abs(endX - startX);
+  const isForward = endX >= startX;
+  const controlPointOffset = Math.max(deltaX * 0.45, 60);
+  const cp1X = isForward ? startX + controlPointOffset : startX - controlPointOffset;
+  const cp1Y = startY;
+  const cp2X = isForward ? endX - controlPointOffset : endX + controlPointOffset;
+  const cp2Y = endY;
+
+  for (const otherNode of allNodes) {
+    if (otherNode.id === sourceId || otherNode.id === targetId) continue;
+    const p = posMap.get(otherNode.id);
+    if (!p) continue;
+
+    // Fast bounding box rejection
+    const minCurveX = Math.min(startX, endX, cp1X, cp2X);
+    const maxCurveX = Math.max(startX, endX, cp1X, cp2X);
+    const minCurveY = Math.min(startY, endY, cp1Y, cp2Y);
+    const maxCurveY = Math.max(startY, endY, cp1Y, cp2Y);
+
+    if (maxCurveX < p.x || minCurveX > p.x + p.width || maxCurveY < p.y || minCurveY > p.y + p.height) {
+      continue;
+    }
+
+    // Precise cubic bezier sampling
+    for (let i = 2; i <= 38; i++) {
+      const t = i / 40;
+      const u = 1 - t;
+      const x = u * u * u * startX + 3 * u * u * t * cp1X + 3 * u * t * t * cp2X + t * t * t * endX;
+      const y = u * u * u * startY + 3 * u * u * t * cp1Y + 3 * u * t * t * cp2Y + t * t * t * endY;
+      if (x >= p.x && x <= p.x + p.width && y >= p.y && y <= p.y + p.height) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 export function calculateProgressStats(nodes: MapNode[], progress: UserProgress) {
   const checklistIds = new Set(nodes.flatMap(node => node.checklists.map(task => task.id)));
   const bossIds = new Set(nodes.flatMap(node => node.bosses.map(boss => boss.id)));
