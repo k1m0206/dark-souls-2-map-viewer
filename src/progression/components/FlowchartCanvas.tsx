@@ -17,7 +17,7 @@ import {
   ShoppingBag
 } from 'lucide-react';
 import { MapNode, UserProgress } from '../types/souls';
-import { calculateNodePosition, generateBezierPath, checkLineCrossesCards } from '../utils/progressionLogic';
+import { calculateNodePosition, generateBezierPath, checkLineCrossesCards, generateSmartConnectionPath } from '../utils/progressionLogic';
 import { STAGES_CONFIG } from '../data/soulsData';
 import { getMerchantsForMap } from '../data/merchantData';
 
@@ -75,14 +75,56 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
 
     const visibleNodeIds = new Set(nodes.map(n => n.id));
 
+    // Pre-calculate outgoing and incoming connection maps with altitude-sorted sockets to prevent line collisions
+    const outgoingMap = new Map<string, string[]>();
+    const incomingMap = new Map<string, string[]>();
+
+    allNodes.forEach(sourceNode => {
+      const sortedTargets = [...sourceNode.connectionsTo].sort((a, b) => {
+        const posA = nodePositions.get(a.targetId);
+        const posB = nodePositions.get(b.targetId);
+        return (posA?.y ?? 0) - (posB?.y ?? 0);
+      });
+      outgoingMap.set(sourceNode.id, sortedTargets.map(c => c.targetId));
+
+      sourceNode.connectionsTo.forEach(conn => {
+        if (!incomingMap.has(conn.targetId)) {
+          incomingMap.set(conn.targetId, []);
+        }
+        incomingMap.get(conn.targetId)!.push(sourceNode.id);
+      });
+    });
+
+    incomingMap.forEach(sources => {
+      sources.sort((a, b) => {
+        const posA = nodePositions.get(a);
+        const posB = nodePositions.get(b);
+        return (posA?.y ?? 0) - (posB?.y ?? 0);
+      });
+    });
+
     allNodes.forEach(sourceNode => {
       const sourcePos = nodePositions.get(sourceNode.id);
       if (!sourcePos) return;
+
+      const outList = outgoingMap.get(sourceNode.id) || [];
 
       sourceNode.connectionsTo.forEach(conn => {
         const targetNode = allNodes.find(n => n.id === conn.targetId);
         const targetPos = nodePositions.get(conn.targetId);
         if (!targetNode || !targetPos) return;
+
+        const inList = incomingMap.get(conn.targetId) || [];
+        const outIdx = outList.indexOf(conn.targetId);
+        const inIdx = inList.indexOf(sourceNode.id);
+
+        // Distribute sockets evenly along card borders sorted by altitude to prevent overlapping lines
+        const outFraction = outList.length > 1
+          ? 0.18 + 0.64 * (outIdx / (outList.length - 1))
+          : 0.5;
+        const inFraction = inList.length > 1
+          ? 0.18 + 0.64 * (inIdx / (inList.length - 1))
+          : 0.5;
 
         // Calculate connection anchor points: forward exits right, backward exits left
         const isForward = targetPos.x >= sourcePos.x;
@@ -93,17 +135,24 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
 
         if (isForward) {
           startX = sourcePos.x + sourcePos.width;
-          startY = sourcePos.y + sourcePos.height / 2;
+          startY = sourcePos.y + sourcePos.height * outFraction;
           endX = targetPos.x;
-          endY = targetPos.y + targetPos.height / 2;
+          endY = targetPos.y + targetPos.height * inFraction;
         } else {
           startX = sourcePos.x;
-          startY = sourcePos.y + sourcePos.height * 0.75;
+          startY = sourcePos.y + sourcePos.height * outFraction;
           endX = targetPos.x + targetPos.width;
-          endY = targetPos.y + targetPos.height * 0.75;
+          endY = targetPos.y + targetPos.height * inFraction;
         }
 
-        const pathString = generateBezierPath(startX, startY, endX, endY);
+        const pathString = generateSmartConnectionPath(
+          sourceNode.id,
+          conn.targetId,
+          startX,
+          startY,
+          endX,
+          endY
+        );
 
         const crossesOtherCards = checkLineCrossesCards(
           startX,

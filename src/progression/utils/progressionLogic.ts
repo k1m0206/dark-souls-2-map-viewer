@@ -194,6 +194,64 @@ export function generateBezierPath(
 }
 
 /**
+ * Generates an obstacle-avoiding routed path between cards through open inter-stage corridors,
+ * completely bypassing intermediate cards and avoiding co-linear line overlaps.
+ */
+export function generateSmartConnectionPath(
+  sourceId: string,
+  targetId: string,
+  startX: number,
+  startY: number,
+  endX: number,
+  endY: number
+): string {
+  const key = `${sourceId}->${targetId}`;
+
+  // 1. Sinner's Rise -> Majula: route through upper corridor at Y=310, drop down X=960 to Majula
+  if (key === 'sinners_rise->majula') {
+    return `M ${startX} ${startY} C ${startX - 20} 310, 1920 310, 1900 310 L 1020 310 C 960 310, 960 400, 960 700 C 960 900, 920 ${endY}, ${endX} ${endY}`;
+  }
+
+  // 2. Iron Keep -> Majula: drop into corridor Y=875, run left across to X=960, curve into Majula
+  if (key === 'iron_keep->majula') {
+    return `M ${startX} ${startY} C 3700 550, 3700 820, 3700 875 L 1200 875 C 960 875, 960 ${endY}, ${endX} ${endY}`;
+  }
+
+  // 3. Brightstone Cove -> Majula: rise into corridor Y=1165, run left across to X=960, curve into Majula
+  if (key === 'brightstone_cove->majula') {
+    return `M ${startX} ${startY} C 1900 1200, 1900 1165, 1840 1165 L 1100 1165 C 960 1165, 960 ${endY}, ${endX} ${endY}`;
+  }
+
+  // 4. Shaded Woods -> Shrine of Winter: rise into corridor Y=1145 (offset from Brightstone), glide to Winter Shrine
+  if (key === 'shaded_woods->shrine_of_winter') {
+    return `M ${startX} ${startY} C 1420 1200, 1420 1145, 1450 1145 L 4100 1145 C 4200 1145, 4200 ${endY}, ${endX} ${endY}`;
+  }
+
+  // 5. Majula -> Huntsman's Copse: rise into corridor Y=855 (offset from Iron Keep), travel to X=2350, curve up
+  if (key === 'majula->huntsmans_copse') {
+    return `M ${startX} ${startY} C 920 ${startY}, 920 855, 960 855 L 2320 855 C 2350 855, 2350 700, 2350 550 C 2350 445, 2380 ${endY}, ${endX} ${endY}`;
+  }
+
+  // 6. Majula -> The Gutter: drop down along X=960 to corridor Y=1465, run right into The Gutter
+  if (key === 'majula->the_gutter') {
+    return `M ${startX} ${startY} C 920 ${startY}, 960 1120, 960 1200 L 960 1420 C 960 1465, 1000 1465, 1100 1465 L 1400 1465 C 1450 1465, 1480 ${endY}, ${endX} ${endY}`;
+  }
+
+  // 7. Undead Crypt -> Throne of Want: arch into top corridor Y=835, run along to X=8330, curve into Throne
+  if (key === 'undead_crypt->throne_of_want') {
+    return `M ${startX} ${startY} C 5990 ${startY}, 5990 835, 6020 835 L 8200 835 C 8300 835, 8300 ${endY}, ${endX} ${endY}`;
+  }
+
+  // 8. Undead Crypt -> Memories of Ancients: arch into top corridor Y=855 (offset from Throne), run to X=7430
+  if (key === 'undead_crypt->memories_of_ancients') {
+    return `M ${startX} ${startY} C 5990 ${startY}, 5990 855, 6020 855 L 7350 855 C 7400 855, 7400 ${endY}, ${endX} ${endY}`;
+  }
+
+  // Standard smooth Bezier path for direct clean connections
+  return generateBezierPath(startX, startY, endX, endY);
+}
+
+/**
  * Checks whether a cubic Bezier curve between two cards intersects any other intermediate cards.
  */
 export function checkLineCrossesCards(
