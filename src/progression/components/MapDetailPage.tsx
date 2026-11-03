@@ -266,7 +266,7 @@ export const MapDetailPage: React.FC<MapDetailPageProps> = ({
               <AlertTriangle className="w-5 h-5 text-rose-400 flex-shrink-0 mt-0.5 animate-pulse" />
               <div className="text-xs text-rose-200">
                 <div className="font-bold text-rose-300 text-xs sm:text-sm flex items-center gap-1.5 flex-wrap">
-                  <span>包含重要防错过成就决策节点！</span>
+                  <span>包含本周目防错过成就致命锁死节点！</span>
                   <button 
                     onClick={() => setActiveTab('achievements')}
                     className="underline text-amber-300 hover:text-amber-100 font-normal text-xs"
@@ -275,7 +275,7 @@ export const MapDetailPage: React.FC<MapDetailPageProps> = ({
                   </button>
                 </div>
                 <div className="mt-0.5 text-rose-200/90 leading-relaxed">
-                  本区域涉及易错过成就的重要决策（如 NPC 剧情、Boss 存活助战或关键道具保留）。请仔细阅读成就指引与清单中的防错过警告，切勿盲目推进。
+                  本区域涉及本周目防错过成就的致命锁死操作（一旦做错某操作，本周目永久无法完成该成就，必须下周目NG+重来）。请仔细阅读成就指引与防错过警示，切勿盲目推进。
                 </div>
               </div>
             </div>
@@ -1064,7 +1064,7 @@ export const MapDetailPage: React.FC<MapDetailPageProps> = ({
                   <span>本区域关联 Steam 成就 ({completedMapAchievementsCount}/{mapAchievements.length})</span>
                 </h3>
                 <p className="text-xs text-stone-400 mt-0.5">
-                  已关联 {mapAchievements.length} 项 Steam 成就，重点留意易错过决策预警以防永久错过
+                  已关联 {mapAchievements.length} 项 Steam 成就，重点留意本周目防错过绝版预警
                 </p>
               </div>
 
@@ -1133,7 +1133,7 @@ export const MapDetailPage: React.FC<MapDetailPageProps> = ({
                             {ach.isMissable && (
                               <span className="text-[10px] px-1.5 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-700 font-semibold flex items-center gap-1 animate-pulse">
                                 <AlertTriangle className="w-2.5 h-2.5" />
-                                易错过警示
+                                本周目防错过
                               </span>
                             )}
                           </div>
@@ -1173,7 +1173,7 @@ export const MapDetailPage: React.FC<MapDetailPageProps> = ({
                           <div className="mt-2.5 p-2.5 rounded-lg bg-rose-950/40 border border-rose-800/70 text-xs text-rose-200 leading-relaxed shadow-sm">
                             <div className="flex items-center gap-1.5 font-semibold text-rose-300 mb-0.5">
                               <AlertTriangle className="w-3.5 h-3.5 text-rose-400 flex-shrink-0" />
-                              <span>【防错过关键决策预警】</span>
+                              <span>【本周目防错过绝版警示】</span>
                             </div>
                             <p className="whitespace-pre-line text-rose-100 text-[11.5px] pl-5">
                               {ach.missableWarning}

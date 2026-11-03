@@ -79,7 +79,7 @@ export const SteamAchievementsModal: React.FC<SteamAchievementsModalProps> = ({
     colorClass: string;
   }[] = [
     { id: 'all', label: `全部 (${totalCount})`, IconComponent: Award, colorClass: 'text-amber-400' },
-    { id: 'missable', label: `易错过 (${missableUnlockedCount}/${missableCount})`, IconComponent: AlertTriangle, colorClass: 'text-rose-400' },
+    { id: 'missable', label: `本周目防错过 (${missableUnlockedCount}/${missableCount})`, IconComponent: AlertTriangle, colorClass: 'text-rose-400' },
     { id: 'story', label: '主线始源', IconComponent: BookOpen, colorClass: 'text-amber-300' },
     { id: 'boss', label: '强敌首领', IconComponent: Swords, colorClass: 'text-orange-400' },
     { id: 'npc_inheritance', label: 'NPC装备', IconComponent: Users, colorClass: 'text-indigo-400' },
@@ -162,10 +162,10 @@ export const SteamAchievementsModal: React.FC<SteamAchievementsModalProps> = ({
                     ? 'bg-emerald-950/60 text-emerald-300 border-emerald-700/60' 
                     : 'bg-rose-950/60 text-rose-300 border-rose-700/60'
                 }`}
-                title="易错过成就完成情况"
+                title="本周目防错过成就完成情况（做错特定操作即本周目永久无法完成，必须NG+重来）"
               >
                 <AlertTriangle className="w-3 h-3 text-rose-400 shrink-0" />
-                <span className="hidden xs:inline">防错过</span>
+                <span className="hidden xs:inline">本周目防错过</span>
                 <span>{missableUnlockedCount}/{missableCount}</span>
               </span>
             </div>
@@ -349,7 +349,7 @@ export const SteamAchievementsModal: React.FC<SteamAchievementsModalProps> = ({
                           {ach.isMissable && (
                             <span className="text-[10px] px-1.5 py-0.2 rounded bg-rose-950/80 text-rose-300 border border-rose-700/60 font-medium flex items-center gap-1 animate-pulse">
                               <AlertTriangle className="w-2.5 h-2.5 text-rose-400" />
-                              易错过
+                              本周目防错过
                             </span>
                           )}
                         </div>
@@ -388,7 +388,7 @@ export const SteamAchievementsModal: React.FC<SteamAchievementsModalProps> = ({
                         <div className="mt-2 p-2 sm:p-2.5 rounded-lg bg-rose-950/40 border border-rose-800/60 text-xs text-rose-200 leading-relaxed shadow-sm">
                           <div className="flex items-start gap-1.5 font-semibold text-rose-300 mb-0.5">
                             <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-rose-400" />
-                            <span>防错过决策预警：</span>
+                            <span>本周目防错过绝版警示：</span>
                           </div>
                           <div className="pl-5 text-rose-100 whitespace-pre-line text-[11.5px]">
                             {ach.missableWarning}

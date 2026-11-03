@@ -534,7 +534,7 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
                             ? 'bg-rose-950/80 border border-rose-600/80 text-rose-200 shadow-sm animate-pulse'
                             : 'bg-amber-950/60 border border-amber-600/60 text-amber-300'
                         }`}
-                        title={`${hasMissable ? '【防错过预警】' : ''}关联 Steam 成就 (${completedAchCount}/${localAchievements.length})`}
+                        title={`${hasMissable ? '【本周目防错过预警】' : ''}关联 Steam 成就 (${completedAchCount}/${localAchievements.length})`}
                       >
                         <Award className="w-3 h-3 text-amber-400 shrink-0" />
                         <span>{completedAchCount}/{localAchievements.length}</span>
@@ -623,10 +623,10 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
                   {hasMissable && (
                     <span 
                       className="text-xs px-2 py-0.5 rounded-md bg-rose-950/80 border border-rose-600/80 text-rose-200 font-bold flex items-center gap-1 shrink-0 animate-pulse shadow-sm"
-                      title="本区域包含易错过 Steam 成就的决断节点（如 NPC 对话、助战存活或关键道具保留）"
+                      title="本区域包含本周目防错过成就的致命锁死节点（一旦做错某操作，本周目永久无法完成，必须NG+重来）"
                     >
                       <AlertTriangle className="w-3 h-3 text-rose-400 shrink-0" />
-                      <span>防错过预警</span>
+                      <span>本周目防错过</span>
                     </span>
                   )}
                 </div>

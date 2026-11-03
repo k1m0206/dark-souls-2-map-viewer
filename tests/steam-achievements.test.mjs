@@ -95,7 +95,7 @@ test('Steam Achievements has exactly 38 official achievements and valid properti
   }
 });
 
-test('All missable achievements have decision warnings and valid map bindings in MAP_NODES', () => {
+test('All missable achievements strictly follow "做错某操作即本周目永久无法完成" and have structured warnings', () => {
   const mapIds = new Set(MAP_NODES.map(node => node.id));
 
   // Verify all relatedMapIds are real nodes
@@ -105,10 +105,44 @@ test('All missable achievements have decision warnings and valid map bindings in
     }
   }
 
-  // Check missable warning texts
-  assert.ok(MISSABLE_ACHIEVEMENTS.length >= 6, 'Must have at least 6 missable achievements');
+  // Exactly 10 strictly missable achievements in the current playthrough
+  const expectedMissableIds = [
+    'lucatiel',
+    'moonlight_greatsword',
+    'gathering_of_exiles',
+    'curious_map',
+    'holder_of_the_fort',
+    'master_of_sorceries',
+    'master_of_miracles',
+    'master_of_pyromancies',
+    'master_of_hexes',
+    'gesture_maestro',
+  ];
+  assert.equal(MISSABLE_ACHIEVEMENTS.length, 10, `Expected exactly 10 missable achievements, got ${MISSABLE_ACHIEVEMENTS.length}`);
+  const actualMissableIds = MISSABLE_ACHIEVEMENTS.map(a => a.id);
+  for (const id of expectedMissableIds) {
+    assert.ok(actualMissableIds.includes(id), `Missing expected missable achievement: ${id}`);
+  }
+
+  // Vendrick is never missable because he never despawns
+  const vendrick = STEAM_ACHIEVEMENTS.find(a => a.id === 'vendrick');
+  assert.equal(vendrick?.isMissable, false, 'Vendrick should NOT be marked as missable (does not despawn)');
+
+  // All 10 missable achievements must have the three-part warning structure
   for (const missable of MISSABLE_ACHIEVEMENTS) {
     assert.ok(missable.missableWarning, `Missable achievement ${missable.id} must have a missableWarning`);
+    assert.ok(
+      missable.missableWarning.includes('【本周目做错即锁死操作】'),
+      `Achievement ${missable.id} warning must include 【本周目做错即锁死操作】`
+    );
+    assert.ok(
+      missable.missableWarning.includes('【本周目绝版不可挽回后果】'),
+      `Achievement ${missable.id} warning must include 【本周目绝版不可挽回后果】`
+    );
+    assert.ok(
+      missable.missableWarning.includes('【正确防翻车操作】'),
+      `Achievement ${missable.id} warning must include 【正确防翻车操作】`
+    );
   }
 });
 
