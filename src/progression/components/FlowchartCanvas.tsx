@@ -83,11 +83,24 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
         const targetPos = nodePositions.get(conn.targetId);
         if (!targetNode || !targetPos) return;
 
-        // Start from right center of source, end at left center of target
-        const startX = sourcePos.x + sourcePos.width;
-        const startY = sourcePos.y + sourcePos.height / 2;
-        const endX = targetPos.x;
-        const endY = targetPos.y + targetPos.height / 2;
+        // Calculate connection anchor points: forward exits right, backward exits left
+        const isForward = targetPos.x >= sourcePos.x;
+        let startX: number;
+        let startY: number;
+        let endX: number;
+        let endY: number;
+
+        if (isForward) {
+          startX = sourcePos.x + sourcePos.width;
+          startY = sourcePos.y + sourcePos.height / 2;
+          endX = targetPos.x;
+          endY = targetPos.y + targetPos.height / 2;
+        } else {
+          startX = sourcePos.x;
+          startY = sourcePos.y + sourcePos.height * 0.75;
+          endX = targetPos.x + targetPos.width;
+          endY = targetPos.y + targetPos.height * 0.75;
+        }
 
         const pathString = generateBezierPath(startX, startY, endX, endY);
 
@@ -270,8 +283,8 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
         className="absolute transition-transform duration-75 ease-out origin-top-left"
         style={{
           transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoomLevel})`,
-          width: '7400px',
-          height: '2000px',
+          width: '9400px',
+          height: '2300px',
         }}
       >
         {/* Stage Columns Watermarks & Headers */}
@@ -280,27 +293,27 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
             <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
             <span className="text-amber-300 font-bold tracking-wider text-sm">阶段一：序章与如蜜枢纽</span>
           </div>
-          <div className="absolute left-[820px] flex items-center gap-2">
+          <div className="absolute left-[1060px] flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-orange-600" />
             <span className="text-orange-400 font-bold tracking-wider text-sm">阶段二：四大始源之火分支 (罪人 / 铁之古王 / 蜘蛛 / 腐败物)</span>
           </div>
-          <div className="absolute left-[3440px] flex items-center gap-2">
+          <div className="absolute left-[4280px] flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />
             <span className="text-blue-400 font-bold tracking-wider text-sm">阶段三：冬之庙与王都多兰古雷格</span>
           </div>
-          <div className="absolute left-[4550px] flex items-center gap-2">
+          <div className="absolute left-[5630px] flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-purple-500" />
             <span className="text-purple-400 font-bold tracking-wider text-sm">阶段四：不死灵庙与国王宿命</span>
           </div>
-          <div className="absolute left-[4920px] flex items-center gap-2">
+          <div className="absolute left-[6080px] flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-teal-500" />
             <span className="text-teal-400 font-bold tracking-wider text-sm">阶段五：安第尔之馆与龙祭坛</span>
           </div>
-          <div className="absolute left-[6030px] flex items-center gap-2">
+          <div className="absolute left-[7430px] flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-amber-600" />
             <span className="text-amber-300 font-bold tracking-wider text-sm">阶段六：穿越古昔回忆</span>
           </div>
-          <div className="absolute left-[6770px] flex items-center gap-2">
+          <div className="absolute left-[8330px] flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-red-500" />
             <span className="text-red-400 font-bold tracking-wider text-sm">阶段七：渴望王座决战与双重结局</span>
           </div>
@@ -333,78 +346,6 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
             <span>失落的王冠 (DLC三部曲)</span>
           </div>
         </div>
-
-        {/* SVG Bezier Connection Layer */}
-        <svg
-          className="absolute inset-0 pointer-events-none"
-          width="7400"
-          height="2000"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <defs>
-            <linearGradient id="grad-standard" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#786348" stopOpacity="0.45" />
-              <stop offset="100%" stopColor="#b49258" stopOpacity="0.7" />
-            </linearGradient>
-            <linearGradient id="grad-highlight" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.95" />
-              <stop offset="100%" stopColor="#fbbf24" stopOpacity="1" />
-            </linearGradient>
-            <linearGradient id="grad-greatsoul" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#ea580c" stopOpacity="0.8" />
-              <stop offset="100%" stopColor="#ef4444" stopOpacity="0.95" />
-            </linearGradient>
-            <marker
-              id="arrow-std"
-              viewBox="0 0 10 10"
-              refX="8"
-              refY="5"
-              markerWidth="6"
-              markerHeight="6"
-              orient="auto-start-reverse"
-            >
-              <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#b49258" opacity="0.6" />
-            </marker>
-            <marker
-              id="arrow-active"
-              viewBox="0 0 10 10"
-              refX="8"
-              refY="5"
-              markerWidth="7"
-              markerHeight="7"
-              orient="auto-start-reverse"
-            >
-              <path d="M 0 1 L 9 5 L 0 9 z" fill="#f59e0b" />
-            </marker>
-          </defs>
-
-          {/* Render Connection Curves */}
-          {connectionPaths.map((conn, idx) => (
-            <g key={`${conn.fromId}-${conn.toId}-${idx}`}>
-              {/* Outer glow stroke when highlighted */}
-              {conn.isHighlighted && (
-                <path
-                  d={conn.pathString}
-                  fill="none"
-                  stroke="#f59e0b"
-                  strokeWidth="6"
-                  strokeOpacity="0.3"
-                  strokeLinecap="round"
-                />
-              )}
-              {/* Core Path */}
-              <path
-                d={conn.pathString}
-                fill="none"
-                stroke={conn.isHighlighted ? 'url(#grad-highlight)' : 'url(#grad-standard)'}
-                strokeWidth={conn.isHighlighted ? '3.5' : '2'}
-                strokeDasharray={conn.isSecret ? '5,5' : undefined}
-                markerEnd={conn.isHighlighted ? 'url(#arrow-active)' : 'url(#arrow-std)'}
-                className="transition-all duration-300"
-              />
-            </g>
-          ))}
-        </svg>
 
         {/* Map Node Cards Layer */}
         {nodes.map(node => {
@@ -579,6 +520,78 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
             </div>
           );
         })}
+
+        {/* SVG Bezier Connection Layer (Floating above cards for clean visibility) */}
+        <svg
+          className="absolute inset-0 pointer-events-none z-20"
+          width="9400"
+          height="2300"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <defs>
+            <linearGradient id="grad-standard" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#8a7352" stopOpacity="0.75" />
+              <stop offset="100%" stopColor="#d4af67" stopOpacity="0.9" />
+            </linearGradient>
+            <linearGradient id="grad-highlight" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#f59e0b" stopOpacity="1" />
+              <stop offset="100%" stopColor="#fbbf24" stopOpacity="1" />
+            </linearGradient>
+            <linearGradient id="grad-greatsoul" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#ea580c" stopOpacity="0.85" />
+              <stop offset="100%" stopColor="#ef4444" stopOpacity="1" />
+            </linearGradient>
+            <marker
+              id="arrow-std"
+              viewBox="0 0 10 10"
+              refX="8"
+              refY="5"
+              markerWidth="6"
+              markerHeight="6"
+              orient="auto-start-reverse"
+            >
+              <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#d4af67" opacity="0.85" />
+            </marker>
+            <marker
+              id="arrow-active"
+              viewBox="0 0 10 10"
+              refX="8"
+              refY="5"
+              markerWidth="7"
+              markerHeight="7"
+              orient="auto-start-reverse"
+            >
+              <path d="M 0 1 L 9 5 L 0 9 z" fill="#f59e0b" />
+            </marker>
+          </defs>
+
+          {/* Render Connection Curves */}
+          {connectionPaths.map((conn, idx) => (
+            <g key={`${conn.fromId}-${conn.toId}-${idx}`}>
+              {/* Outer glow stroke when highlighted */}
+              {conn.isHighlighted && (
+                <path
+                  d={conn.pathString}
+                  fill="none"
+                  stroke="#f59e0b"
+                  strokeWidth="6"
+                  strokeOpacity="0.4"
+                  strokeLinecap="round"
+                />
+              )}
+              {/* Core Path with subtle drop shadow for crisp visibility on top of cards */}
+              <path
+                d={conn.pathString}
+                fill="none"
+                stroke={conn.isHighlighted ? 'url(#grad-highlight)' : 'url(#grad-standard)'}
+                strokeWidth={conn.isHighlighted ? '3.5' : '2.2'}
+                strokeDasharray={conn.isSecret ? '5,5' : undefined}
+                markerEnd={conn.isHighlighted ? 'url(#arrow-active)' : 'url(#arrow-std)'}
+                className="transition-all duration-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)]"
+              />
+            </g>
+          ))}
+        </svg>
       </div>
     </div>
   );

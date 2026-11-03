@@ -77,17 +77,18 @@ export function filterMapNodes(nodes: MapNode[], options: FilterOptions): MapNod
  */
 export const STAGE_X_MAPPING: Record<string, number> = {
   prologue: 80,
-  four_souls_col1: 440,
-  four_souls_col2: 800,
-  four_souls_col3: 1160,
-  four_souls_col4: 1520,
-  four_souls_col5: 1880,
-  drangleic: 2240,
-  undead_crypt: 2600,
-  dragon_shrine: 2960,
-  memories: 3320,
-  throne_endings: 3700,
-  dlc: 1880, // DLC starts below stage 2/3
+  four_souls_col1: 530,
+  four_souls_col2: 1060,
+  four_souls_col3: 1510,
+  four_souls_col4: 1960,
+  four_souls_col5: 2410,
+  four_souls_col6: 2860,
+  drangleic: 4280,
+  undead_crypt: 5630,
+  dragon_shrine: 6080,
+  memories: 7430,
+  throne_endings: 8330,
+  dlc: 2410,
 };
 
 /**
@@ -111,34 +112,36 @@ export function calculateNodePosition(node: MapNode): NodePosition {
   let x = 80;
 
   if (node.stage === 'prologue') {
-    x = 80 + node.order * 360;
+    x = 80 + node.order * 450;
   } else if (node.stage === 'four_souls') {
-    // Stage 2 has columns depending on step order in branch
-    if (node.order === 2) x = 820;
-    else if (node.order === 3) x = 1190;
-    else if (node.order === 4) x = 1560;
-    else if (node.order === 5) x = 1930;
-    else if (node.order === 6) x = 2300;
-    else if (node.order === 7) x = 2670;
-    else if (node.order === 8) x = 3040;
-    else x = 820;
+    // Stage 2 columns with generous ~120px gap
+    const fourSoulsColMap: Record<number, number> = {
+      2: 1060,
+      3: 1510,
+      4: 1960,
+      5: 2410,
+      6: 2860,
+      7: 3310,
+      8: 3760,
+    };
+    x = fourSoulsColMap[node.order] ?? 1060;
   } else if (node.stage === 'drangleic') {
     // Winter Shrine & Drangleic Castle & Amana
-    x = 3440 + node.order * 370;
+    x = 4280 + node.order * 450;
   } else if (node.stage === 'undead_crypt') {
-    x = 4550;
+    x = 5630;
   } else if (node.stage === 'dragon_shrine') {
-    x = 4920 + node.order * 370;
+    x = 6080 + node.order * 450;
   } else if (node.stage === 'memories') {
-    x = 6030 + node.order * 370;
+    x = 7430 + node.order * 450;
   } else if (node.stage === 'throne_endings') {
     if (node.id === 'throne_of_want') {
-      x = 6770;
+      x = 8330;
     } else {
-      x = 7180; // Endings columns
+      x = 8820; // Endings columns
     }
   } else if (node.stage === 'dlc') {
-    x = 1930 + node.order * 460;
+    x = 2410 + node.order * 550;
   }
 
   let y = LANE_Y_OFFSET[node.lane] ?? 900;
@@ -147,24 +150,24 @@ export function calculateNodePosition(node: MapNode): NodePosition {
   if (node.id === 'things_betwixt') y = 900;
   if (node.id === 'majula') y = 900;
   if (node.id === 'cathedral_of_blue') {
-    x = 1190;
+    x = 1510;
     y = 620;
   }
   if (node.id === 'belfry_luna') {
-    x = 1190;
+    x = 1510;
     y = -160;
   }
   if (node.id === 'undead_purgatory') {
-    x = 1930;
+    x = 2410;
     y = 620;
   }
   if (node.id === 'belfry_sol') {
-    x = 3040;
+    x = 3760;
     y = 100;
   }
   if (node.id === 'dark_chasm_of_old') {
-    x = 4180;
-    y = 1100;
+    x = 5180;
+    y = 1120;
   }
   if (node.id === 'ending_inherit') y = 760;
   if (node.id === 'ending_leave') y = 1040;
@@ -179,11 +182,12 @@ export function generateBezierPath(
   endY: number
 ): string {
   const deltaX = Math.abs(endX - startX);
+  const isForward = endX >= startX;
   const controlPointOffset = Math.max(deltaX * 0.45, 60);
 
-  const cp1X = startX + controlPointOffset;
+  const cp1X = isForward ? startX + controlPointOffset : startX - controlPointOffset;
   const cp1Y = startY;
-  const cp2X = endX - controlPointOffset;
+  const cp2X = isForward ? endX - controlPointOffset : endX + controlPointOffset;
   const cp2Y = endY;
 
   return `M ${startX} ${startY} C ${cp1X} ${cp1Y}, ${cp2X} ${cp2Y}, ${endX} ${endY}`;

@@ -9,13 +9,13 @@ interface StageQuickNavProps {
 export const StageQuickNav: React.FC<StageQuickNavProps> = ({ onJumpToStage }) => {
   const quickJumps = [
     { label: '1. 序章与如蜜', x: 20, y: -650, color: 'text-amber-400' },
-    { label: '2. 四大巨魂分支', x: -650, y: -650, color: 'text-orange-400' },
-    { label: '3. 冬之庙与王都', x: -2800, y: -650, color: 'text-blue-400' },
-    { label: '4. 不死灵庙', x: -3800, y: -650, color: 'text-purple-400' },
-    { label: '5. 龙祭坛', x: -4200, y: -650, color: 'text-teal-400' },
-    { label: '6. 巨人回忆', x: -5200, y: -650, color: 'text-amber-300' },
-    { label: '7. 渴望王座 (双结局)', x: -5800, y: -650, color: 'text-red-400' },
-    { label: '8. DLC三王冠', x: -1600, y: -650, color: 'text-indigo-400' },
+    { label: '2. 四大巨魂分支', x: -850, y: -650, color: 'text-orange-400' },
+    { label: '3. 冬之庙与王都', x: -3950, y: -650, color: 'text-blue-400' },
+    { label: '4. 不死灵庙', x: -5250, y: -650, color: 'text-purple-400' },
+    { label: '5. 龙祭坛', x: -5750, y: -650, color: 'text-teal-400' },
+    { label: '6. 巨人回忆', x: -7050, y: -650, color: 'text-amber-300' },
+    { label: '7. 渴望王座 (双结局)', x: -7950, y: -650, color: 'text-red-400' },
+    { label: '8. DLC三王冠', x: -2100, y: -1500, color: 'text-indigo-400' },
   ];
 
   return (
