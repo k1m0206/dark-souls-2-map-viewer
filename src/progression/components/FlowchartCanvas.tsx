@@ -529,18 +529,6 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
           xmlns="http://www.w3.org/2000/svg"
         >
           <defs>
-            <linearGradient id="grad-standard" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#8a7352" stopOpacity="0.75" />
-              <stop offset="100%" stopColor="#d4af67" stopOpacity="0.9" />
-            </linearGradient>
-            <linearGradient id="grad-highlight" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#f59e0b" stopOpacity="1" />
-              <stop offset="100%" stopColor="#fbbf24" stopOpacity="1" />
-            </linearGradient>
-            <linearGradient id="grad-greatsoul" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#ea580c" stopOpacity="0.85" />
-              <stop offset="100%" stopColor="#ef4444" stopOpacity="1" />
-            </linearGradient>
             <marker
               id="arrow-std"
               viewBox="0 0 10 10"
@@ -548,9 +536,9 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
               refY="5"
               markerWidth="6"
               markerHeight="6"
-              orient="auto-start-reverse"
+              orient="auto"
             >
-              <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#d4af67" opacity="0.85" />
+              <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#c59f58" />
             </marker>
             <marker
               id="arrow-active"
@@ -559,9 +547,9 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
               refY="5"
               markerWidth="7"
               markerHeight="7"
-              orient="auto-start-reverse"
+              orient="auto"
             >
-              <path d="M 0 1 L 9 5 L 0 9 z" fill="#f59e0b" />
+              <path d="M 0 1 L 9 5 L 0 9 z" fill="#fbbf24" />
             </marker>
           </defs>
 
@@ -574,8 +562,8 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
                   d={conn.pathString}
                   fill="none"
                   stroke="#f59e0b"
-                  strokeWidth="6"
-                  strokeOpacity="0.4"
+                  strokeWidth="7"
+                  strokeOpacity="0.45"
                   strokeLinecap="round"
                 />
               )}
@@ -583,7 +571,8 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
               <path
                 d={conn.pathString}
                 fill="none"
-                stroke={conn.isHighlighted ? 'url(#grad-highlight)' : 'url(#grad-standard)'}
+                stroke={conn.isHighlighted ? '#fbbf24' : '#c59f58'}
+                strokeOpacity={conn.isHighlighted ? 1 : 0.85}
                 strokeWidth={conn.isHighlighted ? '3.5' : '2.2'}
                 strokeDasharray={conn.isSecret ? '5,5' : undefined}
                 markerEnd={conn.isHighlighted ? 'url(#arrow-active)' : 'url(#arrow-std)'}
