@@ -9,20 +9,21 @@ import {
   Key, 
   Users, 
   AlertTriangle, 
-  ArrowRight,
-  ShieldCheck,
-  Sword,
-  Info,
-  Scale,
-  Compass,
-  Flame,
-  ChevronRight,
-  Eye,
-  MapPin,
-  ShoppingBag,
-  Coins,
-  BookOpen,
-  Award
+  ArrowRight, 
+  ShieldCheck, 
+  Sword, 
+  Info, 
+  Scale, 
+  Compass, 
+  Flame, 
+  ChevronRight, 
+  ChevronDown, 
+  Eye, 
+  MapPin, 
+  ShoppingBag, 
+  Coins, 
+  BookOpen, 
+  Award 
 } from 'lucide-react';
 import { MapNode, UserProgress } from '../types/souls';
 import { SpoilerText } from './SpoilerText';
@@ -64,6 +65,19 @@ export const MapDetailPage: React.FC<MapDetailPageProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'checklist' | 'choices' | 'bosses' | 'items' | 'npc' | 'tricks' | 'merchants' | 'achievements'>('checklist');
   const [merchantSearchFilter, setMerchantSearchFilter] = useState('');
+  const [expandedMissableIds, setExpandedMissableIds] = useState<Set<string>>(new Set());
+
+  const toggleMissableExpand = (achId: string) => {
+    setExpandedMissableIds(prev => {
+      const next = new Set(prev);
+      if (next.has(achId)) {
+        next.delete(achId);
+      } else {
+        next.add(achId);
+      }
+      return next;
+    });
+  };
 
   const mapMerchants = getMerchantsForMap(node.id);
   const mapAchievements = getAchievementsForMap(node.id);
@@ -76,6 +90,7 @@ export const MapDetailPage: React.FC<MapDetailPageProps> = ({
     // Reset to checklist on node switch
     setActiveTab('checklist');
     setMerchantSearchFilter('');
+    setExpandedMissableIds(new Set());
   }, [node.id]);
 
   // Handle ESC key to return to flowchart
@@ -392,7 +407,7 @@ export const MapDetailPage: React.FC<MapDetailPageProps> = ({
               <Award className={`w-4 h-4 ${activeTab === 'achievements' ? 'text-amber-400' : 'text-stone-400'}`} />
               <span>Steam成就 ({completedMapAchievementsCount}/{mapAchievements.length})</span>
               {hasMissableAchievements && (
-                <span className="w-1.5 h-1.5 rounded-full bg-rose-500/80 ml-0.5" />
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400/90 ml-0.5" />
               )}
             </button>
           )}
@@ -752,8 +767,8 @@ export const MapDetailPage: React.FC<MapDetailPageProps> = ({
                     </p>
 
                     {npc.warning && (
-                      <div className="flex items-start gap-2 p-2.5 rounded-xl bg-rose-950/20 border border-rose-900/40 text-xs text-rose-300/90">
-                        <AlertTriangle className="w-4 h-4 text-rose-400/90 shrink-0 mt-0.5" />
+                      <div className="flex items-start gap-2 p-2.5 rounded-xl bg-amber-950/20 border border-amber-900/40 text-xs text-amber-300/90">
+                        <AlertTriangle className="w-4 h-4 text-amber-400/90 shrink-0 mt-0.5" />
                         <span><strong>注意：</strong>{npc.warning}</span>
                       </div>
                     )}
@@ -1047,6 +1062,7 @@ export const MapDetailPage: React.FC<MapDetailPageProps> = ({
             <div className="space-y-3">
               {mapAchievements.map(ach => {
                 const isCompleted = unlockedSet.has(ach.id);
+                const isMissableExpanded = expandedMissableIds.has(ach.id);
 
                 return (
                   <div
@@ -1055,7 +1071,7 @@ export const MapDetailPage: React.FC<MapDetailPageProps> = ({
                       isCompleted
                         ? 'bg-stone-900/40 border-stone-800/80'
                         : ach.isMissable
-                        ? 'bg-rose-950/20 border-rose-900/50 shadow-sm'
+                        ? 'bg-stone-900/70 border-amber-900/40 shadow-sm'
                         : 'bg-stone-900/60 border-stone-800'
                     }`}
                   >
@@ -1096,8 +1112,8 @@ export const MapDetailPage: React.FC<MapDetailPageProps> = ({
                               {ach.categoryName}
                             </span>
                             {ach.isMissable && (
-                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-rose-950/60 text-rose-300/90 border border-rose-800/60 font-medium flex items-center gap-1">
-                                <AlertTriangle className="w-2.5 h-2.5" />
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-950/40 text-amber-300/90 border border-amber-800/50 font-medium flex items-center gap-1">
+                                <AlertTriangle className="w-2.5 h-2.5 text-amber-400" />
                                 本周目防错过
                               </span>
                             )}
@@ -1133,16 +1149,29 @@ export const MapDetailPage: React.FC<MapDetailPageProps> = ({
                           <p className="text-stone-500 font-mono text-[11px]">{ach.descriptionEn}</p>
                         </div>
 
-                        {/* Missable Warning Callout */}
+                        {/* Missable Warning Callout - Collapsible, pale yellow */}
                         {ach.isMissable && ach.missableWarning && (
-                          <div className="mt-2.5 p-2.5 rounded-lg bg-rose-950/20 border border-rose-900/40 text-xs text-rose-300/90 leading-relaxed shadow-sm">
-                            <div className="flex items-center gap-1.5 font-semibold text-rose-300 mb-0.5">
-                              <AlertTriangle className="w-3.5 h-3.5 text-rose-400/90 flex-shrink-0" />
-                              <span>【本周目防错过绝版警示】</span>
-                            </div>
-                            <p className="whitespace-pre-line text-rose-200/90 text-[11.5px] pl-5">
-                              {ach.missableWarning}
-                            </p>
+                          <div className="mt-2.5 rounded-lg border border-amber-800/40 bg-amber-950/20 overflow-hidden transition-all">
+                            <button
+                              type="button"
+                              onClick={() => toggleMissableExpand(ach.id)}
+                              className="w-full flex items-center justify-between gap-2 px-3 py-2 text-left bg-amber-950/30 hover:bg-amber-900/30 transition-colors text-xs text-amber-300"
+                            >
+                              <div className="flex items-center gap-1.5 font-semibold">
+                                <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                                <span>【本周目防错过绝版警示】</span>
+                              </div>
+                              <div className="flex items-center gap-1 text-[11px] text-amber-400/80 font-normal shrink-0">
+                                <span>{isMissableExpanded ? '收起详情' : '展开查看'}</span>
+                                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isMissableExpanded ? 'rotate-180' : ''}`} />
+                              </div>
+                            </button>
+
+                            {isMissableExpanded && (
+                              <div className="p-3 border-t border-amber-800/30 text-[11.5px] text-stone-300 leading-relaxed whitespace-pre-line bg-black/20">
+                                {ach.missableWarning}
+                              </div>
+                            )}
                           </div>
                         )}
 

@@ -14,7 +14,8 @@ import {
   Swords,
   Users,
   Shield,
-  Star
+  Star,
+  ChevronDown
 } from 'lucide-react';
 import { MapNode, UserProgress, SteamAchievement, AchievementCategory } from '../types/souls';
 import { STEAM_ACHIEVEMENTS } from '../data/achievementsData';
@@ -44,6 +45,19 @@ export const SteamAchievementsModal: React.FC<SteamAchievementsModalProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<AchievementCategory | 'all' | 'missable'>('all');
   const [completionFilter, setCompletionFilter] = useState<'all' | 'unlocked' | 'locked'>('all');
+  const [expandedMissableIds, setExpandedMissableIds] = useState<Set<string>>(new Set());
+
+  const toggleMissableExpand = (achId: string) => {
+    setExpandedMissableIds(prev => {
+      const next = new Set(prev);
+      if (next.has(achId)) {
+        next.delete(achId);
+      } else {
+        next.add(achId);
+      }
+      return next;
+    });
+  };
 
   const nodeMap = useMemo(() => {
     const map = new Map<string, string>();
@@ -78,7 +92,7 @@ export const SteamAchievementsModal: React.FC<SteamAchievementsModalProps> = ({
     colorClass: string;
   }[] = [
     { id: 'all', label: `全部 (${totalCount})`, IconComponent: Award, colorClass: 'text-amber-400' },
-    { id: 'missable', label: `本周目防错过 (${missableUnlockedCount}/${missableCount})`, IconComponent: AlertTriangle, colorClass: 'text-rose-400' },
+    { id: 'missable', label: `本周目防错过 (${missableUnlockedCount}/${missableCount})`, IconComponent: AlertTriangle, colorClass: 'text-amber-400' },
     { id: 'story', label: '主线始源', IconComponent: BookOpen, colorClass: 'text-amber-300' },
     { id: 'boss', label: '强敌首领', IconComponent: Swords, colorClass: 'text-orange-400' },
     { id: 'npc_inheritance', label: 'NPC装备', IconComponent: Users, colorClass: 'text-indigo-400' },
@@ -159,11 +173,11 @@ export const SteamAchievementsModal: React.FC<SteamAchievementsModalProps> = ({
                 className={`text-[11px] px-1.5 py-0.5 rounded border font-medium flex items-center gap-1 shrink-0 ${
                   missableUnlockedCount === missableCount 
                     ? 'bg-emerald-950/60 text-emerald-300 border-emerald-700/60' 
-                    : 'bg-rose-950/60 text-rose-300 border-rose-700/60'
+                    : 'bg-amber-950/40 text-amber-300/90 border-amber-800/60'
                 }`}
                 title="本周目防错过成就完成情况（做错特定操作即本周目永久无法完成，必须NG+重来）"
               >
-                <AlertTriangle className="w-3 h-3 text-rose-400 shrink-0" />
+                <AlertTriangle className="w-3 h-3 text-amber-400 shrink-0" />
                 <span className="hidden xs:inline">本周目防错过</span>
                 <span>{missableUnlockedCount}/{missableCount}</span>
               </span>
@@ -192,7 +206,7 @@ export const SteamAchievementsModal: React.FC<SteamAchievementsModalProps> = ({
                       onResetAchievements();
                     }
                   }}
-                  className="p-1.5 bg-stone-800 hover:bg-stone-700 text-stone-400 hover:text-rose-400 border border-stone-700 rounded text-xs transition-colors"
+                  className="p-1.5 bg-stone-800 hover:bg-stone-700 text-stone-400 hover:text-stone-200 border border-stone-700 rounded text-xs transition-colors"
                   title="重置成就进度"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
@@ -275,7 +289,7 @@ export const SteamAchievementsModal: React.FC<SteamAchievementsModalProps> = ({
                   className={`flex items-center gap-1 px-2 py-0.5 rounded whitespace-nowrap transition-colors border text-[11px] sm:text-xs ${
                     isSelected
                       ? cat.id === 'missable'
-                        ? 'bg-rose-950/70 text-rose-200 border-rose-600 font-semibold'
+                        ? 'bg-amber-950/70 text-amber-200 border-amber-600 font-semibold'
                         : 'bg-amber-500/20 text-amber-200 border-amber-500/60 font-semibold'
                       : 'bg-stone-900/60 text-stone-400 border-stone-800 hover:bg-stone-800/80 hover:text-stone-300'
                   }`}
@@ -316,7 +330,7 @@ export const SteamAchievementsModal: React.FC<SteamAchievementsModalProps> = ({
                     isCompleted
                       ? 'bg-stone-900/40 border-stone-800/60'
                       : ach.isMissable
-                      ? 'bg-rose-950/15 border-rose-900/30'
+                      ? 'bg-stone-900/70 border-amber-900/40'
                       : 'bg-stone-950/40 border-stone-800/50'
                   }`}
                 >
@@ -346,8 +360,8 @@ export const SteamAchievementsModal: React.FC<SteamAchievementsModalProps> = ({
                             {ach.categoryName}
                           </span>
                           {ach.isMissable && (
-                            <span className="text-[10px] px-1.5 py-0.2 rounded bg-rose-950/80 text-rose-300 border border-rose-700/60 font-medium flex items-center gap-1 animate-pulse">
-                              <AlertTriangle className="w-2.5 h-2.5 text-rose-400" />
+                            <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-950/40 text-amber-300/90 border border-amber-800/50 font-medium flex items-center gap-1 shrink-0">
+                              <AlertTriangle className="w-2.5 h-2.5 text-amber-400" />
                               本周目防错过
                             </span>
                           )}
@@ -382,16 +396,29 @@ export const SteamAchievementsModal: React.FC<SteamAchievementsModalProps> = ({
                         <p className="text-stone-500 font-mono text-[11px]">{ach.descriptionEn}</p>
                       </div>
 
-                      {/* Missable Warning Callout */}
+                      {/* Missable Warning Callout - Collapsible, pale yellow */}
                       {ach.isMissable && ach.missableWarning && (
-                        <div className="mt-2 p-2 sm:p-2.5 rounded-lg bg-rose-950/40 border border-rose-800/60 text-xs text-rose-200 leading-relaxed shadow-sm">
-                          <div className="flex items-start gap-1.5 font-semibold text-rose-300 mb-0.5">
-                            <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-rose-400" />
-                            <span>本周目防错过绝版警示：</span>
-                          </div>
-                          <div className="pl-5 text-rose-100 whitespace-pre-line text-[11.5px]">
-                            {ach.missableWarning}
-                          </div>
+                        <div className="mt-2 rounded-lg border border-amber-800/40 bg-amber-950/20 overflow-hidden transition-all">
+                          <button
+                            type="button"
+                            onClick={() => toggleMissableExpand(ach.id)}
+                            className="w-full flex items-center justify-between gap-2 px-2.5 py-1.5 text-left bg-amber-950/30 hover:bg-amber-900/30 transition-colors text-xs text-amber-300"
+                          >
+                            <div className="flex items-center gap-1.5 font-semibold">
+                              <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                              <span>【本周目防错过绝版警示】</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-[11px] text-amber-400/80 font-normal shrink-0">
+                              <span>{expandedMissableIds.has(ach.id) ? '收起详情' : '展开查看'}</span>
+                              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${expandedMissableIds.has(ach.id) ? 'rotate-180' : ''}`} />
+                            </div>
+                          </button>
+
+                          {expandedMissableIds.has(ach.id) && (
+                            <div className="p-2.5 border-t border-amber-800/30 text-[11.5px] text-stone-300 leading-relaxed whitespace-pre-line bg-black/20">
+                              {ach.missableWarning}
+                            </div>
+                          )}
                         </div>
                       )}
 

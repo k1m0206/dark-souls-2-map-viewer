@@ -417,8 +417,8 @@ export const MapDetailDrawer: React.FC<MapDetailDrawerProps> = ({
                   </p>
 
                   {npc.warning && (
-                    <div className="flex items-start gap-2 p-2 rounded-lg bg-rose-950/20 border border-rose-900/40 text-xs text-rose-300/90">
-                      <AlertTriangle className="w-4 h-4 text-rose-400/90 shrink-0 mt-0.5" />
+                    <div className="flex items-start gap-2 p-2 rounded-lg bg-amber-950/20 border border-amber-900/40 text-xs text-amber-300/90">
+                      <AlertTriangle className="w-4 h-4 text-amber-400/90 shrink-0 mt-0.5" />
                       <span>{npc.warning}</span>
                     </div>
                   )}
