@@ -34,7 +34,15 @@ export type NPCId =
   | 'gavlan'
   | 'agdayne'
   | 'targray'
-  | 'gren';
+  | 'gren'
+  | 'felkin'
+  | 'magerold'
+  | 'tark'
+  | 'cromwell'
+  | 'nashandra'
+  | 'drummond'
+  | 'vendrick'
+  | 'alsanna';
 
 export interface Boss {
   id: string;

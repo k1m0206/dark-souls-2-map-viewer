@@ -80,7 +80,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'tb_smooth_silky',
         name: '某种化石 / 光滑石头',
         type: 'key_item',
-        location: '初始挑选礼物或瀑布后鸟巢兑换'
+        location: '某种化石可选作出生礼物，光滑石头等也可探索取得；在鸟巢逐个选择「放置」交付，换取随机奖励，不是从鸟巢领取这些交换材料。'
       },
       {
         id: 'tb_gender_coffin',
@@ -112,8 +112,8 @@ export const MAP_NODES: MapNode[] = [
       },
       {
         id: 'tb_c2',
-        task: '依次穿过三处迷雾树穴，完成攻击、翻滚、跳跃等新手教学石碑',
-        category: 'essential'
+        task: '按需探索教学树穴；第三处入口被石化活尸挡住，取得怀念香木后回访收集碎片，教学不影响前往如蜜',
+        category: 'secret'
       },
       {
         id: 'tb_c3',
@@ -129,13 +129,19 @@ export const MAP_NODES: MapNode[] = [
         id: 'tb_c5',
         task: '穿过长长日光隧道前往绝壁之村「如蜜」',
         category: 'essential'
+      },
+      {
+        id: 'tb_beach_return',
+        task: '取得香木后回访第三教学区域及海滩，留意咒缚者；清除两只海滩食人鬼后返回找女佣米莉贝丝领取汤勺',
+        category: 'secret'
       }
     ],
     trapsAndTricks: [
       '【迅速与翻滚】：适应力与记忆力共同提升迅速（Agility）。以迅速面板为准选择92、96、99或105等翻滚无敌帧档位；所需适应力随记忆力不同而变化。迅速也影响原素瓶等道具的使用速度；负重影响翻滚距离。',
       '多数普通敌人被击杀约12次后停止刷新，但有例外；加入霸者契约可让多数此类敌人持续刷新，添火也会恢复相应区域敌人并永久提高该篝火强度。',
       '新手若攻击力不足，可先不打河马怪物，拿到武器后再回来清怪。',
-      '沙滩边的棺材躺进去会改变角色性别，并非传送棺材。'
+      '沙滩边的棺材躺进去会改变角色性别，并非传送棺材。',
+      '点亮教学区全部火盆会触发特殊入侵，属于可选探索；不要求首次到访全部完成。'
     ],
     connectionsTo: [
       {
@@ -171,7 +177,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'maj_estus_2',
         name: '原素碎片 (豪宅地下室)',
         type: 'estus_shard',
-        location: '用行商凯尔交付的豪宅钥匙开门，击杀骷髅拾取'
+        location: '在巨人陨落之森与制图师凯尔耗尽对话取得豪宅钥匙，返回开启如蜜豪宅，清理地下骷髅并拾取碎片。'
       },
       {
         id: 'maj_mansion_key',
@@ -205,7 +211,7 @@ export const MAP_NODES: MapNode[] = [
       },
       {
         id: 'maj_c2',
-        task: '击打大井旁的缠绳石头，拉出水桶拾取【原素碎片】',
+        task: '击打豪宅旁小井的配重石，拉出水桶取得原素碎片；不是村子中央通向地下的大坑',
         category: 'collectible'
       },
       {
@@ -227,6 +233,21 @@ export const MAP_NODES: MapNode[] = [
         id: 'maj_c6',
         task: '沿海边石阶前往【巨人陨落之森】开启第一条征程',
         category: 'essential'
+      },
+      {
+        id: 'maj_mansion_return',
+        task: '取得凯尔的豪宅钥匙后返回开门，清理地下骷髅、收集碎片，再休息刷新让凯尔迁入',
+        category: 'collectible'
+      },
+      {
+        id: 'maj_residents_return',
+        task: '随流程回访迁入如蜜的玛伦提雅、卡莉昂、克洛安娜、罗莎贝娜与吉里甘；新增四位居民后找索丹领取灵魂容器',
+        category: 'npc'
+      },
+      {
+        id: 'maj_licia_orb_return',
+        task: '取得碎裂眼眸宝珠后回到地下旋转机关，在提示宝珠震动时使用它入侵莉歇尔；先完成所需交易再挑战',
+        category: 'secret'
       }
     ],
     choices: [
@@ -272,6 +293,14 @@ export const MAP_NODES: MapNode[] = [
       {
         targetId: 'grave_of_saints',
         requirement: '购买银猫戒指或梯子吉里甘下大坑'
+      },
+      {
+        targetId: 'huntsmans_copse',
+        requirement: '莉歇尔从海德迁入后，支付2000魂转动地下机关'
+      },
+      {
+        targetId: 'the_gutter',
+        requirement: '沿大坑下层木板与洞道前进，可不挑战圣人墓地鼠王先锋'
       }
     ]
   },
@@ -319,7 +348,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'fofg_soldier_key',
         name: '士兵钥匙',
         type: 'key_item',
-        location: '击败最后的巨人获得，开启主塔所有铁门'
+        location: '击败最后的巨人取得，可开启巨森中对应的士兵锁门；火蜥蜴洞铁门另需镕铁钥匙，国王封印门另需国王戒指。'
       },
       {
         id: 'fofg_smith_key',
@@ -336,6 +365,13 @@ export const MAP_NODES: MapNode[] = [
         totalSteps: 5,
         actionRequired: '与倚坐在门边的佩特对话，穿过铁栅栏陷阱门生还后再次对话，获得【白标记蜡石（大白蜡石）】。',
         warning: '这是佩特与克雷顿恩怨长线的开端，务必听完全部对话！'
+      },
+      {
+        npcId: 'benhart',
+        npcName: '优格的本哈特（后期回访）',
+        stepNumber: 4,
+        totalSteps: 5,
+        actionRequired: '在王城与本哈特交谈后回到咒缚者战场后方，先与巨人奥罗尸树前的本哈特耗尽对话，再用灰雾核心进入奥罗回忆推进领奖。'
       }
     ],
     checklists: [
@@ -350,8 +386,13 @@ export const MAP_NODES: MapNode[] = [
         category: 'npc'
       },
       {
+        id: 'fofg_pate_summon',
+        task: '若要佩特的额外装备，在取得大白蜡石后召唤佩特击败最后的巨人，并让他存活；之后在推土坊回报',
+        category: 'npc'
+      },
+      {
         id: 'fofg_c3',
-        task: '击败第一个主线BOSS【最后的巨人】，获得【士兵钥匙】与巨人灵魂',
+        task: '击败最后的巨人，取得士兵钥匙与「最后的巨人的灵魂」；该Boss魂不能用于降低凡克拉德防御',
         category: 'boss'
       },
       {
@@ -363,11 +404,17 @@ export const MAP_NODES: MapNode[] = [
         id: 'fofg_c5',
         task: '调查咒缚者战场后方的巨鹰鸟巢，被巨鹰抓起直接飞往【遗忘囚笼】',
         category: 'essential'
+      },
+      {
+        id: 'fofg_heavy_iron_return',
+        task: '在镕铁城取得镕铁钥匙后回访，打开最后巨人升降梯附近的铁门进入火蜥蜴洞；在反叛大盾同一具遗骸上取得重铁钥匙，再去DLC2',
+        category: 'secret'
       }
     ],
     trapsAndTricks: [
       '主塔墙体有炸药桶，引诱投弹杂兵引爆墙体可炸出直接连接篝火的近道！',
-      '学者版树下已没有原版的海德骑士；不要按原版路线在这里寻找海德直剑。'
+      '学者版树下已没有原版的海德骑士；不要按原版路线在这里寻找海德直剑。',
+      '最后巨人的灵魂（Soul of the Last Giant）是Boss魂；巨人灵魂（Soul of a Giant）才用于降低凡克拉德防御，不要混用或提前消耗。'
     ],
     connectionsTo: [
       {
@@ -443,6 +490,11 @@ export const MAP_NODES: MapNode[] = [
         category: 'secret'
       },
       {
+        id: 'lb_sentinel_branch',
+        task: '准备怀念香木，解除通向茫然三卫兵路线上的石化活尸；另留一根用于高层牢房的史垂德，香木不足可先探索其他分支',
+        category: 'secret'
+      },
+      {
         id: 'lb_c3',
         task: '击败BOSS【茫然三卫兵】，获得卫兵灵魂',
         category: 'boss'
@@ -453,9 +505,19 @@ export const MAP_NODES: MapNode[] = [
         category: 'secret'
       },
       {
+        id: 'lb_key_pickup',
+        task: '从仆人住处继续沿外墙平台，在杂物后的尽头拾取牢房钥匙，留作罪人塔照明房开门使用',
+        category: 'collectible'
+      },
+      {
         id: 'lb_c5',
         task: '穿过长长吊桥前往【罪人塔】',
         category: 'essential'
+      },
+      {
+        id: 'lb_straid_rescue',
+        task: '用香木解除高层牢门前史垂德石化，点亮营火并开启交易；基础智力至少3，兑换四次Boss魂后再对话领取黑衣套装',
+        category: 'npc'
       }
     ],
     trapsAndTricks: [
@@ -527,7 +589,13 @@ export const MAP_NODES: MapNode[] = [
         id: 'bl_southern_ring',
         name: '南方仪式指环',
         type: 'key_item',
-        location: '钟楼二楼木箱'
+        location: '击败守钟石像鬼后进入对面小塔，下楼，在点燃上层城墙营火前开启铁箱；不是钟楼二楼木箱。'
+      },
+      {
+        id: 'bl_dragon_tooth',
+        name: '龙牙',
+        type: 'key_item',
+        location: '学者版从石像鬼后方营火爬梯进入恶犬庭院，在拱门下的遗体拾取，留意罪人佛格入侵。'
       }
     ],
     npcInteractions: [],
@@ -628,7 +696,7 @@ export const MAP_NODES: MapNode[] = [
     checklists: [
       {
         id: 'sr_c1',
-        task: '清理水牢底层的强化水怪，拾取水底道具',
+        task: '乘升降梯进入水牢，留意学者版流罪执刑者等敌人，清理后探索水底道具与通往Boss的路线',
         category: 'essential'
       },
       {
@@ -643,7 +711,7 @@ export const MAP_NODES: MapNode[] = [
       },
       {
         id: 'sr_c4',
-        task: '点燃第一具【始源之火】，传送返回如蜜',
+        task: '点燃本分支的始源之火；若是最后一处，与出现的安第尔耗尽对话，再返回如蜜',
         category: 'essential'
       }
     ],
@@ -735,7 +803,8 @@ export const MAP_NODES: MapNode[] = [
     trapsAndTricks: [
       '【缚誓者戒指】：学者版在龙骑兵雾门前的铁箱。可减轻死亡造成的生命上限损失，通常将最低上限由50%提高至75%；不会恢复肉身。',
       '在原罪学者版中，一旦击败龙骑兵，全图原本沉睡的海德骑士会全部苏醒并主动攻击！',
-      '吊桥前有一只守门喷火飞龙，开局可以带弓箭从远处台阶卡视野安全射杀。'
+      '吊桥前有一只守门喷火飞龙，开局可以带弓箭从远处台阶卡视野安全射杀。',
+      '若准备探索青之圣堂，可考虑先处理该方向的飞龙与古龙猎人，再击败龙骑兵；龙骑兵死后沉睡海德骑士会主动攻击，使返程清图更难。'
     ],
     connectionsTo: [
       {
@@ -776,9 +845,15 @@ export const MAP_NODES: MapNode[] = [
     keyItems: [
       {
         id: 'cob_ring',
-        name: '青之骑士团指环 / 锁链指环',
+        name: '古老狮子戒指',
         type: 'key_item',
-        location: '加入誓约或击败Boss后宝箱获得'
+        location: '击败古老的猎龙者直接获得，提升刺击反击伤害；不是加入誓约或开箱奖励。'
+      },
+      {
+        id: 'cob_guardian_seal',
+        name: '守护之印（Guardian\'s Seal）',
+        type: 'key_item',
+        location: '持有信义之证，与达格兰对话加入青之守护者获赠；与Boss掉落的古老狮子戒指分开领取。'
       }
     ],
     npcInteractions: [
@@ -787,7 +862,7 @@ export const MAP_NODES: MapNode[] = [
         npcName: '青教守护者 达格兰',
         stepNumber: 1,
         totalSteps: 1,
-        actionRequired: '击败古老的猎龙者后在神殿内室与他交谈，持有【信义之证】(联机助战胜利获取)可加入【青之守护者】誓约并开启商店购买雷光石与奇迹。'
+        actionRequired: '击败古老的猎龙者后，在内室持信义之证与达格兰对话，可加入青之守护者并开启商店。信义之证可联机协助取得，也可在狩猎森林第二营火附近石柱上离线拾取。'
       }
     ],
     checklists: [
@@ -863,14 +938,26 @@ export const MAP_NODES: MapNode[] = [
         stepNumber: 1,
         totalSteps: 7,
         actionRequired: '在港口民房内与倚着柱子的鲁卡提耶初遇，对话耗尽并可在幽灵船前召唤她参战。',
-        warning: '务必召唤她并确保她在四臂守卫战斗中存活！'
+        warning: '任务要求此前四处会面与至少三次助战获胜且她存活；四臂守卫只是可选计数场次之一，不要求每个可召唤Boss都成功。'
+      },
+      {
+        npcId: 'gavlan',
+        npcName: '孤独的噶瓦兰',
+        stepNumber: 1,
+        totalSteps: 3,
+        actionRequired: '学者版在港口可升降铁栅门附近的房间找到他，交谈并按需卖出道具、采购毒箭；先完成此处会面，他才会迁往流油谷。'
       }
     ],
     checklists: [
       {
         id: 'nmw_c1',
-        task: '点燃火把，长臂畏光怪物因恐惧火光不敢接近，大幅降低推图难度',
-        category: 'essential'
+        task: '按需点火照明、暂时震慑畏光长臂怪；不要依赖火把保证全程安全，仍需观察敌人动作',
+        category: 'secret'
+      },
+      {
+        id: 'nmw_gavlan',
+        task: '在港口可升降铁栅门附近房间找到噶瓦兰，耗尽对话，衔接流油谷和法洛斯门径的商店迁移',
+        category: 'npc'
       },
       {
         id: 'nmw_c2',
@@ -881,6 +968,11 @@ export const MAP_NODES: MapNode[] = [
         id: 'nmw_c3',
         task: '拜访孤独的魔法师卡莉昂(智力需>=8才理你)，可邀请其前往如蜜贩售法术',
         category: 'npc'
+      },
+      {
+        id: 'nmw_bridge_shortcut',
+        task: '登船挑战前放下码头折叠桥，打通营火与船前的往返近道，再安排鲁卡提耶召唤',
+        category: 'secret'
       },
       {
         id: 'nmw_c4',
@@ -894,7 +986,7 @@ export const MAP_NODES: MapNode[] = [
       }
     ],
     trapsAndTricks: [
-      '用一个法洛斯石头嵌入地面，可点亮整座密港中央的巨型吊灯，使所有畏光怪物全部逃回房内！'
+      '可使用法洛斯石头点亮港口大型吊灯，帮助照明并震慑畏光敌人；不是推进主线的必需消耗。'
     ],
     connectionsTo: [
       {
@@ -950,6 +1042,12 @@ export const MAP_NODES: MapNode[] = [
         name: '原素碎片',
         type: 'estus_shard',
         location: '从不死人牢房篝火探索骷髅洞穴，在可开启的栅门近道附近、结晶蜥蜴旁的尸体上拾取。'
+      },
+      {
+        id: 'hc_fidelity',
+        name: '信义之证',
+        type: 'key_item',
+        location: '第二营火桥边附近的独立石柱上，从上方通往刑场的桥谨慎跳落取得；可离线加入青之守护者。'
       }
     ],
     npcInteractions: [
@@ -960,6 +1058,13 @@ export const MAP_NODES: MapNode[] = [
         totalSteps: 5,
         actionRequired: '使用不死人牢房钥匙救出被锁在圆石塔内的克雷顿，倾听他痛斥被佩特陷害的真相。',
         warning: '佩特与克雷顿互指对方是杀人犯，必须在此救出克雷顿才能推进后续！'
+      },
+      {
+        npcId: 'felkin',
+        npcName: '暗术师 菲尔金',
+        stepNumber: 1,
+        totalSteps: 1,
+        actionRequired: '在如蜜通往本区的入口洞道找到他。基础智力和信仰各至少8开启服务，各至少20后交谈获日暮之杖与暗术师套装；装备增加的属性不代替基础要求。'
       }
     ],
     checklists: [
@@ -969,8 +1074,13 @@ export const MAP_NODES: MapNode[] = [
         category: 'essential'
       },
       {
+        id: 'hc_felkin',
+        task: '经过入口时拜访菲尔金；基础智信各8可交易，各20可返程领取日暮之杖及套装，日暮之杖也是纳瓦兰任务信物',
+        category: 'npc'
+      },
+      {
         id: 'hc_c2',
-        task: '找到被关押的克雷顿，用牢房钥匙开门救出他并耗尽对话',
+        task: '先沿瀑布方向探索取得不死人牢房钥匙，返回第三营火所在圆石牢房开门，与克雷顿耗尽对话；别与遗忘囚笼的牢房钥匙混淆',
         category: 'npc'
       },
       {
@@ -1038,7 +1148,7 @@ export const MAP_NODES: MapNode[] = [
         npcName: '小矮人 格雷南 (血之同胞誓约)',
         stepNumber: 1,
         totalSteps: 1,
-        actionRequired: '背包持有【憎恨之证】(联机入侵击败宿主或圣人墓地大坑拾取)与他对话，可加入全游戏最嗜血的【血之同胞】暗杀誓约并购买无限火焰箭与龟裂红眸之石。'
+        actionRequired: '持憎恨之证与格雷恩对话，可加入血之同胞，加入后才能购物。一周目龟裂红眸之石限量5个，真正进入二周目后无限供应，添火不能替代；他不出售火焰箭。'
       }
     ],
     checklists: [
@@ -1064,7 +1174,8 @@ export const MAP_NODES: MapNode[] = [
       }
     ],
     trapsAndTricks: [
-      '诱敌头盖骨是此图神物！扔一个头盖骨，全场骷髅会发疯聚在一起，根本不管你，直接一路冲到闸门拉杆。'
+      '诱敌头盖骨是此图神物！扔一个头盖骨，全场骷髅会发疯聚在一起，根本不管你，直接一路冲到闸门拉杆。',
+      '憎恨之证可在如蜜大坑通往废渊的下降路线离线拾取，不要求一定参与入侵；加入血之同胞属于可选支线。'
     ],
     connectionsTo: [
       {
@@ -1109,7 +1220,7 @@ export const MAP_NODES: MapNode[] = [
         npcName: '石商人 克洛安娜',
         stepNumber: 1,
         totalSteps: 2,
-        actionRequired: '在采掘场首个篝火旁的岩石上与她交谈耗尽所有对话，她将移居如蜜成为供应全强化矿石的核心商人！'
+        actionRequired: '在采掘场首个营火附近与克洛安娜耗尽对话，使其迁入如蜜；强化材料库存随流程推进解锁，并非迁居后立刻出售全部材料。'
       },
       {
         npcId: 'gavlan',
@@ -1142,8 +1253,8 @@ export const MAP_NODES: MapNode[] = [
       },
       {
         id: 'hv_c3',
-        task: '从流油谷进入推土坊下层，先探索毒罐支路找到【鲁卡提耶】，再挑战入口大厅的【贪婪恶魔】',
-        category: 'boss'
+        task: '进入推土坊下层前确认已探索毒雾坑、取得香木并与克洛安娜和噶瓦兰交谈；贪婪恶魔与鲁卡提耶后续见推土坊',
+        category: 'essential'
       },
       {
         id: 'hv_c4',
@@ -1208,26 +1319,46 @@ export const MAP_NODES: MapNode[] = [
         npcName: '亲切的佩特',
         stepNumber: 3,
         totalSteps: 5,
-        actionRequired: '找到佩特，绕行拾取他提到的宝物并从另一侧打开近道门，再耗尽对话；克雷顿的第二次会面在虚影遗迹，不在推土坊。'
+        actionRequired: '绕到佩特房间另一侧取宝并开近道门，再回来耗尽对话。若之前召唤佩特击败最后巨人且他存活，可领取额外装备；本次会面也要完成，克雷顿第二次会面则在虚影遗迹。'
       },
       {
         npcId: 'lucatiel',
         npcName: '米勒的鲁卡提耶',
-        stepNumber: 3,
+        stepNumber: 4,
         totalSteps: 7,
         actionRequired: '在贪婪恶魔前的下层毒罐支路，法洛斯机关对面的房间与她耗尽对话，之后可在镕铁恶魔雾门前召唤她。'
       }
     ],
     checklists: [
       {
+        id: 'ep_lucatiel_meet',
+        task: '挑战入口贪婪恶魔前，探索下层毒罐支路、进入法洛斯机关对面的房间，与鲁卡提耶耗尽对话',
+        category: 'npc'
+      },
+      {
+        id: 'ep_covetous',
+        task: '击败入口大厅的贪婪恶魔，再沿楼梯向下层及中层营火推进',
+        category: 'boss'
+      },
+      {
         id: 'ep_c1',
-        task: '【至关重要】：在中层篝火旁点燃火把，走上风车外缘点燃转轴木料，烧毁整座风车！',
-        category: 'essential'
+        task: '在中层营火点燃火把，走到外侧风车转轴木料旁互动点火，降低米妲战场毒池；这是推荐准备，不是登塔硬条件',
+        category: 'secret'
       },
       {
         id: 'ep_c2',
         task: '在外侧阳台找到吉里甘，按需付2000魂架梯取宝；击败米妲后他会移居如蜜，无需把买梯子当作搬迁条件',
         category: 'npc'
+      },
+      {
+        id: 'ep_pate_return',
+        task: '探索佩特所说的宝物、从背面开近道门，返回耗尽对话；符合最后巨人助战条件时领取装备',
+        category: 'npc'
+      },
+      {
+        id: 'ep_upper_bonfire',
+        task: '到米妲雾门上方的平台，处理镰刀暗灵后在右侧墙壁按互动键，开启上层隐藏营火；这类隐藏墙不是用攻击打破',
+        category: 'secret'
       },
       {
         id: 'ep_c3',
@@ -1241,9 +1372,9 @@ export const MAP_NODES: MapNode[] = [
       }
     ],
     trapsAndTricks: [
-      '如果不烧风车打米妲，属于魂2最折磨的噩梦挑战之一；烧掉风车后直接变为简单难度。',
-      '隐藏门：在米妲雾门正上方有一整面隐藏墙壁，推开里面是篝火和强力宝箱。',
-      '贪婪恶魔位于推土坊入口大厅。先在下层毒罐支路与鲁卡提耶交谈，再继续上塔；佩特支线需绕行打开他附近的门并耗尽对话。'
+      '烧毁中层风车可排掉部分毒池，降低米妲战难度；仍须留意场地边缘毒液。',
+      '米妲雾门正上方的平台右侧有互动隐藏墙，后方为上层营火。',
+      '鲁卡提耶位于学者版入口毒罐支路；佩特需要绕行开门并回报，两个NPC分别完成。'
     ],
     connectionsTo: [
       {
@@ -1314,13 +1445,13 @@ export const MAP_NODES: MapNode[] = [
         id: 'ik_iron_key',
         name: '镕铁钥匙',
         type: 'key_item',
-        location: '大火喷吐机关下的火焰尸体(需抗火翻滚拾取)，开启巨森蝾螈地下火蜥蜴洞'
+        location: '入口喷火牛头雕像下遗体。可先到第三营火艾吉尔铁像处拉杆关闭喷火，再安全返回拾取；开启巨森最后巨人升降梯附近通往火蜥蜴洞的铁门。'
       },
       {
         id: 'ik_dlc_key',
         name: '重铁钥匙 (DLC2入口道具)',
         type: 'key_item',
-        location: '原罪学者版在火焰蝾螈洞穴拾取'
+        location: '在本区取得镕铁钥匙后回巨森，开启最后巨人升降梯旁铁门；在火蜥蜴洞反叛大盾同一具遗骸拾取，再返回铁之古王始源火后祭坛进入DLC2。'
       },
       {
         id: 'bs_chaos_storm',
@@ -1340,12 +1471,24 @@ export const MAP_NODES: MapNode[] = [
       {
         npcId: 'lucatiel',
         npcName: '米勒的鲁卡提耶（镕铁恶魔助战）',
-        stepNumber: 4,
+        stepNumber: 5,
         totalSteps: 7,
         actionRequired: '在推土坊与她对话后，可于镕铁恶魔雾门前召唤她。胜利且她存活可计入三场要求，也可添火重复累计。'
+      },
+      {
+        npcId: 'magerold',
+        npcName: '商人 马格赫拉德',
+        stepNumber: 1,
+        totalSteps: 1,
+        actionRequired: '入口建筑右侧楼梯下可交易。以后在龙祭坛取得石化蛋再回来交付，可加入古龙誓约；与进入DLC2所需的重铁钥匙无关。'
       }
     ],
     checklists: [
+      {
+        id: 'ik_magerold',
+        task: '先拜访入口建筑的马格赫拉德；后期从龙祭坛取得石化蛋后回访，按需加入古龙誓约',
+        category: 'npc'
+      },
       {
         id: 'ik_c1',
         task: '降下铁桥，清理成群亚伦骑士弓箭手',
@@ -1367,18 +1510,24 @@ export const MAP_NODES: MapNode[] = [
         category: 'boss'
       },
       {
+        id: 'ik_key_return',
+        task: '拉动艾吉尔铁像营火附近机关关闭喷火，返回入口雕像下拾取镕铁钥匙，再回巨森火蜥蜴洞取得重铁钥匙',
+        category: 'secret'
+      },
+      {
         id: 'ik_c5',
         task: '在始源之火后方房间调查祭坛，可传送至【DLC2 黑雾之塔】(需重铁钥匙)',
         category: 'secret'
       },
       {
         id: 'ik_c6',
-        task: '点燃第二具【始源之火】，传送回如蜜',
+        task: '点燃本分支始源之火；若是最后一处，与安第尔耗尽对话，再返回如蜜',
         category: 'essential'
       }
     ],
     trapsAndTricks: [
-      '铁之古王真正的本体是场地里的那个小洞！被火掌推下去直接融化，时刻保持贴近右侧雾门墙壁。'
+      '铁之古王真正的本体是场地里的那个小洞！被火掌推下去直接融化，时刻保持贴近右侧雾门墙壁。',
+      '击败镕铁恶魔并刷新区域后，可回其战场挑战咒缚者取得刃之戒指+1，属于可选强化准备。'
     ],
     connectionsTo: [
       {
@@ -1449,8 +1598,8 @@ export const MAP_NODES: MapNode[] = [
       }
     ],
     trapsAndTricks: [
-      '狂战士黑灵是刷离线钟卫契约30次升级拿【隐形武器】法术(全法术成就必需)的最快途径！',
-      '狂战士是加入钟卫后概率出现的可重复击杀敌人，不是拥有独立Boss血条的首领；可刷取其武器与防具。'
+      '加入钟卫后，狂战士会概率刷新；击杀可计入誓约战功，累计30次可取得魔法「隐形武器」，用于全魔法成就。',
+      '狂战士没有独立Boss血条，不计首领数；可重复刷其武器与防具。'
     ],
     connectionsTo: [
       {
@@ -1495,7 +1644,7 @@ export const MAP_NODES: MapNode[] = [
         id: 'sw_fragrant',
         name: '怀念香木',
         type: 'fragrant_branch',
-        location: '击败石化狮子战士获取钥匙开启地下牢房'
+        location: '解救欧尼佛斯的地下牢房内可拾取香木；击败纳吉卡后也可返回找塔克领取一根，供后续解石化使用。'
       },
       {
         id: 'sw_whisper_ring',
@@ -1508,6 +1657,12 @@ export const MAP_NODES: MapNode[] = [
         name: '贵人骨灰',
         type: 'sublime_bone_dust',
         location: '从虚影遗迹篝火附近窗口跳至石化狮子战士所在区域，探索左侧建筑，开启守卫看守的铁箱。'
+      },
+      {
+        id: 'sw_fang_key',
+        name: '牙之钥匙',
+        type: 'key_item',
+        location: '用香木解除虚影遗迹指定狮子战士石化并击败它取得，用于开启欧尼佛斯的地下牢房；不是每个石化狮子都掉钥匙。'
       }
     ],
     npcInteractions: [
@@ -1543,9 +1698,16 @@ export const MAP_NODES: MapNode[] = [
       {
         npcId: 'pate_creighton',
         npcName: '流浪骑士 克雷顿',
-        stepNumber: 3,
+        stepNumber: 4,
         totalSteps: 5,
         actionRequired: '在狩猎森林救出他后，到虚影遗迹通往蝎子纳吉卡方向的右侧塔顶再次耗尽对话，推进辉石镇决斗。'
+      },
+      {
+        npcId: 'tark',
+        npcName: '蝎子男 塔克',
+        stepNumber: 1,
+        totalSteps: 1,
+        actionRequired: '戴低语戒指对话；击败纳吉卡后回报领取怀念香木，之后击败公爵的芙蕾雅再回访，学者版可获第二龙之戒指与黑蝎刺针。'
       }
     ],
     checklists: [
@@ -1578,6 +1740,11 @@ export const MAP_NODES: MapNode[] = [
         id: 'sw_c5',
         task: '击败BOSS【蝎子纳吉卡】，进入【法洛斯门径】',
         category: 'boss'
+      },
+      {
+        id: 'sw_tark_returns',
+        task: '击败纳吉卡后找塔克领取香木；击败辉石镇芙蕾雅后再返程交谈，领取第二龙之戒指与黑蝎刺针',
+        category: 'npc'
       }
     ],
     trapsAndTricks: [
@@ -1666,7 +1833,8 @@ export const MAP_NODES: MapNode[] = [
     ],
     trapsAndTricks: [
       '【毒箭之王噶瓦兰在此永久定居】：噶瓦兰会在此处无限出售【毒箭】(60魂/支)与毒飞刀。强烈建议一次性购入200~300支毒箭，后面阿玛娜祭坛、王都和DLC的各类难缠小怪与红魂均可远程毒杀逃课！',
-      '大部分水坑里的法洛斯机关孔是陷阱或释放怪物的装置，不要随意把宝贵的石头全插进去！'
+      '大部分水坑里的法洛斯机关孔是陷阱或释放怪物的装置，不要随意把宝贵的石头全插进去！',
+      '推进辉石镇走上层石阶即可；鼠王试炼、水池机关和机关后宝物属于可选探索，先确认目标再消耗法洛斯石头。'
     ],
     connectionsTo: [
       {
@@ -1735,12 +1903,12 @@ export const MAP_NODES: MapNode[] = [
         npcName: '优格的本哈特 (礼拜堂助战)',
         stepNumber: 2,
         totalSteps: 5,
-        actionRequired: '在礼拜堂营火旁帐篷内找到本哈特的召唤印，召唤他参战击败BOSS【徘徊主教与信徒】并确保其存活！'
+        actionRequired: '在王国军野营地、带练习假人的帐篷内找到本哈特召唤印；召唤他后前往礼拜堂，击败徘徊主教与信徒并让他存活，计一次支线助战。'
       },
       {
         npcId: 'pate_creighton',
         npcName: '佩特与克雷顿 (宿命决斗)',
-        stepNumber: 4,
+        stepNumber: 5,
         totalSteps: 5,
         actionRequired: '在下层民居中撞见佩特与克雷顿生死搏杀！协助其中一人斩杀另一人，获胜者会赠送你【特瑟尔朵拉隐秘钥匙】。',
         warning: '若直接两人都不帮或全杀，将无法正常拿到宝库奖励。'
@@ -1751,6 +1919,13 @@ export const MAP_NODES: MapNode[] = [
         stepNumber: 2,
         totalSteps: 2,
         actionRequired: '在底层工坊与她对话，首次兑换Boss灵魂武器免费！此后可随意锻造所有王魂神兵。'
+      },
+      {
+        npcId: 'cromwell',
+        npcName: '赎罪师 克伦威尔',
+        stepNumber: 1,
+        totalSteps: 1,
+        actionRequired: '从礼拜堂门口附近右侧凹处的梯子爬到阁楼，可请求赎罪以解除部分NPC敌对；赎罪不能复活已被杀死的NPC。'
       }
     ],
     checklists: [
@@ -1761,7 +1936,12 @@ export const MAP_NODES: MapNode[] = [
       },
       {
         id: 'bc_c_benhart',
-        task: '在礼拜堂帐篷内召唤【优格的本哈特】协助击败主教并保证其幸存',
+        task: '在王国军野营地带练习假人的帐篷内召唤本哈特，再前往礼拜堂击败主教与信徒并保证他幸存',
+        category: 'npc'
+      },
+      {
+        id: 'bc_cromwell',
+        task: '主教战后回礼拜堂入口附近，在右侧凹处找梯子爬上阁楼，拜访赎罪师克伦威尔',
         category: 'npc'
       },
       {
@@ -1776,23 +1956,24 @@ export const MAP_NODES: MapNode[] = [
       },
       {
         id: 'bc_c4',
-        task: '【重要提醒】：弗蕾札死后必须走到悬崖边拾取发光的【伟大灵魂】(始源之火)',
+        task: '击败芙蕾雅后先触碰战场地面的红色大灵魂，获得古魂认可；随后继续穿过公爵房间，另行点燃始源之火',
         category: 'essential'
       },
       {
         id: 'bc_c5',
-        task: '取得灰雾核心后再返回弗蕾札战场，调查结晶进入【古龙回忆】拾取古龙之魂；首次击杀时暂时不能进入',
+        task: '取得龙祭坛古龙赠送的灰雾核心后，传送回辉石镇下层，重返芙蕾雅战场调查结晶进入古龙回忆，再调查龙尸取得古龙之魂；无需击杀龙祭坛古龙',
         category: 'secret'
       },
       {
         id: 'bc_c6',
-        task: '点燃第三具【始源之火】，传送回如蜜',
+        task: '穿过公爵房间，在后方点燃本分支始源之火；若这是最后一处，与安第尔耗尽对话，再回如蜜',
         category: 'essential'
       }
     ],
     trapsAndTricks: [
-      '弗蕾札本身不会掉落始源火，必须自己动手从地面的红色发光遗迹拾取！很多新手打完以为没掉巨魂卡关。',
-      '学者版手持火把能驱赶小蜘蛛，但不能防住弗蕾札本体的攻击，也不要在收起火把后仍假定蜘蛛不会接近。'
+      '芙蕾雅战场地面的红色大灵魂与后方始源营火是两个独立步骤，二者都应处理；Boss魂也不是这团红光。',
+      '学者版火把可驱赶小蜘蛛，但不能阻止芙蕾雅本体攻击，收起火把后须重新判断小蜘蛛行为。',
+      '古龙回忆在取得灰雾核心后返程进入；调查龙尸取得古龙之魂后离开，不是另一场古龙Boss战。'
     ],
     connectionsTo: [
       {
@@ -1860,6 +2041,12 @@ export const MAP_NODES: MapNode[] = [
         name: '贵人骨灰',
         type: 'sublime_bone_dust',
         location: '如蜜大坑通往废渊的入口前，在守卫看守的铁箱内取得；可沿大坑下层路线到达，不要求击败鼠王先锋。'
+      },
+      {
+        id: 'gos_whisper_despair',
+        name: '失望呢喃（Whisper of Despair）',
+        type: 'spell',
+        location: '用法洛斯石头放下通往对侧的桥，进入桥后房间拾取；可选暗术收集。'
       }
     ],
     npcInteractions: [],
@@ -1881,7 +2068,8 @@ export const MAP_NODES: MapNode[] = [
       }
     ],
     trapsAndTricks: [
-      '如果血量充足佩戴银猫戒指脱光所有防具，甚至不需要买梯子即可逐级跳板直接跳到底。'
+      '如果血量充足佩戴银猫戒指脱光所有防具，甚至不需要买梯子即可逐级跳板直接跳到底。',
+      '圣人墓地与鼠王先锋都不是进入废渊的硬性前置；也可从如蜜大坑继续逐层下降到更低洞口。'
     ],
     connectionsTo: [
       {
@@ -1924,14 +2112,20 @@ export const MAP_NODES: MapNode[] = [
         name: '原素碎片',
         type: 'estus_shard',
         location: '靠近持枪海德骑士、透明奥罗斯套装宝箱的区域，攀上附近长梯，在顶部尸体上拾取；靠近滑索。'
+      },
+      {
+        id: 'gut_dark_pyro',
+        name: '暗之咒术之火',
+        type: 'key_item',
+        location: '从废渊上层营火沿路前进，落入房间后会遇到通向恶犬房间的小缺口；过缺口前看右侧道路，打碎陶罐拾取。威力受活尸程度影响，与密港的普通咒术之火分别收集。'
       }
     ],
     npcInteractions: [],
     checklists: [
       {
         id: 'gut_c1',
-        task: '手持火把沿途点燃所有石灯台，照亮整个立体脚手架网络(点亮全部灯台会引出黑灵入侵并掉落装备)',
-        category: 'essential'
+        task: '按需沿途点燃石灯台记录路线；点亮全部灯台触发特殊入侵属于可选探索，不要求全部点亮才能去黑溪谷',
+        category: 'secret'
       },
       {
         id: 'gut_c2',
@@ -1940,7 +2134,7 @@ export const MAP_NODES: MapNode[] = [
       },
       {
         id: 'gut_c3',
-        task: '在底层穿过石化酸液甲虫群，来到恶臭斑驳的绿色岩洞【黑溪谷】',
+        task: '沿底层长梯下降，留意会腐蚀装备的酸液罐，打通出口前往黑溪谷',
         category: 'essential'
       }
     ],
@@ -1998,10 +2192,10 @@ export const MAP_NODES: MapNode[] = [
       {
         npcId: 'lucatiel',
         npcName: '米勒的鲁卡提耶',
-        stepNumber: 4,
+        stepNumber: 6,
         totalSteps: 7,
         actionRequired: '在黑溪谷第一个篝火后方悬崖边缘向下小心跳落，穿过石缝在隐藏石穴找到她对话。',
-        warning: '极其容易错过！必须在此对话并在打腐败物时召唤她且幸存！'
+        warning: '此处隐藏会面属于任务要求；腐败物只是三次有效助战的可选计数场次之一，若已满足三次也仍须完成会面对话。'
       },
       {
         npcId: 'grandahl',
@@ -2021,7 +2215,7 @@ export const MAP_NODES: MapNode[] = [
     checklists: [
       {
         id: 'bg_c1',
-        task: '用长柄武器或鞭子一路击碎沿途密集的吐毒石像(火属性弓箭可引燃黑油池直接秒杀油怪)',
+        task: '清理沿途吐毒石像；可用火属性攻击引燃黑油池消耗油怪，不要假定点火就一定立即击杀',
         category: 'essential'
       },
       {
@@ -2036,8 +2230,8 @@ export const MAP_NODES: MapNode[] = [
       },
       {
         id: 'bg_c4',
-        task: '顺着崖壁边缘走到最深处点燃第二隐藏篝火',
-        category: 'essential'
+        task: '在腐败物雾门前沿右侧崖边绕进小路，用怀念香木解除挡路活尸石化，再点燃第二隐藏营火',
+        category: 'secret'
       },
       {
         id: 'bg_c5',
@@ -2057,7 +2251,8 @@ export const MAP_NODES: MapNode[] = [
     ],
     trapsAndTricks: [
       '双巨人的山洞非常暗，可以引诱一只出来逐一击破，或者站在洞口用毒箭或法术远程射杀。',
-      '弃置钥匙可用于开启如蜜大坑拿DLC1门钥匙【龙爪】、废渊哈维尔套房、黑溪谷暗穴门！'
+      '弃置钥匙可用于开启如蜜大坑拿DLC1门钥匙【龙爪】、废渊哈维尔套房、黑溪谷暗穴门！',
+      '鲁卡提耶隐洞、双巨人洞穴和弃置钥匙打开的格兰达尔房间是不同落脚点；先看清平台再跳，不要连续盲落。'
     ],
     connectionsTo: [
       {
@@ -2119,7 +2314,8 @@ export const MAP_NODES: MapNode[] = [
     ],
     trapsAndTricks: [
       '四大古魂分支可按自身进度调整顺序。灵魂记忆替代门槛按本周目新增量计算，进入二周目前累计的灵魂记忆不能直接抵扣。',
-      'DLC可在取得对应钥匙后进入，不要求先击败最终Boss；本攻略将其列在后段作为难度推荐。'
+      'DLC可在取得对应钥匙后进入，不要求先击败最终Boss；本攻略将其列在后段作为难度推荐。',
+      '前往本体王城应穿过冬之庙继续走后方出口；庙内蛇形祭坛通往冰雪DLC，缺少冰冻花不会阻止本体王城路线。'
     ],
     connectionsTo: [
       {
@@ -2200,10 +2396,10 @@ export const MAP_NODES: MapNode[] = [
         actionRequired: '在击败双龙骑兵后抵达的【中央篝火】旁耗尽本哈特对话，再于镜之骑士雾门前召唤他并确保获胜时存活。'
       },
       {
-        npcId: 'aldia',
+        npcId: 'nashandra',
         npcName: '王妃 杜娜湘卓',
         stepNumber: 1,
-        totalSteps: 4,
+        totalSteps: 1,
         actionRequired: '在谒见大厅阶梯上方与巨大的王妃对话，倾听她要求你去寻找国王凡克拉德的命令。'
       },
       {
@@ -2232,8 +2428,8 @@ export const MAP_NODES: MapNode[] = [
       },
       {
         id: 'dc_c4',
-        task: '启动升降梯到顶层，先开铁箱取得【王之回廊钥匙】；笼中歌女须以后带回歌唱恶魔掉落的【被封者钥匙】才能解救',
-        category: 'secret'
+        task: '在中央营火附近沿长梯到上层机关房，将敌人引到升降机关石像旁击杀供其吸魂；升降梯启动后乘到顶层开铁箱取得王之回廊钥匙，回落到回廊门继续前进',
+        category: 'essential'
       },
       {
         id: 'dc_c_benhart',
@@ -2249,10 +2445,16 @@ export const MAP_NODES: MapNode[] = [
         id: 'dc_c6',
         task: '乘坐骑士后方升降机深入潮湿地底，来到【阿玛娜祭坛】',
         category: 'essential'
+      },
+      {
+        id: 'dc_milfanito_return',
+        task: '击败阿玛娜歌唱恶魔取得被封者钥匙后，返回中央升降梯顶层，用钥匙解救笼中歌女；这是阿玛娜死者之塔支线条件之一',
+        category: 'secret'
       }
     ],
     trapsAndTricks: [
-      '地下室六扇石像门内各有虚无骑士和茫然卫兵，必须在门旁石像前击杀怪物让石像吸魂才能开门，千万别一次全开！'
+      '国王之门附近六扇吸魂门应逐个开启，避免同时引出多名茫然卫兵；最左深处房间的地板会塌落，下面是格兰达尔与地下营火。',
+      '城门、六门房与中央升降梯是不同吸魂机关；都需要在对应机关附近杀敌，远处击杀不会供能。'
     ],
     connectionsTo: [
       {
@@ -2311,18 +2513,18 @@ export const MAP_NODES: MapNode[] = [
         npcName: '暗之巡礼者 格兰达尔 (誓约圆满)',
         stepNumber: 3,
         totalSteps: 3,
-        actionRequired: '分别从虚影森林、黑溪谷、王城地下室进入3处暗穴，各点燃一座大火盆。全部点燃后雾门开启直通暗天使战场。击破后对话获得【龙之圣铃】与【黄衣套装】！'
+        actionRequired: '三处会面后加入暗之巡礼者，第一次开启免费，此后重新开启通常需一个人像。每处清完敌人、点燃火盆并跳入出口；三处都完成后跳入出口进入暗天使战。胜利后向格兰达尔领取Rank 3奖励「高潮」与黄衣套装，耗尽对话再取得龙之圣铃。'
       }
     ],
     checklists: [
       {
         id: 'dco_c1',
-        task: '在虚影森林、黑溪谷、王城多兰古雷格与格兰达尔完成3次对话，消耗一个人像开启暗穴大门',
+        task: '在虚影森林、黑溪谷与王城完成格兰达尔三处会面，加入暗之巡礼者；首次开启暗穴免费，后续重新开启准备人像',
         category: 'essential'
       },
       {
         id: 'dco_c2',
-        task: '在3处暗穴中击败哈维尔、里卡尔、魔女等古代暗之守卫',
+        task: '分别清除三处暗穴全部敌人，解除对应出口雾障；每处都要点火并从出口跳下完成通关',
         category: 'essential'
       },
       {
@@ -2332,17 +2534,18 @@ export const MAP_NODES: MapNode[] = [
       },
       {
         id: 'dco_c4',
-        task: '跃入深渊裂隙，挑战全游戏最强隐藏BOSS【黑暗潜伏者·暗天使】',
+        task: '确认三处暗穴均已清敌、点火并完成出口跳落，再从完成的暗穴出口跳入，挑战黑暗潜伏者',
         category: 'boss'
       },
       {
         id: 'dco_c5',
-        task: '与格兰达尔对话将暗之巡礼者誓约升至最高Rank 3，获得终极神器【龙之圣铃】与全法术成就必备暗术',
+        task: '击败暗天使后回王城地下找格兰达尔，领取最高Rank 3奖励暗术「高潮」、黄衣套装，并耗尽对话取得龙之圣铃',
         category: 'secret'
       }
     ],
     trapsAndTricks: [
-      '暗穴每次死亡进入都需要消耗一个【人像】，切记备足人像；暗天使极度弱火，火弹和火焰风暴打它如切菜。'
+      '第一次开启免费；失败或死亡后重新开启通常消耗一个人像。击败暗天使后，本周目三处入口免费，但仍需属于暗之巡礼者。',
+      '每处出口雾障由清敌解除，火盆是另一个完成条件；仅点亮三处火盆不等于已经完成三处暗穴。'
     ],
     connectionsTo: [
       {
@@ -2410,7 +2613,7 @@ export const MAP_NODES: MapNode[] = [
       },
       {
         id: 'soa_c3',
-        task: '找到歌女房屋倾听歌声，救出第三位歌女米丽法妮托',
+        task: '与沿途歌女交谈，尤其不要攻击歌唱恶魔雾门前的歌女；取得被封者钥匙后还需回王城解救笼中歌女',
         category: 'secret'
       },
       {
@@ -2422,12 +2625,17 @@ export const MAP_NODES: MapNode[] = [
         id: 'soa_c5',
         task: '乘坐升降机进入阴森冰冷的终极亡灵圣地【不死灵庙】',
         category: 'essential'
+      },
+      {
+        id: 'soa_dead_shrine_return',
+        task: '完成两位歌女救援后回访歌唱恶魔后的死者之塔支路，用香木开入口；活尸可开上层门，无任何人像时可向祭坛祈祷恢复肉身',
+        category: 'secret'
       }
     ],
     trapsAndTricks: [
-      '【阿玛娜推图逃课神器：噶瓦兰毒箭】：阿玛娜法师的远距离追踪水球弹道极其折磨。在法洛斯门径噶瓦兰处买足200支【毒箭】，佩戴任意弓箭在法师射程之外射3支毒箭即可挂上剧毒静待其毒发身亡，推图难度骤降！',
-      '【死者之塔免费恢复人身】：在活尸状态且身上与储物箱【完全没有任何人像】时，登上死者之塔顶层向火盆祭坛祈祷，可无限次免费恢复肉身！',
-      '阿玛娜祭坛是全游戏最容易失足溺水的地方，关掉火把看水下光亮反光能清晰看到浅滩与深水断崖的分界线。'
+      '可用弓箭分批引出远处法师；毒箭效果取决于敌人抗性和命中，不保证任意距离三箭必定中毒。',
+      '死者之塔为可选返程：歌唱恶魔后支路入口被石化活尸挡住，需要香木。救助雾门前及王城笼中的两位歌女，再以活尸形态开上层门；祈祷恢复肉身时，背包、储物箱和地上都不能有人像。',
+      '水面下有深水断崖，观察反光与落脚点，远程清敌后再走，不要只顾锁定敌人前冲。'
     ],
     connectionsTo: [
       {
@@ -2475,6 +2683,12 @@ export const MAP_NODES: MapNode[] = [
         name: '【关键剧情物品】国王戒指',
         type: 'key_item',
         location: '在凡克拉德失智拖剑徘徊处拾取地上的王衣'
+      },
+      {
+        id: 'uc_crushed_eye',
+        name: '碎裂眼眸宝珠',
+        type: 'key_item',
+        location: '离开阿加德温房间后，在两名扎因骑士所在桥边观察下层平台，谨慎跳下并爬长梯，开启上方宝箱取得；返回如蜜旋转机关使用。'
       }
     ],
     npcInteractions: [
@@ -2483,8 +2697,8 @@ export const MAP_NODES: MapNode[] = [
         npcName: '守墓人 阿加德温',
         stepNumber: 1,
         totalSteps: 1,
-        actionRequired: '不要把火把带近阿加德温或让持火把活尸跟随进入，否则他与身边守卫会敌对。照明魔法不等于火把。保持友好可交易并在王盾战前召唤；误触敌对可尝试在辉石镇赎罪。',
-        warning: '绝对不要点火把！'
+        actionRequired: '不要携火把或带持火把活尸进入他的区域；照明魔法不等于火把。友好时可交易及召唤，取得国王戒指后再回访领取暗胧与套装；误触敌对可尝试到辉石镇赎罪。',
+        warning: '避开在他与守卫所在区域使用火把；不是全地图都禁用火把。'
       },
       {
         npcId: 'aldia',
@@ -2497,7 +2711,7 @@ export const MAP_NODES: MapNode[] = [
     checklists: [
       {
         id: 'uc_c1',
-        task: '熄灭一切火把，与守墓人阿加德温对话，避免触发全图狂暴追杀',
+        task: '进入阿加德温与守卫所在区域前收起火把，并防止持火把活尸跟入，保持友好后对话交易',
         category: 'essential'
       },
       {
@@ -2523,6 +2737,16 @@ export const MAP_NODES: MapNode[] = [
       {
         id: 'uc_aldia_dialogue',
         task: '在入口篝火与安第尔耗尽第二处对话；回答是或否均可',
+        category: 'npc'
+      },
+      {
+        id: 'uc_eye_pickup',
+        task: '离开阿加德温房间后，在两名扎因骑士所在桥边跳到下层平台，爬梯开箱取得碎裂眼眸宝珠，再回如蜜推进莉歇尔支线',
+        category: 'collectible'
+      },
+      {
+        id: 'uc_agdayne_return',
+        task: '取得国王戒指后返回阿加德温处，保持友好并交谈，领取暗胧与守墓人套装',
         category: 'npc'
       }
     ],
@@ -2631,9 +2855,9 @@ export const MAP_NODES: MapNode[] = [
       {
         npcId: 'lucatiel',
         npcName: '米勒的鲁卡提耶 (命运终章)',
-        stepNumber: 5,
+        stepNumber: 7,
         totalSteps: 7,
-        actionRequired: '在馆前小屋篝火旁与她进行最后的悲伤对话。她彻底认出了自己即将失去一切记忆，赠予你她的【鲁卡提耶面具与全套装备】。',
+        actionRequired: '先完成密港、遗忘囚笼、推土坊和黑溪谷四处会面，并累计三次召唤她获胜且存活，再与馆前小屋营火旁的她耗尽最终对话，领取面具、防具和米勒大剑。',
         warning: '先确认已完成此前四处会面、至少三次助战获胜且她存活，再进行馆前最终对话；条件不足就结束对话会失去本周目继承装备的机会。'
       },
       {
@@ -2653,13 +2877,18 @@ export const MAP_NODES: MapNode[] = [
       },
       {
         id: 'ak_c2',
-        task: '穿过大厅躲避骨龙骨架砸落，注意避开纳瓦兰拉杆陷阱',
+        task: '穿过大厅继续探索，保持一楼纳瓦兰释放拉杆不动；学者版骨龙需四火盆事件触发，不是初次进门就自动砸落',
         category: 'essential'
       },
       {
         id: 'ak_c3',
         task: '探索后方长廊，躲避河马怪撞破木门伏击',
         category: 'essential'
+      },
+      {
+        id: 'ak_four_braziers',
+        task: '可选探索：点燃馆内四个火盆、处理各处出现的暗灵，再回大厅触发骨龙取得安第尔钥匙，开启对应侧门',
+        category: 'secret'
       },
       {
         id: 'ak_c4',
@@ -2670,6 +2899,11 @@ export const MAP_NODES: MapNode[] = [
         id: 'ak_c5',
         task: '走出后门，搭乘升降梯眺望浮空龙峰【卫龙巢穴】',
         category: 'essential'
+      },
+      {
+        id: 'ak_navlaan_returns',
+        task: '保持纳瓦兰封印，以活尸接任务；依次准备梯子饰物、凯尔头盔、日暮之杖、老旧羽毛回报，取得封印太阳等奖励，不需要杀NPC',
+        category: 'npc'
       }
     ],
     trapsAndTricks: [
@@ -2751,8 +2985,13 @@ export const MAP_NODES: MapNode[] = [
         category: 'npc'
       },
       {
+        id: 'da_ladder_shortcut',
+        task: '学者版营火旁梯子初始已放下，可攀梯走高处近路通过本区；三条守宝飞龙与结晶蜥蜴区域按材料需求选择探索',
+        category: 'essential'
+      },
+      {
         id: 'da_c2',
-        task: '逐一猎杀三只盘踞在龙蛋窝中的飞龙，扫荡满地的结晶蜥蜴获取巨量顶级强化素材',
+        task: '可选探索：在不误伤龙蛋的前提下猎杀守宝飞龙、收集结晶蜥蜴素材；不要求击杀三条飞龙才能前往龙祭坛',
         category: 'collectible'
       },
       {
@@ -2792,7 +3031,7 @@ export const MAP_NODES: MapNode[] = [
         name: '古龙 (可选极难Boss)',
         nameEn: 'Ancient Dragon',
         isOptional: true,
-        tips: '【非敌对NPC】：正常对话即可拿剧情道具！若主动攻击则触发血条巨厚的隐藏Boss。飞天喷火全屏秒杀，需狂奔向龙尾逃离；打其脚趾缝修脚。击败掉落第5个【巨人灵魂】。',
+        tips: '正常对话即可取得灰雾核心，主动攻击才触发可选Boss战。喷火范围大、伤害高，观察起飞动作及时撤出火焰区域，近身时注意踩踏。击败得到一枚巨人灵魂，不要求击杀它才能推进主线。',
         transposeWeapon: '此处掉巨人灵魂；古龙之魂需另到辉石镇古龙回忆取得，可换弯曲龙大剑（Curved Dragon Greatsword）'
       }
     ],
@@ -2827,7 +3066,7 @@ export const MAP_NODES: MapNode[] = [
       },
       {
         id: 'ds_c2',
-        task: '【绅士试炼规则】：原罪学者版中龙人黑金骑士绝不会群殴，只要你公平单挑重甲卫兵，两旁龙骑士会鞠躬致敬放行！切勿拉怪或逃跑逃课！',
+        task: '学者版沿途先击败各组重甲守卫再通过，别攻击旁观龙人或越过守卫；长阶梯尽头主动迎战的双大剑龙人也需击败',
         category: 'essential'
       },
       {
@@ -2837,7 +3076,9 @@ export const MAP_NODES: MapNode[] = [
       }
     ],
     trapsAndTricks: [
-      '在原罪学者版中，如果玩家在长阶梯上试图逃跑跑酷不打单挑卫兵，全场几十名龙人近卫骑士会瞬间拔刀群起暴动围殴！'
+      '越过重甲守卫或攻击旁观龙人会使相应组敌对，并非整张地图永久暴动；重新加载区域会重置敌对。最终双大剑龙人不刷新。',
+      '召唤联机玩家可能影响旁观龙人的敌对判断，NPC召唤与玩家召唤不能一概而论；想稳定通过可先独自完成试炼。',
+      '古龙可和平交谈取得灰雾核心；攻击古龙和取得石化蛋都不会单独使旁观龙人敌对。取得蛋后可返回镕铁城交给马格赫拉德。'
     ],
     connectionsTo: [
       {
@@ -2861,8 +3102,8 @@ export const MAP_NODES: MapNode[] = [
           {
             label: '试图冲刺跑酷、拉怪或召唤白灵逃课',
             isRecommended: false,
-            consequence: '一旦被判定违反试炼规则（如跑过古骑士未击杀），两旁整整二十余名黑金龙人武士会【瞬间拔刀全场狂暴围殴追杀】！在狭窄阶梯上会被数十把太刀和大盾瞬间秒杀，几乎不可能生还。',
-            spoilerContent: '这是原罪学者版专门设计的防跑酷惩罚机制，任何试图偷鸡直冲雾门的玩家都会被秒杀教做人。',
+            consequence: '越过重甲守卫或攻击旁观龙人，会使对应组龙人加入战斗；先清守卫再前进可降低围攻风险。敌对在重新加载区域后重置。',
+            spoilerContent: '长阶梯尽头的双大剑龙人会主动应战且不会刷新；联机玩家召唤也可能改变龙人的敌对判断。',
             loreReasoning: '背对战士逃跑被龙族视作极致的懦弱与冒犯。'
           }
         ]
@@ -2882,7 +3123,7 @@ export const MAP_NODES: MapNode[] = [
           {
             label: '主动拔刀攻击古龙触发隐藏BOSS战',
             isRecommended: false,
-            consequence: '古龙化身全游戏血量最厚（近20000HP）的超级隐藏巨兽！其飞天喷火范围几乎覆盖全场，没有堆满890点火抗或熟练修脚跑尾技巧会被一击秒杀。击败它仅额外掉落第5个【巨人灵魂】（其实4个巨人魂就足以轻松打败凡克拉德）。',
+            consequence: '古龙成为可选Boss，喷火范围大且伤害高，需要准备火抗并学习起飞、喷火和踩踏的回避。击败获得一枚巨人灵魂，但取得灰雾核心和推进主线不要求击杀它。',
             spoilerContent: '古龙体内实际上是安第尔用巨人灵魂与飞龙基因人工合成的人造古龙（真正的远古古龙遗骸在辉石镇蛛网深处），击杀它难度极大但收益有限。',
             loreReasoning: '屠龙纯粹是追求全BOSS斩杀与极限挑战的受苦之选。'
           }
@@ -2933,13 +3174,13 @@ export const MAP_NODES: MapNode[] = [
       {
         npcId: 'benhart',
         npcName: '优格的本哈特 (月光遗志继承)',
-        stepNumber: 4,
+        stepNumber: 5,
         totalSteps: 5,
         actionRequired: '在咒缚者后方的【巨人奥罗的回忆】深处与他交谈。若此前至少3次Boss战召唤他且幸存，他会将【苍之大剑】、帕玛圆盾及全套防具赠送给你，达成成就「月光大剑」！',
         warning: '若存活场次不足3次，他将不会交付装备，需添火补打或下周目重新完成！'
       },
       {
-        npcId: 'herald',
+        npcId: 'drummond',
         npcName: '王国队长 德拉蒙德',
         stepNumber: 1,
         totalSteps: 1,
@@ -2969,7 +3210,7 @@ export const MAP_NODES: MapNode[] = [
       },
       {
         id: 'moa_c4',
-        task: '在烽火连天的城墙上击败BOSS【巨人王】，斩获【巨人的共鸣】与第3个巨人灵魂！',
+        task: '在洛回忆城墙尽头击败巨人王，直接取得巨人的共鸣；战后继续前行调查尽头巨人尸身，另取第三枚巨人灵魂',
         category: 'boss'
       }
     ],
@@ -3020,18 +3261,18 @@ export const MAP_NODES: MapNode[] = [
     ],
     npcInteractions: [
       {
-        npcId: 'aldia',
+        npcId: 'vendrick',
         npcName: '昔日的国王 凡克拉德',
         stepNumber: 1,
-        totalSteps: 4,
+        totalSteps: 1,
         actionRequired: '在记忆中与仍保持神智的国王凡克拉德交谈，倾听他剖析王妃的深渊本质与火之诅咒的真相。'
       }
     ],
     checklists: [
       {
         id: 'km_c1',
-        task: '确认背包拥有至少4个【巨人灵魂】(切勿捏碎使用！放在背包即可产生被动破防效果)',
-        category: 'essential'
+        task: '推荐保留4至5枚巨人灵魂在背包中再挑战凡克拉德，切勿使用；不足4枚仍可进入和挑战，但其防御更高',
+        category: 'secret'
       },
       {
         id: 'km_c2',
@@ -3042,6 +3283,11 @@ export const MAP_NODES: MapNode[] = [
         id: 'km_c3',
         task: '调查地上的国王防具进入【国王的记忆】，与凡克拉德对话',
         category: 'npc'
+      },
+      {
+        id: 'km_crown_return',
+        task: '击败现实凡克拉德后，以肉身返回阿玛娜第二营火附近藤蔓密室，取得国王灵魂与包含国王王冠的套装，再准备四冠祝福',
+        category: 'collectible'
       },
       {
         id: 'km_c4',
@@ -3120,7 +3366,7 @@ export const MAP_NODES: MapNode[] = [
       },
       {
         id: 'tow_c2',
-        task: '按支线进度在王座雾门附近召唤【本哈特】、【温格】或学者版【老兵布拉德雷】；凡克拉德不能在此助战',
+        task: '按支线条件召唤本哈特或温格；学者版老兵布拉德雷还要求已满足安第尔出场条件，凡克拉德不能在此助战',
         category: 'secret'
       },
       {
@@ -3140,7 +3386,7 @@ export const MAP_NODES: MapNode[] = [
       },
       {
         id: 'tow_c6',
-        task: '战斗胜利后，走向光芒王座或转身迈出大殿，迎来属于你的终极结局！',
+        task: '完成所有已触发的王座战斗后选择结局；安第尔未触发时只能继承王座，击败安第尔后可继承或离开，实际看过动画再勾选对应结局最后一项',
         category: 'essential'
       }
     ],
@@ -3204,7 +3450,7 @@ export const MAP_NODES: MapNode[] = [
     checklists: [
       {
         id: 'end1_c1',
-        task: '击败杜娜湘卓(或击败安第尔后)，直接径直走向前方石桥与悬空的石室王座',
+        task: '击败王妃；若安第尔已触发还须击败他，之后走向前方石桥与王座选择继承',
         category: 'essential'
       },
       {
@@ -3214,7 +3460,7 @@ export const MAP_NODES: MapNode[] = [
       }
     ],
     trapsAndTricks: [
-      '无论你是否击败安第尔，只要向前走向王座，都必然触发该结局。'
+      '若触发安第尔战，需先完成战斗才能选择结局；继承条件达成与已经观看继承动画分别记录。'
     ],
     connectionsTo: []
   },
@@ -3260,7 +3506,8 @@ export const MAP_NODES: MapNode[] = [
     ],
     trapsAndTricks: [
       '此结局也存在于原版1.10更新后，并非学者重制版独占；无须完成三部DLC。',
-      '若已先击败王妃，可补齐安第尔三处对话和凡克拉德击杀条件，再在王城【国王之门】篝火添火，重打王座双守卫与王妃以触发安第尔；添火会永久提高关联战斗难度。'
+      '若已先击败王妃，可补齐安第尔三处对话和凡克拉德击杀条件，再在王城【国王之门】篝火添火，重打王座双守卫与王妃以触发安第尔；添火会永久提高关联战斗难度。',
+      '实际选择离开并观看动画后再勾选最后一项；仅击败安第尔不代表已经选择离开，也仍可以继承王座。'
     ],
     connectionsTo: []
   },
@@ -3275,7 +3522,7 @@ export const MAP_NODES: MapNode[] = [
     order: 0,
     lane: 3.5,
     levelRecommendation: 'SL 110 - 130',
-    bonfireCount: 4,
+    bonfireCount: 7,
     description: '深埋于黑溪谷下方地底的古代阿兹特克风格阶梯金字塔圣城，崇拜着沉睡的剧毒古龙希瓦尔。',
     lore: '「圣壁之王建立了繁荣的地下圣城，然而入侵者的毒枪刺穿了巨龙，整座城市终被毒云淹没。」',
     colorTheme: '#10b981',
@@ -3310,7 +3557,19 @@ export const MAP_NODES: MapNode[] = [
         id: 'dlc1_crown',
         name: '【四大王冠 1/4】沉没之王的王冠',
         type: 'key_item',
-        location: '击败睡龙希瓦尔后王座拾取'
+        location: '击败睡龙希瓦尔后，在战场地面发光处拾取；不是另一处王座。'
+      },
+      {
+        id: 'dlc1_dragon_stone_item',
+        name: '龙石',
+        type: 'key_item',
+        location: '在龙之圣壁地刺房铁箱取得，带到下层水域圆盘机关使用，升桥通往龙之安息处。'
+      },
+      {
+        id: 'dlc1_eternal_key',
+        name: '永远的圣壁钥匙',
+        type: 'key_item',
+        location: '从龙之圣壁地刺区域爬梯、过桥到幽灵骑士遗体房，在房间后方右角的尸体取得；回圣壁入口第一间房左侧开锁，通向巫女之间及死者之洞。'
       }
     ],
     npcInteractions: [],
@@ -3339,6 +3598,16 @@ export const MAP_NODES: MapNode[] = [
         id: 'dlc1_c4',
         task: '击败BOSS【污秽艾莲娜】与【睡龙希瓦尔】，夺得【沉没之王冠】',
         category: 'boss'
+      },
+      {
+        id: 'dlc1_cave_route',
+        task: '可选路线：取得永远的圣壁钥匙后回龙之圣壁入口开门，沿楼梯与桥抵达巫女之间营火，再进入死者之洞',
+        category: 'secret'
+      },
+      {
+        id: 'dlc1_gank_boss',
+        task: '从巫女之间进入死者之洞，穿过落坑与石化敌人区域，挑战盗墓三人组；不影响沉没王冠',
+        category: 'boss'
       }
     ],
     trapsAndTricks: [
@@ -3358,7 +3627,7 @@ export const MAP_NODES: MapNode[] = [
     order: 1,
     lane: 3.5,
     levelRecommendation: 'SL 120 - 140',
-    bonfireCount: 4,
+    bonfireCount: 6,
     description: '铁之古王曾经开采黑铁与熔炉的核心高塔，如今被灰烬煤炭与烟之骑士雷姆彻底占据。',
     lore: '「王城倾覆后，被放逐的反叛骑士雷姆来到此地，寻得了他誓死效忠的灰烬新娘……」',
     colorTheme: '#f97316',
@@ -3394,6 +3663,24 @@ export const MAP_NODES: MapNode[] = [
         name: '【四大王冠 2/4】铁之古王的王冠',
         type: 'key_item',
         location: '击败烟之骑士雷姆后后方神龛拾取'
+      },
+      {
+        id: 'dlc2_scepter_item',
+        name: '灼热的铁棒',
+        type: 'key_item',
+        location: '沿塔内下降至侧塔底部取得，返回大厅装入机关，启动塔内升降梯。'
+      },
+      {
+        id: 'dlc2_tower_key',
+        name: '塔之钥匙',
+        type: 'key_item',
+        location: '启动升降梯后，从大厅乘梯下降到塔外灰烬平台，在三名铁战士附近遗体拾取；开启铁之回廊和通向熔铁王座的门。'
+      },
+      {
+        id: 'dlc2_nadalia_soul',
+        name: '煤炭新娘娜德拉的灵魂（12碎片）',
+        type: 'key_item',
+        location: '11座神像各给一碎片，烟之骑士给一碎片；击败亚伦后取得最后熔铁之楔，回塔内补清最后神像，12片齐备在塔内合成完整灵魂。'
       }
     ],
     npcInteractions: [],
@@ -3419,14 +3706,30 @@ export const MAP_NODES: MapNode[] = [
         category: 'boss'
       },
       {
+        id: 'dlc2_tower_key_pickup',
+        task: '启动升降梯后从大厅乘梯下到塔外灰烬平台，处理三名铁战士并取得塔之钥匙，开启后续两条可选路线',
+        category: 'collectible'
+      },
+      {
         id: 'dlc2_c4',
-        task: '持有【灰雾核心】且取得铁之古王冠后，调查顶层亚伦铠甲，进入古王记忆挑战【骑士亚伦】',
+        task: '用塔之钥匙打开通向熔铁王座的门并找到营火；取得铁之古王冠、持灰雾核心后调查亚伦铠甲，进入古王记忆挑战亚伦',
         category: 'secret'
+      },
+      {
+        id: 'dlc2_iron_passage',
+        task: '可选路线：由大厅下行到塔之钥匙开启的侧门，乘梯进入铁之回廊、点亮营火，再穿越机关路线挑战蓝镕铁恶魔',
+        category: 'boss'
+      },
+      {
+        id: 'dlc2_nadalia_return',
+        task: '击败亚伦后取得最后一个熔铁之楔，回黑雾之塔补清神像；确认11座神像加烟骑士共12片，合成娜德拉完整灵魂',
+        category: 'collectible'
       }
     ],
     trapsAndTricks: [
       '溶土之楔共11个：入口6个、启动升降梯后宝箱4个、击败亚伦后1个。推荐先为烟骑士外四座神像保留4个，剩余神像可之后回访清理。',
-      '蓝镕铁恶魔在可选的铁之回廊，亚伦在持灰雾核心和铁之古王冠后进入的古王记忆；两者不应写成取得铁之古王冠的前置。'
+      '蓝镕铁恶魔在可选的铁之回廊，亚伦在持灰雾核心和铁之古王冠后进入的古王记忆；两者不应写成取得铁之古王冠的前置。',
+      '完整娜德拉灵魂可交史垂德加45000魂兑换咒术「呐喊」，或交欧尼佛斯兑换圣铃，单周目同一完整灵魂不能同时换两者。营火计数含黑雾之塔5处与铁之回廊1处。'
     ],
     connectionsTo: []
   },
@@ -3441,7 +3744,7 @@ export const MAP_NODES: MapNode[] = [
     order: 2,
     lane: 3.5,
     levelRecommendation: 'SL 130 - 150',
-    bonfireCount: 5,
+    bonfireCount: 6,
     description: '矗立于狂暴暴风雪之中的冰封神圣国度，镇压着来自混沌深处企图焚尽世界的无尽余烬。',
     lore: '「高洁的象牙之王为了守护子民，率领洛耶斯骑士团舍身跃入古老混沌，抵御熊熊烈焰。」',
     colorTheme: '#67e8f9',
@@ -3476,22 +3779,28 @@ export const MAP_NODES: MapNode[] = [
         id: 'dlc3_crown',
         name: '【四大王冠 3/4】象牙之王的王冠',
         type: 'key_item',
-        location: '击败灼热白王后调查混沌王座拾取'
+        location: '击败灼热白王后，在老混沌战场地面发光处拾取，不是调查另一座混沌王座。'
       },
       {
         id: 'dlc3_eye',
         name: '巫女之眼 (破除隐形神物)',
         type: 'key_item',
         location: '神殿回廊拾取，可看清透明敌人与隐形亚瓦'
+      },
+      {
+        id: 'dlc3_garrison_key',
+        name: '戍卫钥匙',
+        type: 'key_item',
+        location: '击败亚瓦并与阿尔娜娜对话解冻后，回城找到四个火盆旁的门，点亮火盆开门，穿过洞穴在流罪执刑者后方取得。'
       }
     ],
     npcInteractions: [
       {
-        npcId: 'herald',
+        npcId: 'alsanna',
         npcName: '沉默王妃 阿尔娜娜',
         stepNumber: 1,
         totalSteps: 1,
-        actionRequired: '在至高王座与她对话，她将驱散整座城市的暴风雪冰封，解锁深层探索并允许你唤醒洛耶斯骑士。'
+        actionRequired: '击败亚瓦后在大圣堂与阿尔娜娜耗尽对话，解除冰封并开放老混沌；可直接挑战，也可先救三名骑士。之后收集洛耶斯灵魂返回领取分阶段奖励，50枚可取得她的灵魂。'
       }
     ],
     checklists: [
@@ -3507,22 +3816,53 @@ export const MAP_NODES: MapNode[] = [
       },
       {
         id: 'dlc3_c3',
-        task: '击败亚瓦后与阿尔娜娜对话解冻，探索新开放区域救出另外【3名洛耶斯骑士】，加上默认1名共4名',
+        task: '击败亚瓦后在大圣堂与阿尔娜娜对话解冻，再按下列三条可选路线寻找骑士；默认已有一名，救齐后合计四名',
         category: 'essential'
       },
       {
+        id: 'dlc3_knight_inner',
+        task: '骑士一：从内壁营火沿原路到三座石像围着宝箱处，走右侧解冻后的通道，开尽头房门，与坐在椅上的骑士互动',
+        category: 'secret'
+      },
+      {
+        id: 'dlc3_knight_garrison',
+        task: '骑士二：下层驻地营火开门下到冰洞，在贪婪恶魔洞穴沿最左侧通道走，右转到升降梯，乘梯上行沿坡到神庙开门救骑士',
+        category: 'secret'
+      },
+      {
+        id: 'dlc3_knight_rampart',
+        task: '骑士三：从废屋营火走到城墙，沿原先冰封的楼梯下到低处，经隧道开回内壁的近道；处理流浪魔女唐娜入侵后，开神庙门救骑士',
+        category: 'secret'
+      },
+      {
         id: 'dlc3_c4',
-        task: '率领4骑士跃入混沌巨坑，封印熔岩门并击败传奇BOSS【灼热的白王】',
+        task: '按准备情况率领洛耶斯骑士跳入老混沌，清理杂兵并击败灼热白王；四骑士是推荐准备，不是进入战斗的硬条件',
         category: 'boss'
       },
       {
         id: 'dlc3_c5',
         task: '收集全部4顶王冠(沉没+铁之古王+象牙+本体国王)，返回不死灵庙国王记忆触发终极加冕！',
         category: 'secret'
+      },
+      {
+        id: 'dlc3_outskirts_key',
+        task: '可选路线：解冻后找到四火盆旁的门，点亮火盆进入洞穴，在流罪执刑者后方取得戍卫钥匙；返回废屋区域第一道拉杆门左侧开锁进入驱逐之间',
+        category: 'secret'
+      },
+      {
+        id: 'dlc3_lud_zallen',
+        task: '在驱逐之间点亮营火，调查棺材抵达壁外雪原；利用停雪间隙辨认建筑与路线，挑战鲁德和扎连，非白王冠前置',
+        category: 'boss'
+      },
+      {
+        id: 'dlc3_loyce_souls',
+        task: '可选收集：在老混沌刷焦黑骑士掉落的洛耶斯灵魂，累计5、15、35枚回访阿尔娜娜领取防具奖励，50枚取得她的灵魂',
+        category: 'collectible'
       }
     ],
     trapsAndTricks: [
-      '默认有1名骑士，另救3名即可带齐4名。推荐找齐以封住三道刷怪门；这不是进入Boss战的硬性条件。'
+      '默认有1名骑士，另救3名即可带齐4名。推荐找齐以封住三道刷怪门；这不是进入Boss战的硬性条件。',
+      '壁外雪原通过戍卫钥匙打开的驱逐之间棺材进入，与救齐三名骑士是不同探索目标；白王冠不要求击败双虎。'
     ],
     connectionsTo: [],
     choices: [
@@ -3858,7 +4198,7 @@ export const NPC_QUESTLINES: NPCQuestline[] = [
         mapId: 'lost_bastille',
         stepIndex: 2,
         title: '兑换4个Boss魂获赠黑衣套装',
-        description: '在他这里使用任意4个领主/Boss灵魂兑换武器或法术后，再次对话他会惊叹你的非凡造诣，赠予极品法师神器【黑衣法师兜帽与全套防具】(大幅增加施法速度与智力)！'
+        description: '基础智力至少3开启交易；在他这里使用任意4个Boss灵魂兑换武器或法术后，再次对话他会惊叹你的非凡造诣，赠予极品法师神器【黑衣法师兜帽与全套防具】(大幅增加施法速度与智力)！'
       }
     ]
   },
@@ -3910,7 +4250,7 @@ export const GAME_ENDINGS: GameEnding[] = [
         checkKey: 'nashandra'
       },
       {
-        text: '战斗胜利后，直接向前迈步走向石室王座入座',
+        text: '若安第尔已触发先击败他，再向前走向王座选择继承；观看动画后确认结局',
         checkKey: 'approach_throne'
       }
     ]

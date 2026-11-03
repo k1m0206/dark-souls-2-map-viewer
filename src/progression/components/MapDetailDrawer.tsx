@@ -129,7 +129,7 @@ export const MapDetailDrawer: React.FC<MapDetailDrawerProps> = ({
             }`}
           >
             <CheckSquare className="w-3.5 h-3.5" />
-            <span>必做清单 ({node.checklists.length})</span>
+            <span>流程清单 ({node.checklists.length})</span>
           </button>
 
           <button

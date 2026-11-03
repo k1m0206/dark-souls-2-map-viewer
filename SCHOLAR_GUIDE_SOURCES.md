@@ -38,3 +38,32 @@
 - 安第尔首次对话清单在黑溪谷节点统一确认，实际应在玩家最后点燃的第四个始源火处完成；第二处、第三处对应不死灵庙与龙祭坛清单。
 - 四王冠集齐与获得祝福是两件事。四顶拾取均勾选、并完成国王记忆的祝福对话清单后，面板才显示已确认祝福。
 - “可选”表示对相应路线的选择性；本攻略提供常规探索路线，不保证覆盖跳关技巧、所有装备配装或每件普通战利品。
+
+## 第二轮逐地图校订
+
+覆盖37个流程节点（35个区域／流程节点与2个结局节点）。修正最后巨人魂、商店奖励、NPC召唤位置与步骤编号；补齐香木、钥匙、机关、隐藏营火和返程领奖，将可选探索与推进要求分开。地图入口映射独立校验，辉石镇另提供古龙回忆的返程3D入口。
+
+| 内容 | 来源 |
+| --- | --- |
+| 教学区、海滩与鸟巢 | [Things Betwixt](https://darksouls2.wikidot.com/things-betwixt) |
+| 如蜜居民与索丹奖励 | [Saulden](https://darksouls2.wikidot.com/saulden-the-crestfallen-warrior) |
+| 巨森返程与DLC2钥匙 | [Iron Key](https://darksouls2.wikidot.com/iron-key)、[Heavy Iron Key](https://darksouls2.wikidot.com/heavy-iron-key) |
+| 南方仪式指环与学者版钟楼路线 | [学者版流程](https://gamefaqs.gamespot.com/ps4/893784-dark-souls-ii-scholar-of-the-first-sin/faqs/80690/act-i-the-lost-sinner)、[Southern Ritual Band](https://darksouls2.wikidot.com/southern-ritual-band) |
+| 青之圣堂与离线入教 | [Old Leo Ring](https://darksouls2.wikidot.com/old-leo-ring)、[Token of Fidelity](https://darksouls2.wikidot.com/token-of-fidelity) |
+| 商人迁移、属性与格雷恩库存 | [Gavlan](https://darksouls2.wikidot.com/lonesome-gavlan)、[Felkin](https://darksouls2.wikidot.com/felkin-the-outcast/noredirect/true)、[Gren](https://darksouls2.wikidot.com/titchy-gren) |
+| 推土坊隐藏营火 | [Earthen Peak](https://darksouls2.wikidot.com/earthen-peak) |
+| 塔克与赎罪师 | [Tark](https://darksouls2.wikidot.com/manscorpion-tark)、[Cromwell](https://darksouls2.wikidot.com/cromwell-the-pardoner) |
+| 地底可选收集 | [Whisper of Despair](https://darksouls2.wikidot.com/whisper-of-despair)、[Dark Pyromancy Flame](https://darksouls2.wikidot.com/dark-pyromancy-flame)、[Black Gulch](https://darksouls2.wikidot.com/black-gulch/1000) |
+| 暗穴、歌女与死者之塔 | [Pilgrims of Dark](https://darksouls2.wikidot.com/pilgrims-of-dark)、[Rise of the Dead](https://darksouls2.wikidot.com/rise-of-the-dead) |
+| 灵庙宝珠与返程赠礼 | [Crushed Eye Orb](https://darksouls.fandom.com/wiki/Crushed_Eye_Orb)、[King's Ring](https://darksouls.fandom.com/wiki/King%27s_Ring) |
+| 欧尼佛斯弹药与Boss魂兑换 | [Weaponsmith Ornifex](https://darksouls2.wikidot.com/weaponsmith-ornifex) |
+| 学者版龙区机制 | [Dragon Aerie](https://darksouls2.wikidot.com/dragon-aerie)、[Dragon Shrine](https://darksouls2.wikidot.com/dragon-shrine) |
+| DLC1死者之洞入口 | [Eternal Sanctum Key](https://darksouls2.wiki.gg/wiki/Eternal_Sanctum_Key) |
+| DLC2钥匙与娜德拉碎片 | [Tower Key](https://darksouls2.wikidot.com/tower-key)、[Soul of Nadalia](https://darksouls2.wikidot.com/soul-of-nadalia-bride-of-ash)、[Brume Tower](https://darksouls2.wikidot.com/brume-tower) |
+| DLC3钥匙、三骑士返程与奖励 | [Garrison Ward Key](https://darksouls2.wiki.gg/wiki/Garrison_Ward_Key)、[Frozen Eleum Loyce](https://darksouls2.wikidot.com/frozen-eleum-loyce)、[Alsanna](https://darksouls2.wiki.gg/wiki/Alsanna%2C_Silent_Oracle) |
+
+南方仪式指环曾有版本资料冲突，本轮以明确标注学者版的流程与Wikidot路线交叉确认，改为石像鬼战场后小塔楼梯下、营火前铁箱。未把无法确认的其他精确落点作为新事实补入。
+
+兼容约定：保留全部原有地图、清单、Boss及道具ID，新增任务独立保存，不把旧的汇总勾选自动展开成新任务或新道具。旧存储键保持不变。结局面板区分战斗条件和最终动画确认；旧数据不能判断凡克拉德／对话是否早于王妃，因此疑似仍有安第尔战时显示待确认，不推断已选结局。
+
+三个DLC节点的营火按所涵盖整段流程统计：沉没王冠7处（圣壁之都3、龙之圣壁3、龙之安息处1），铁之古王冠6处（黑雾之塔含熔铁王座5、铁之回廊1），白王冠6处（冰城5、大圣堂1；壁外雪原无营火）。

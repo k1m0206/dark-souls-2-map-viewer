@@ -26,6 +26,7 @@ import {
 import { MapNode, UserProgress } from '../types/souls';
 import { SpoilerText } from './SpoilerText';
 import { getMerchantsForMap, MERCHANT_CATEGORY_CONFIG } from '../data/merchantData';
+import { PROGRESSION_TO_3D_MAP_ID, PROGRESSION_RETURN_MAPS } from '../data/mapNavigation';
 
 interface MapDetailPageProps {
   node: MapNode;
@@ -40,44 +41,6 @@ interface MapDetailPageProps {
   isSpoilerProtectionOn?: boolean;
   onOpenMap?: (mapId: string) => void;
 }
-
-const PROGRESSION_TO_3D_MAP_ID: Record<string, string> = {
-  things_betwixt: 'm10_02',
-  majula: 'm10_04',
-  forest_of_fallen_giants: 'm10_10',
-  heides_tower: 'm10_30',
-  cathedral_of_blue: 'm10_31',
-  no_mans_wharf: 'm10_18',
-  lost_bastille: 'm10_16',
-  sinners_rise: 'm10_16',
-  belfry_luna: 'm10_16',
-  huntsmans_copse: 'm10_23',
-  undead_purgatory: 'm10_23',
-  harvest_valley: 'm10_17',
-  earthen_peak: 'm10_17',
-  iron_keep: 'm10_19',
-  belfry_sol: 'm10_19',
-  grave_of_saints: 'm10_34',
-  the_gutter: 'm10_25',
-  black_gulch: 'm10_25',
-  shaded_woods: 'm10_32',
-  shrine_of_winter: 'm10_32',
-  doors_of_pharros: 'm10_33',
-  brightstone_cove: 'm10_14',
-  drangleic_castle: 'm20_21',
-  kings_passage: 'm20_21',
-  throne_of_want: 'm20_21',
-  shrine_of_amana: 'm20_11',
-  undead_crypt: 'm20_10',
-  aldias_keep: 'm20_24',
-  dragon_aerie: 'm20_26',
-  dragon_shrine: 'm20_26',
-  dark_chasm: 'm30_20',
-  memory_jeigh: 'm40_03',
-  shulva: 'm50_35',
-  brume_tower: 'm50_38',
-  eleum_loyce: 'm50_39',
-};
 
 export const MapDetailPage: React.FC<MapDetailPageProps> = ({
   node,
@@ -198,6 +161,17 @@ export const MapDetailPage: React.FC<MapDetailPageProps> = ({
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-6xl w-full mx-auto px-3 sm:px-6 md:px-8 py-4 sm:py-6 space-y-6">
+        {onOpenMap && PROGRESSION_RETURN_MAPS[node.id]?.map(returnMap => (
+          <button
+            key={returnMap.mapId}
+            onClick={() => onOpenMap(returnMap.mapId)}
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm border border-amber-700/60 text-amber-200 hover:bg-amber-950/40"
+            title="取得灰雾核心后，返回芙蕾雅战场调查结晶进入"
+          >
+            <Compass className="w-4 h-4" />
+            {returnMap.label}（后期返程）
+          </button>
+        ))}
         
         {/* Hero Section: Location Title & Atmosphere Lore */}
         <div className="relative rounded-2xl bg-gradient-to-br from-[#1c1f2d] via-[#141620] to-[#0d0f17] border border-[#4a3e2e] p-4 sm:p-6 shadow-2xl overflow-hidden">
@@ -226,7 +200,7 @@ export const MapDetailPage: React.FC<MapDetailPageProps> = ({
             {/* Quick Stats Grid */}
             <div className="flex flex-wrap items-center gap-2 sm:gap-3 bg-black/40 p-2.5 sm:p-3 rounded-xl border border-stone-800">
               <div className="text-center px-2 py-1">
-                <div className="text-[10px] text-stone-400">必做清单</div>
+                <div className="text-[10px] text-stone-400">流程清单</div>
                 <div className="font-mono text-xs sm:text-sm font-bold text-amber-300">
                   {completedTaskCount}/{node.checklists.length}
                 </div>
@@ -292,7 +266,7 @@ export const MapDetailPage: React.FC<MapDetailPageProps> = ({
             }`}
           >
             <CheckSquare className="w-4 h-4 text-amber-400" />
-            <span>必做清单 ({node.checklists.length})</span>
+            <span>流程清单 ({node.checklists.length})</span>
           </button>
 
           {node.choices && node.choices.length > 0 && (

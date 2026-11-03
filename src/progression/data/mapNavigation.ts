@@ -1,0 +1,43 @@
+/** A progression node can share a physical map with adjacent areas. */
+export const PROGRESSION_TO_3D_MAP_ID: Record<string, string> = {
+  things_betwixt: 'm10_02',
+  majula: 'm10_04',
+  forest_of_fallen_giants: 'm10_10',
+  heides_tower: 'm10_30',
+  cathedral_of_blue: 'm10_31',
+  no_mans_wharf: 'm10_18',
+  lost_bastille: 'm10_16',
+  sinners_rise: 'm10_16',
+  belfry_luna: 'm10_16',
+  huntsmans_copse: 'm10_23',
+  undead_purgatory: 'm10_23',
+  harvest_valley: 'm10_17',
+  earthen_peak: 'm10_17',
+  iron_keep: 'm10_19',
+  belfry_sol: 'm10_19',
+  grave_of_saints: 'm10_34',
+  the_gutter: 'm10_25',
+  black_gulch: 'm10_25',
+  shaded_woods: 'm10_32',
+  shrine_of_winter: 'm10_32',
+  doors_of_pharros: 'm10_33',
+  brightstone_cove: 'm10_14',
+  drangleic_castle: 'm20_21',
+  throne_of_want: 'm20_21',
+  shrine_of_amana: 'm20_11',
+  undead_crypt: 'm20_24',
+  aldias_keep: 'm10_15',
+  dragon_aerie: 'm10_27',
+  dragon_shrine: 'm10_27',
+  dark_chasm_of_old: 'm40_03',
+  memories_of_ancients: 'm20_10',
+  kings_memory: 'm20_24',
+  dlc_shulva: 'm50_35',
+  dlc_brume_tower: 'm50_36',
+  dlc_eleum_loyce: 'm50_37',
+};
+
+/** Optional return areas described within a node, separate from its primary map. */
+export const PROGRESSION_RETURN_MAPS: Record<string, { mapId: string; label: string }[]> = {
+  brightstone_cove: [{ mapId: 'm20_26', label: '古龙回忆 3D 地图' }],
+};

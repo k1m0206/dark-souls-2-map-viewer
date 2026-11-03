@@ -232,9 +232,15 @@ export function evaluateEndingStatus(progress: UserProgress) {
     ['bg_c7', 'uc_aldia_dialogue', 'ds_c1'].every(id => progress.completedChecklists.includes(id));
   const hasAldiaBoss = progress.defeatedBosses.includes('aldia_boss');
 
-  const canGetEndingInherit = hasThroneDuo && hasNashandra;
+  const hasThroneVictories = hasThroneDuo && hasNashandra;
+  // Saved progress cannot establish whether Vendrick/dialogues preceded Nashandra.
+  // Ask the player to finish/confirm a possible Aldia encounter before calling the throne ready.
+  const needsAldiaConfirmation = hasThroneVictories && hasVendrick && hasAldiaDialogues && !hasAldiaBoss;
+  const canGetEndingInherit = hasThroneVictories && !needsAldiaConfirmation;
   // Defeating Aldia is itself evidence that his dialogue and Vendrick prerequisites were met.
-  const canGetEndingLeave = canGetEndingInherit && hasAldiaBoss;
+  const canGetEndingLeave = hasThroneVictories && hasAldiaBoss;
+  const hasSelectedEndingInherit = progress.completedChecklists.includes('end1_c2');
+  const hasSelectedEndingLeave = progress.completedChecklists.includes('end2_c4');
   const hasFourCrowns = ['dlc1_crown', 'dlc2_crown', 'dlc3_crown', 'km_king_crown']
     .every(id => progress.obtainedItems.includes(id));
   // Owning the crowns alone does not grant the blessing: confirm Vendrick's dialogue too.
@@ -243,6 +249,9 @@ export function evaluateEndingStatus(progress: UserProgress) {
   return {
     canGetEndingInherit,
     canGetEndingLeave,
+    hasSelectedEndingInherit,
+    hasSelectedEndingLeave,
+    needsAldiaConfirmation,
     canGetBlessing,
     hasVendrick,
     hasAldiaDialogues,

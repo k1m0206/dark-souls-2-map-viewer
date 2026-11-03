@@ -12,7 +12,7 @@ export default defineConfig(({ command }) => ({
   plugins: [
     react(),
     tailwindcss(),
-    miniappManifest(),
+    ...(process.env.BUILD_TARGET === 'web' ? [] : [miniappManifest()]),
     ...(command === 'serve' ? [{
       name: 'dev-runtime-gate-auto-unlock',
       enforce: 'post',

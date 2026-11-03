@@ -57,12 +57,23 @@ export const EndingsGuideModal: React.FC<EndingsGuideModalProps> = ({
             if (ending.id === 'ending_inherit') isEligible = status.canGetEndingInherit;
             if (ending.id === 'ending_leave') isEligible = status.canGetEndingLeave;
             if (ending.id === 'ending_crowns') isEligible = status.canGetBlessing;
+            const isSelected = ending.id === 'ending_inherit'
+              ? status.hasSelectedEndingInherit
+              : ending.id === 'ending_leave' && status.hasSelectedEndingLeave;
+            const isComplete = isSelected || (ending.id === 'ending_crowns' && status.canGetBlessing);
+            const isHighlighted = isEligible || isSelected;
+            const progressLabel = isComplete
+              ? ending.id === 'ending_crowns' ? '已取得四冠并确认祝福' : '已确认选择此结局'
+              : isEligible ? '战斗条件已满足，待选择结局'
+              : ending.id === 'ending_inherit' && status.needsAldiaConfirmation ? '需确认已触发的安第尔战斗'
+              : ending.id === 'ending_crowns' && status.hasFourCrowns ? '已集齐王冠，待确认国王祝福对话'
+              : '尚未完成所列步骤';
 
             return (
               <div
                 key={ending.id}
                 className={`p-5 rounded-2xl border transition-all ${
-                  isEligible
+                  isHighlighted
                     ? 'bg-amber-950/20 border-amber-600/70 shadow-lg shadow-amber-950/20'
                     : 'bg-stone-900/60 border-stone-800'
                 }`}
@@ -85,19 +96,19 @@ export const EndingsGuideModal: React.FC<EndingsGuideModalProps> = ({
                   </div>
 
                   <div className={`px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 self-start ${
-                    isEligible
+                    isHighlighted
                       ? 'bg-emerald-950/80 border border-emerald-500 text-emerald-300'
                       : 'bg-stone-800 border border-stone-700 text-stone-400'
                   }`}>
-                    {isEligible ? (
+                    {isHighlighted ? (
                       <>
                         <CheckCircle className="w-4 h-4 text-emerald-400" />
-                        <span>{ending.id === 'ending_crowns' ? '已取得四冠并确认祝福' : '已满足结局战斗条件'}</span>
+                        <span>{progressLabel}</span>
                       </>
                     ) : (
                       <>
                         <AlertCircle className="w-4 h-4 text-stone-500" />
-                        <span>{ending.id === 'ending_crowns' && status.hasFourCrowns ? '已集齐王冠，待确认国王祝福对话' : '尚未完成所列步骤'}</span>
+                        <span>{progressLabel}</span>
                       </>
                     )}
                   </div>

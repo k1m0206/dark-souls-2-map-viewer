@@ -24,6 +24,7 @@ function load(relative) {
 }
 const { MAP_NODES, NPC_QUESTLINES } = load('src/progression/data/soulsData.ts');
 const { calculateProgressStats, evaluateEndingStatus, getInitialProgress, normalizeProgress, filterMapNodes } = load('src/progression/utils/progressionLogic.ts');
+const { PROGRESSION_TO_3D_MAP_ID, PROGRESSION_RETURN_MAPS } = load('src/progression/data/mapNavigation.ts');
 
 test('Scholar collection checklist represents 12 distinct shards and 5 dusts', () => {
   const items = MAP_NODES.flatMap(n => n.keyItems);
@@ -90,4 +91,86 @@ test('Collecting four crowns alone does not mark Vendrick blessing complete', ()
   assert.equal(evaluateEndingStatus(progress).canGetBlessing, true);
   progress.obtainedItems.pop();
   assert.equal(evaluateEndingStatus(progress).canGetBlessing, false);
+});
+
+test('Every playable walkthrough node opens an existing physical map with the correct destination', () => {
+  const manifest = JSON.parse(readFileSync(resolve(root, 'public-lite/maps/manifest.json'), 'utf8'));
+  const mapIds = new Set(manifest.map(m => m.id));
+  const playable = MAP_NODES.filter(n => !n.id.startsWith('ending_'));
+  assert.deepEqual(Object.keys(PROGRESSION_TO_3D_MAP_ID).sort(), playable.map(n => n.id).sort());
+  for (const [nodeId, mapId] of Object.entries(PROGRESSION_TO_3D_MAP_ID)) {
+    assert.ok(mapIds.has(mapId), `${nodeId} targets missing map ${mapId}`);
+  }
+  // Semantic assertions catch destinations that exist but belong to the wrong area.
+  const expectedNames = {
+    undead_crypt: 'Undead Crypt', aldias_keep: "Aldia's Keep",
+    dragon_aerie: 'Dragon Aerie', dragon_shrine: 'Dragon Shrine',
+    dark_chasm_of_old: 'Dark Chasm', memories_of_ancients: 'Memory of the Giants',
+    kings_memory: 'Undead Crypt', dlc_shulva: 'Shulva',
+    dlc_brume_tower: 'Brume Tower', dlc_eleum_loyce: 'Eleum Loyce',
+  };
+  for (const [nodeId, name] of Object.entries(expectedNames)) {
+    const physical = manifest.find(m => m.id === PROGRESSION_TO_3D_MAP_ID[nodeId]);
+    assert.ok(physical.enName.includes(name), `${nodeId}: ${physical.enName}`);
+  }
+  for (const [nodeId, returns] of Object.entries(PROGRESSION_RETURN_MAPS)) {
+    assert.ok(MAP_NODES.some(n => n.id === nodeId));
+    for (const visit of returns) assert.ok(mapIds.has(visit.mapId));
+  }
+  const dragonMemory = PROGRESSION_RETURN_MAPS.brightstone_cove[0];
+  assert.match(manifest.find(m => m.id === dragonMemory.mapId).enName, /Dragon Memor/);
+});
+
+test('Expanded routes preserve legacy completions without auto-completing newly added exploration', () => {
+  const legacy = {
+    completedChecklists: ['tb_c2', 'hv_c3', 'bc_c5', 'moa_c4', 'dlc1_c4', 'dlc2_c4', 'dlc3_c3'],
+    completedMaps: ['earthen_peak', 'dlc_eleum_loyce'],
+    obtainedItems: ['bl_southern_ring', 'cob_ring', 'ik_dlc_key', 'moa_giant_souls'],
+    defeatedBosses: ['giant_lord', 'ava'],
+  };
+  const restored = normalizeProgress(legacy);
+  for (const key of Object.keys(legacy)) assert.deepEqual(restored[key], legacy[key]);
+  for (const newTask of ['ep_covetous', 'dlc1_cave_route', 'dlc2_iron_passage', 'dlc3_knight_inner', 'dlc3_lud_zallen']) {
+    assert.ok(MAP_NODES.some(n => n.checklists.some(t => t.id === newTask)));
+    assert.equal(restored.completedChecklists.includes(newTask), false);
+  }
+  assert.equal(restored.obtainedItems.includes('dlc3_garrison_key'), false);
+  assert.equal(calculateProgressStats(MAP_NODES, restored).completedChecklistsCount, legacy.completedChecklists.length);
+});
+
+test('NPC interaction identities and single-location quest steps match the tracker', () => {
+  const drummond = MAP_NODES.find(n => n.id === 'memories_of_ancients').npcInteractions.find(n => n.npcId === 'drummond');
+  assert.ok(drummond);
+  for (const quest of NPC_QUESTLINES) for (const node of MAP_NODES) {
+    const steps = quest.steps.filter(s => s.mapId === node.id);
+    if (steps.length !== 1) continue;
+    for (const interaction of node.npcInteractions.filter(n => n.npcId === quest.id)) {
+      assert.equal(interaction.stepNumber, steps[0].stepIndex, `${node.id}/${quest.id}`);
+      assert.equal(interaction.totalSteps, quest.steps.length, `${node.id}/${quest.id}`);
+    }
+  }
+});
+
+test('Ending readiness, a possible pending Aldia encounter, and an actual ending choice are separate', () => {
+  const progress = { ...getInitialProgress(), defeatedBosses: ['throne_duo', 'nashandra'] };
+  let status = evaluateEndingStatus(progress);
+  assert.equal(status.canGetEndingInherit, true);
+  assert.equal(status.hasSelectedEndingInherit, false);
+  assert.equal(status.hasSelectedEndingLeave, false);
+  progress.vendrickDefeated = true;
+  progress.completedChecklists = ['bg_c7', 'uc_aldia_dialogue', 'ds_c1'];
+  status = evaluateEndingStatus(progress);
+  assert.equal(status.needsAldiaConfirmation, true);
+  assert.equal(status.canGetEndingInherit, false);
+  assert.equal(status.canGetEndingLeave, false);
+  progress.defeatedBosses.push('aldia_boss');
+  status = evaluateEndingStatus(progress);
+  assert.equal(status.needsAldiaConfirmation, false);
+  assert.equal(status.canGetEndingInherit, true);
+  assert.equal(status.canGetEndingLeave, true);
+  assert.equal(status.hasSelectedEndingLeave, false);
+  progress.completedChecklists.push('end2_c4');
+  status = evaluateEndingStatus(progress);
+  assert.equal(status.hasSelectedEndingLeave, true);
+  assert.equal(status.hasSelectedEndingInherit, false);
 });

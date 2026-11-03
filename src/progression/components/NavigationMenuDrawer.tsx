@@ -21,7 +21,8 @@ import {
 } from 'lucide-react';
 import { RouteFilterType } from '../utils/progressionLogic';
 import { NPCId } from '../types/souls';
-import { NPC_QUESTLINES } from '../data/soulsData';
+import { MAP_NODES, NPC_QUESTLINES } from '../data/soulsData';
+import { DRANGLEIC_MERCHANTS } from '../data/merchantData';
 
 interface NavigationMenuDrawerProps {
   isOpen: boolean;
@@ -76,7 +77,7 @@ export const NavigationMenuDrawer: React.FC<NavigationMenuDrawerProps> = ({
   if (!isOpen) return null;
 
   const routeOptions: { id: RouteFilterType; label: string; desc: string; iconColor: string }[] = [
-    { id: 'all', label: '全部地图节点', desc: '完整展示38个区域全景关系网', iconColor: 'text-amber-400' },
+    { id: 'all', label: '全部地图节点', desc: `完整展示${MAP_NODES.length}个流程节点关系网`, iconColor: 'text-amber-400' },
     { id: 'golden_path', label: '推荐通关流程', desc: '按四古魂推进的常规探索路线，含推荐支路', iconColor: 'text-yellow-400' },
     { id: 'four_souls', label: '始源四巨魂', desc: '罪人/铁之王/腐败物/辉石镇分支', iconColor: 'text-orange-400' },
     { id: 'endings', label: '渴望王座结局', desc: '王座与安第尔双结局必由之路', iconColor: 'text-red-400' },
@@ -309,7 +310,7 @@ export const NavigationMenuDrawer: React.FC<NavigationMenuDrawerProps> = ({
                     <span>商人与法术</span>
                   </div>
                   <p className="text-[11px] text-stone-400 mt-1">
-                    全18位商人/法师/暗术与Boss魂换兵器
+                    全{DRANGLEIC_MERCHANTS.length}位商人/法师/暗术与Boss魂换兵器
                   </p>
                 </div>
                 <span className="text-[10px] text-amber-400 font-mono mt-2 group-hover:underline flex items-center gap-0.5 font-semibold">
@@ -351,7 +352,7 @@ export const NavigationMenuDrawer: React.FC<NavigationMenuDrawerProps> = ({
                     <span>NPC支线</span>
                   </div>
                   <p className="text-[11px] text-stone-400 mt-1">
-                    全11位NPC相遇与关键触发点
+                    全{NPC_QUESTLINES.length}条NPC支线相遇与关键触发点
                   </p>
                 </div>
                 <span className="text-[10px] text-amber-400/80 font-mono mt-2 group-hover:underline flex items-center gap-0.5">

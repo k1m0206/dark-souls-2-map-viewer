@@ -469,8 +469,8 @@ export const DRANGLEIC_MERCHANTS: MerchantNPC[] = [
     locationName: '狩猎森林入口 (如蜜往狩猎森林阴暗通道)',
     role: 'hexer',
     roleLabel: '暗术导师',
-    description: '孤坐在狩猎森林通道椅子上的暗术研究者。只有当玩家智力与信仰均达到8点或以上时才会搭理；当智力与信仰双双达到20点时，更会赠予魂2全期毕业级暗术神杖【日暮之杖】与日暮套装！',
-    condition: '玩家智力(INT)与信仰(FTH)均需达到 8 点或以上！',
+    description: '入口洞道中的暗术导师。基础智力与信仰各至少8可交易，各至少20后对话赠送日暮之杖与暗术师套装；装备增加的属性不能代替这些基础属性要求。日暮之杖可保留作为纳瓦兰任务信物。',
+    condition: '基础智力(INT)与信仰(FTH)各至少8；赠礼需各至少20。',
     items: [
       {
         id: 'fel_dark_orb',
@@ -527,10 +527,10 @@ export const DRANGLEIC_MERCHANTS: MerchantNPC[] = [
       },
       {
         id: 'fel_sunset_staff',
-        name: '日暮之杖 + 日暮套装 (双20属性赠送)',
+        name: '日暮之杖 + 暗术师套装 (基础智信各20赠送)',
         nameEn: 'Sunset Staff & Hexer Set',
         category: 'weapon_shield',
-        price: '0 (智力20且信仰20对话赠送)',
+        price: '0 (基础智力20且信仰20，对话赠送)',
         quantity: '1',
         requirement: '智力 22 / 信仰 18',
         isKeyMustBuy: true,
@@ -709,7 +709,7 @@ export const DRANGLEIC_MERCHANTS: MerchantNPC[] = [
         name: '不死灵庙黑剑 (特大剑 / 冰棒)',
         nameEn: 'Crypt Blacksword',
         category: 'weapon_shield',
-        price: '不死灵庙Boss【腐败物添火掉落死者之王魂】 + 10,000 魂',
+        price: '黑溪谷腐败物在营火强度2及以上掉落的【死者之王魂】 + 10,000 魂',
         quantity: '1',
         requirement: '力气 40 / 敏捷 10 / 智力 12 / 信仰 12',
         isBossTransposition: true,
@@ -731,7 +731,7 @@ export const DRANGLEIC_MERCHANTS: MerchantNPC[] = [
         name: '猎龙大弓',
         nameEn: 'Dragonslayer Greatbow',
         category: 'weapon_shield',
-        price: '熔铁城Boss【古龙之魂 / 铁之古王魂】 + 10,000 魂',
+        price: '镕铁城铁之古王在营火强度2及以上掉落的【古王魂（Old King Soul）】 + 10,000 魂',
         quantity: '1',
         requirement: '力气 30 / 敏捷 20',
         isBossTransposition: true,
@@ -739,12 +739,12 @@ export const DRANGLEIC_MERCHANTS: MerchantNPC[] = [
       },
       {
         id: 'orni_arrows_infinite',
-        name: '各类火焰箭 / 雷箭 / 毒箭 / 破坏大箭',
-        nameEn: 'Elemental & Great Arrows',
+        name: '火箭 / 火弩箭',
+        nameEn: 'Fire Arrow / Fire Bolt',
         category: 'consumable',
-        price: '60 - 180 魂',
+        price: '火箭60魂 / 火弩箭80魂',
         quantity: '无限',
-        notes: '辉石镇下层工坊无限供应各种元素箭矢与大箭。'
+        notes: '欧尼佛斯供应火箭和火弩箭；毒箭请到法洛斯门径找噶瓦兰购买。'
       }
     ]
   },
@@ -756,8 +756,8 @@ export const DRANGLEIC_MERCHANTS: MerchantNPC[] = [
     locationName: '遗忘囚笼 (麦道夫工房)',
     role: 'blacksmith',
     roleLabel: '全属性质变大师',
-    description: '蹲坐在宝箱上的老铁匠，嘴里念叨着「火啊，快给我将熄之火」。通过炸开牢房墙壁或使用守卫钥匙进入。只有将熔铁城拾取的【将熄余烬】交付给他后，他才会离开箱子开始为玩家进行全属性质变！',
-    condition: '需交付熔铁城宝箱中的【将熄余烬】(Dull Ember)',
+    description: '遗忘囚笼的质变铁匠。学者版将熄余烬在离塔营火旁房间宝箱，交付后解锁质变；点亮工房灯台并休息刷新可让他离开所坐宝箱，二者不是同一条件。',
+    condition: '将学者版遗忘囚笼离塔宝箱中的【将熄余烬】交给他。',
     items: [
       {
         id: 'mcduff_infusion_service',
@@ -1646,7 +1646,7 @@ export const DRANGLEIC_MERCHANTS: MerchantNPC[] = [
     role: 'covenant',
     roleLabel: '深渊誓约 & 添火商人',
     description: '端坐于轮椅上的失明盲眼长者，引导受深渊吸引的不死人进入三大古老暗穴，探索纯粹黑暗并迎战全游戏难度最高的隐藏Boss【黑暗潜伏者 (暗天使)】。',
-    condition: '在虚影森林、黑溪谷、王都地下室三处全部对话后正式开启誓约；每次进入暗穴需消耗1个人像。',
+    condition: '三处会面后加入暗之巡礼者；首次开启免费，此后重新开启通常需1个人像，击败暗天使后本周目免费。',
     inventoryType: 'spells',
     accentColor: '#581c87',
     items: [
